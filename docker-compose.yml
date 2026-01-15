@@ -1,0 +1,31 @@
+services:
+  web:
+    build: .
+    ports:
+      - "1805:1805"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-change-this-in-production
+    command: python manage.py runserver 0.0.0.0:1805
+
+  web-prod:
+    build: .
+    ports:
+      - "1805:1805"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - DEBUG=0
+      - SECRET_KEY=${SECRET_KEY}
+    command: gunicorn --bind 0.0.0.0:1805 fct.wsgi:application
+    profiles:
+      - prod
+
+volumes:
+  static_volume:
+  media_volume:

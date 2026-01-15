@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+staticfiles/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.docker/
+
+# Misc
+.env
+.env.*
+*.md
+.DS_Store
+Thumbs.db

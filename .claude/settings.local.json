@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo:*)",
+      "Bash(del \"\\\\?\\\\%cd%\\\\nul\")",
+      "Bash(cmd.exe /c \"cd /d c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer && del /f \"\"\\\\?\\\\c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\nul\"\"\")",
+      "Bash(powershell.exe -Command \"Remove-Item -LiteralPath ''\\\\?\\\\c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\nul'' -Force\")",
+      "Bash(git add:*)",
+      "Bash(git reset:*)"
+    ]
+  }
+}
