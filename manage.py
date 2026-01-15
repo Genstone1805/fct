@@ -11,7 +11,7 @@ def main():
         from django.core.management import execute_from_command_line
 
         if "runserver" in sys.argv:
-            sys.argv = ["manage.py", "runserver", "0.0.0.0:8001"]
+            sys.argv = ["manage.py", "runserver", "0.0.0.0:1805"]
 
     except ImportError as exc:
         raise ImportError(
