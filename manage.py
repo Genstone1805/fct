@@ -9,6 +9,10 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fct.settings')
     try:
         from django.core.management import execute_from_command_line
+
+        if "runserver" in sys.argv:
+            sys.argv = ["manage.py", "runserver", "0.0.0.0:8001"]
+
     except ImportError as exc:
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "
