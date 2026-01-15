@@ -1,20 +1,34 @@
 from rest_framework import serializers
 from routes.models import VehicleOption, RouteFAQ, RouteDetail
 
+
 class CreateVehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = VehicleOption
         fields = ['id', 'route', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
+
 
 class CreateRouteFAQSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteFAQ
         fields = ['id', 'route', 'question', 'answer']
 
-class CreateRouteSerializer(serializers.ModelSerializer):
-    vehicle_options = serializers.SerializerMethodField()
-    faq = serializers.SerializerMethodField()
 
+class NestedVehicleSerializer(serializers.ModelSerializer):
+    """Serializer for vehicle options when nested in route response."""
+    class Meta:
+        model = VehicleOption
+        fields = ['id', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
+
+
+class NestedFAQSerializer(serializers.ModelSerializer):
+    """Serializer for FAQs when nested in route response."""
+    class Meta:
+        model = RouteFAQ
+        fields = ['id', 'question', 'answer']
+
+
+class CreateRouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteDetail
         fields = [
@@ -36,8 +50,6 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'whats_included',
             'destination_highlights',
             'ideal_for',
-            'vehicle_options',
-            'faq',
             'image',
             'book_href',
             'book_cta_label',
@@ -45,10 +57,13 @@ class CreateRouteSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['booking_route_id', 'slug']
 
-    def get_vehicle_options(self, obj):
-        options = VehicleOption.objects.filter(route=obj)
-        return CreateVehicleSerializer(options, many=True).data
-
-    def get_faq(self, obj):
-        faqs = RouteFAQ.objects.filter(route=obj)
-        return CreateRouteFAQSerializer(faqs, many=True).data
+    def to_representation(self, instance):
+        """Include nested vehicle options and FAQs in the response."""
+        rep = super().to_representation(instance)
+        rep['vehicle_options'] = NestedVehicleSerializer(
+            instance.vehicle_options.all(), many=True
+        ).data
+        rep['faq'] = NestedFAQSerializer(
+            instance.faq.all(), many=True
+        ).data
+        return rep
