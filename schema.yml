@@ -3,101 +3,106 @@ info:
   title: ''
   version: 0.0.0
 paths:
-  /api/admin/faq/create/:
+  /account/login/:
     post:
-      operationId: api_admin_faq_create_create
-      description: Create a new FAQ for a route.
+      operationId: account_login_create
       tags:
-      - api
+      - account
       requestBody:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CreateRouteFAQ'
+              $ref: '#/components/schemas/Login'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CreateRouteFAQ'
+              $ref: '#/components/schemas/Login'
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateRouteFAQ'
+              $ref: '#/components/schemas/Login'
         required: true
       security:
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateRouteFAQ'
-          description: ''
-  /api/admin/routes/:
-    get:
-      operationId: api_admin_routes_list
-      description: List all routes for dropdown selection.
-      tags:
-      - api
-      security:
+      - cookieAuth: []
+      - basicAuth: []
       - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CreateRoute'
+                $ref: '#/components/schemas/UserProfile'
           description: ''
-  /api/admin/routes/create/:
+  /account/password-reset/request/:
     post:
-      operationId: api_admin_routes_create_create
-      description: Create a new route detail with optional nested vehicle options
-        and FAQs.
+      operationId: account_password_reset_request_create
       tags:
-      - api
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CreateRoute'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CreateRoute'
-        required: true
-      security:
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateRoute'
-          description: ''
-  /api/admin/vehicle-options/create/:
-    post:
-      operationId: api_admin_vehicle_options_create_create
-      description: Create a new vehicle option for a route.
-      tags:
-      - api
+      - account
       requestBody:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CreateVehicle'
+              $ref: '#/components/schemas/RequestPasswordReset'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CreateVehicle'
+              $ref: '#/components/schemas/RequestPasswordReset'
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateVehicle'
+              $ref: '#/components/schemas/RequestPasswordReset'
         required: true
       security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /account/password-reset/verify/:
+    post:
+      operationId: account_password_reset_verify_create
+      tags:
+      - account
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyResetCode'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyResetCode'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyResetCode'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /account/signup/:
+    post:
+      operationId: account_signup_create
+      tags:
+      - account
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignUp'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignUp'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
       - {}
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateVehicle'
+                $ref: '#/components/schemas/UserProfile'
           description: ''
   /booking/create/:
     post:
@@ -127,9 +132,105 @@ paths:
               schema:
                 $ref: '#/components/schemas/BookingCreate'
           description: ''
-  /download-doc/:
+  /control/faq/create/:
+    post:
+      operationId: control_faq_create_create
+      description: Create a new FAQ for a route.
+      tags:
+      - control
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateRouteFAQ'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateRouteFAQ'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRouteFAQ'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRouteFAQ'
+          description: ''
+  /control/routes/:
     get:
-      operationId: download_doc_retrieve
+      operationId: control_routes_list
+      description: List all routes for dropdown selection.
+      tags:
+      - control
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateRoute'
+          description: ''
+  /control/routes/create/:
+    post:
+      operationId: control_routes_create_create
+      description: Create a new route detail with optional nested vehicle options
+        and FAQs.
+      tags:
+      - control
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateRoute'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateRoute'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRoute'
+          description: ''
+  /control/vehicle-options/create/:
+    post:
+      operationId: control_vehicle_options_create_create
+      description: Create a new vehicle option for a route.
+      tags:
+      - control
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateVehicle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateVehicle'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicle'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVehicle'
+          description: ''
+  /download-docs/:
+    get:
+      operationId: download_docs_retrieve
       description: |-
         OpenApi3 schema for this API. Format can be selected via content negotiation.
 
@@ -249,7 +350,7 @@ paths:
           - zh-hans
           - zh-hant
       tags:
-      - download-doc
+      - download-docs
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -274,6 +375,171 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /drivers/:
+    get:
+      operationId: drivers_list
+      description: |-
+        ViewSet for CRUD operations on Driver model.
+        Requires 'drivers' permission or admin access.
+      tags:
+      - drivers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+          description: ''
+    post:
+      operationId: drivers_create
+      description: |-
+        ViewSet for CRUD operations on Driver model.
+        Requires 'drivers' permission or admin access.
+      tags:
+      - drivers
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Driver'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Driver'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Driver'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+  /drivers/{id}/:
+    get:
+      operationId: drivers_retrieve
+      description: |-
+        ViewSet for CRUD operations on Driver model.
+        Requires 'drivers' permission or admin access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Driver.
+        required: true
+      tags:
+      - drivers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+    put:
+      operationId: drivers_update
+      description: |-
+        ViewSet for CRUD operations on Driver model.
+        Requires 'drivers' permission or admin access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Driver.
+        required: true
+      tags:
+      - drivers
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Driver'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Driver'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Driver'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+    patch:
+      operationId: drivers_partial_update
+      description: |-
+        ViewSet for CRUD operations on Driver model.
+        Requires 'drivers' permission or admin access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Driver.
+        required: true
+      tags:
+      - drivers
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDriver'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDriver'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDriver'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+    delete:
+      operationId: drivers_destroy
+      description: |-
+        ViewSet for CRUD operations on Driver model.
+        Requires 'drivers' permission or admin access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Driver.
+        required: true
+      tags:
+      - drivers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
   /routes/:
     get:
       operationId: routes_list
@@ -464,6 +730,55 @@ components:
       - max_passengers
       - route
       - vehicle_type
+    Driver:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          maxLength: 20
+        license_number:
+          type: string
+          maxLength: 50
+        profile_picture:
+          type: string
+          format: uri
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - date_joined
+      - email
+      - full_name
+      - id
+      - license_number
+      - phone_number
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
     LuggageEnum:
       enum:
       - Hand luggage only
@@ -496,6 +811,36 @@ components:
       - email_address
       - full_name
       - phone_number
+    PatchedDriver:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          maxLength: 20
+        license_number:
+          type: string
+          maxLength: 50
+        profile_picture:
+          type: string
+          format: uri
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
     PaymentTypeEnum:
       enum:
       - Pending
@@ -506,6 +851,26 @@ components:
         * `Pending` - Pending
         * `Processing` - Processing
         * `Completed` - Completed
+    PermissionsEnum:
+      enum:
+      - booking
+      - drivers
+      - routes
+      - adminUsers
+      type: string
+      description: |-
+        * `booking` - booking
+        * `drivers` - drivers
+        * `routes` - routes
+        * `adminUsers` - adminUsers
+    RequestPasswordReset:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
     RouteList:
       type: object
       properties:
@@ -592,6 +957,39 @@ components:
       - to_location
       - van_price
       - vehicle_options
+    SignUp:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 128
+        dp:
+          type: string
+          format: uri
+        full_name:
+          type: string
+          maxLength: 80
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsEnum'
+      required:
+      - email
+    StatusEnum:
+      enum:
+      - Available
+      - On Trip
+      - Off Duty
+      type: string
+      description: |-
+        * `Available` - Available
+        * `On Trip` - On Trip
+        * `Off Duty` - Off Duty
     TimePeriodEnum:
       enum:
       - Day Tariff
@@ -630,6 +1028,37 @@ components:
       description: |-
         * `One Way` - One Way
         * `Return` - Return
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 128
+        dp:
+          type: string
+          format: uri
+        full_name:
+          type: string
+          maxLength: 80
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        user_permissions: {}
+        is_staff:
+          type: boolean
+      required:
+      - date_joined
+      - email
+      - id
     VehicleTypeEnum:
       enum:
       - Standard Car
@@ -638,6 +1067,18 @@ components:
       description: |-
         * `Standard Car` - Standard Car
         * `Minivan` - Minivan
+    VerifyResetCode:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+          maxLength: 6
+      required:
+      - code
+      - email
   securitySchemes:
     basicAuth:
       type: http

@@ -7,9 +7,12 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('account/', include("account.urls")),
     path('routes/', include("routes.urls")),
     path('control/', include("admin.urls")),
     path('booking/', include("booking.urls")),
+    path('drivers/', include("driver.urls")),
+    path('account/', include("account.urls")),
     path('manage/', TemplateView.as_view(template_name='admin/dashboard.html'), name='admin-dashboard'),
     
     # YOUR PATTERNS

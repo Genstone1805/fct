@@ -41,13 +41,17 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
+    'rest_framework_simplejwt',
     "corsheaders",
     'drf_spectacular',
+    'phonenumber_field',
 
     # Apps
+    'account',
+    'admin',
     'routes',
-    'admin.apps.AdminConfig',
     'booking',
+    'driver',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +66,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'fct.urls'
+AUTH_USER_MODEL = 'account.UserProfile'
 
 TEMPLATES = [
     {
@@ -138,6 +143,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 
     'DEFAULT_RENDERER_CLASSES': (
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -152,6 +160,29 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+
+
+EMAIL_FROM = os.environ.get('AUTHEMAIL_DEFAULT_EMAIL_FROM') or 'gusanujoshua39@gmail.com'
+EMAIL_BCC = os.environ.get('AUTHEMAIL_DEFAULT_EMAIL_BCC') or 'gusanujoshua39@gmail.com'
+
+EMAIL_HOST = os.environ.get('AUTHEMAIL_EMAIL_HOST') or 'smtp.gmail.com'
+EMAIL_PORT = os.environ.get('AUTHEMAIL_EMAIL_PORT') or 587
+EMAIL_HOST_USER = os.environ.get('AUTHEMAIL_EMAIL_HOST_USER') or 'gusanujoshua39@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('AUTHEMAIL_EMAIL_HOST_PASSWORD') or 'gelm uqlv fqoh kgjn'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

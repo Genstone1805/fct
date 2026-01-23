@@ -6,7 +6,13 @@
       "Bash(cmd.exe /c \"cd /d c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer && del /f \"\"\\\\?\\\\c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\nul\"\"\")",
       "Bash(powershell.exe -Command \"Remove-Item -LiteralPath ''\\\\?\\\\c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\nul'' -Force\")",
       "Bash(git add:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations account)",
+      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py migrate)",
+      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py startapp driver)",
+      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations:*)",
+      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\pip.exe\" install:*)"
     ]
   }
 }

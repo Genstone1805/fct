@@ -62,7 +62,7 @@ class Route(models.Model):
 
     distance = models.CharField(max_length=50)
     time = models.CharField(max_length=50)
-    sedan_price = models.IntegerField(max_length=50)
+    sedan_price = models.IntegerField()
     van_price = models.IntegerField()
 
     what_makes_better = models.JSONField(default=list, blank=True)
