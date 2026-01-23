@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # Apps
     'routes',
     'admin.apps.AdminConfig',
+    'booking',
 ]
 
 MIDDLEWARE = [

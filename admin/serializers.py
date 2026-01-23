@@ -40,7 +40,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'meta_title',
             'meta_description',
             'hero_title',
-            'subheadline',
+            'sub_headline',
             'body',
             'distance',
             'time',
@@ -51,7 +51,6 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'destination_highlights',
             'ideal_for',
             'image',
-            'book_href',
             'book_cta_label',
             'book_cta_support',
         ]

@@ -56,14 +56,14 @@ class Route(models.Model):
     meta_description = models.TextField()
 
     hero_title = models.CharField(max_length=300)
-    subheadline = models.CharField(max_length=500)
+    sub_headline = models.CharField(max_length=500)
 
     body = models.TextField()
 
     distance = models.CharField(max_length=50)
     time = models.CharField(max_length=50)
-    sedan_price = models.CharField(max_length=50)
-    van_price = models.CharField(max_length=50)
+    sedan_price = models.IntegerField(max_length=50)
+    van_price = models.IntegerField()
 
     what_makes_better = models.JSONField(default=list, blank=True)
     whats_included = models.JSONField(default=list)
@@ -74,7 +74,6 @@ class Route(models.Model):
     # faq: accessed via reverse FK (RouteFAQ.route)
 
     image = models.ImageField(upload_to="Route Images")
-    book_href = models.CharField(max_length=500)
     book_cta_label = models.CharField(max_length=100)
     book_cta_support = models.CharField(max_length=200)
 
@@ -85,7 +84,7 @@ class Route(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(f"{self.from_location}-{self.to_location}")
-
+            
         generate_booking_id = not self.booking_route_id
         super().save(*args, **kwargs)
 

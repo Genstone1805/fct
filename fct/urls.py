@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('routes/', include("routes.urls")),
     path('api/admin/', include("admin.urls")),
+    path('booking/', include("booking.urls")),
     path('manage/', TemplateView.as_view(template_name='admin/dashboard.html'), name='admin-dashboard'),
 ]
 

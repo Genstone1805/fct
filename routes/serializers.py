@@ -5,7 +5,7 @@ from .models import Vehicle, RouteFAQ, Route
 class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
+        fields = ['id', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
 
 class RouteFAQSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,7 +26,7 @@ class RouteListSerializer(serializers.ModelSerializer):
             'meta_title',
             'meta_description',
             'hero_title',
-            'subheadline',
+            'sub_headline',
             'body',
             'distance',
             'time',
@@ -39,7 +39,6 @@ class RouteListSerializer(serializers.ModelSerializer):
             'vehicle_options',
             'faq',
             'image',
-            'book_href',
             'book_cta_label',
             'book_cta_support',
         ]

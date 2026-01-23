@@ -44,12 +44,12 @@ class Booking(models.Model):
   ]
 
 
+  route = models.ForeignKey(Route, on_delete=models.CASCADE)
+  vehicle= models.ForeignKey(Vehicle, on_delete=models.CASCADE)
   status = models.CharField(choices=PAYMENT_CHOICES, max_length=15 )
   payment_type = models.CharField(choices=PAYMENT_CHOICES, max_length=15 )
-  trip_type = models.CharField(choices=TRIP_TYPE_CHOICES, max_length=15 )
-  route = models.ForeignKey(Route, on_delete=models.CASCADE)
   payment_id = models.CharField(max_length=25, null=True, blank=True)
-  vehicle_type= models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+  trip_type = models.CharField(choices=TRIP_TYPE_CHOICES, max_length=15 )
   pickup_date = models.DateField()
   pickup_time = models.TimeField()
   time_period = models.CharField(choices=TIME_PERIOD_CHOICES, max_length=15 )
