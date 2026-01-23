@@ -21,7 +21,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Collect static files
+RUN python manage.py makemigrations
+RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
+RUN python manage.py spectacular --color --file schema.yml
 
 # Expose port
 EXPOSE 1805

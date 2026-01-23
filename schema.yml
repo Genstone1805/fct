@@ -1,0 +1,648 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/admin/faq/create/:
+    post:
+      operationId: api_admin_faq_create_create
+      description: Create a new FAQ for a route.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateRouteFAQ'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateRouteFAQ'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRouteFAQ'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRouteFAQ'
+          description: ''
+  /api/admin/routes/:
+    get:
+      operationId: api_admin_routes_list
+      description: List all routes for dropdown selection.
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateRoute'
+          description: ''
+  /api/admin/routes/create/:
+    post:
+      operationId: api_admin_routes_create_create
+      description: Create a new route detail with optional nested vehicle options
+        and FAQs.
+      tags:
+      - api
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateRoute'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateRoute'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRoute'
+          description: ''
+  /api/admin/vehicle-options/create/:
+    post:
+      operationId: api_admin_vehicle_options_create_create
+      description: Create a new vehicle option for a route.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateVehicle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateVehicle'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicle'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVehicle'
+          description: ''
+  /booking/create/:
+    post:
+      operationId: booking_create_create
+      tags:
+      - booking
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingCreate'
+          description: ''
+  /download-doc/:
+    get:
+      operationId: download_doc_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - download-doc
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /routes/:
+    get:
+      operationId: routes_list
+      tags:
+      - routes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RouteList'
+          description: ''
+components:
+  schemas:
+    BookingCreate:
+      type: object
+      properties:
+        route:
+          type: integer
+        vehicle:
+          type: integer
+        payment_type:
+          $ref: '#/components/schemas/PaymentTypeEnum'
+        trip_type:
+          $ref: '#/components/schemas/TripTypeEnum'
+        pickup_date:
+          type: string
+          format: date
+        pickup_time:
+          type: string
+          format: time
+        time_period:
+          $ref: '#/components/schemas/TimePeriodEnum'
+        return_date:
+          type: string
+          format: date
+          nullable: true
+        return_time:
+          type: string
+          format: time
+          nullable: true
+        transfer_information:
+          $ref: '#/components/schemas/TransferInformation'
+        passenger_information:
+          $ref: '#/components/schemas/PassengerDetail'
+      required:
+      - passenger_information
+      - payment_type
+      - pickup_date
+      - pickup_time
+      - route
+      - time_period
+      - transfer_information
+      - trip_type
+      - vehicle
+    CreateRoute:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        booking_route_id:
+          type: string
+          readOnly: true
+          nullable: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        from_location:
+          type: string
+          title: From
+          maxLength: 200
+        to_location:
+          type: string
+          title: To
+          maxLength: 200
+        meta_title:
+          type: string
+          maxLength: 200
+        meta_description:
+          type: string
+        hero_title:
+          type: string
+          maxLength: 300
+        sub_headline:
+          type: string
+          maxLength: 500
+        body:
+          type: string
+        distance:
+          type: string
+          maxLength: 50
+        time:
+          type: string
+          maxLength: 50
+        sedan_price:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        van_price:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        what_makes_better: {}
+        whats_included: {}
+        destination_highlights: {}
+        ideal_for: {}
+        image:
+          type: string
+          format: uri
+        book_cta_label:
+          type: string
+          maxLength: 100
+        book_cta_support:
+          type: string
+          maxLength: 200
+      required:
+      - body
+      - book_cta_label
+      - book_cta_support
+      - booking_route_id
+      - distance
+      - from_location
+      - hero_title
+      - id
+      - image
+      - meta_description
+      - meta_title
+      - sedan_price
+      - slug
+      - sub_headline
+      - time
+      - to_location
+      - van_price
+    CreateRouteFAQ:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        route:
+          type: integer
+        question:
+          type: string
+          maxLength: 500
+        answer:
+          type: string
+      required:
+      - answer
+      - id
+      - question
+      - route
+    CreateVehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        route:
+          type: integer
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        max_passengers:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        ideal_for:
+          type: string
+          maxLength: 200
+        fixed_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - fixed_price
+      - id
+      - ideal_for
+      - max_passengers
+      - route
+      - vehicle_type
+    LuggageEnum:
+      enum:
+      - Hand luggage only
+      - Medium (1–2 suitcases)
+      - Large (3–4 suitcases)
+      - Extra large (5+ suitcases)
+      type: string
+      description: |-
+        * `Hand luggage only` - Hand luggage only
+        * `Medium (1–2 suitcases)` - Medium (1–2 suitcases)
+        * `Large (3–4 suitcases)` - Large (3–4 suitcases)
+        * `Extra large (5+ suitcases)` - Extra large (5+ suitcases)
+    PassengerDetail:
+      type: object
+      properties:
+        full_name:
+          type: string
+          maxLength: 50
+        phone_number:
+          type: string
+          maxLength: 50
+        email_address:
+          type: string
+          format: email
+          maxLength: 30
+        additional_information:
+          type: string
+          nullable: true
+      required:
+      - email_address
+      - full_name
+      - phone_number
+    PaymentTypeEnum:
+      enum:
+      - Pending
+      - Processing
+      - Completed
+      type: string
+      description: |-
+        * `Pending` - Pending
+        * `Processing` - Processing
+        * `Completed` - Completed
+    RouteList:
+      type: object
+      properties:
+        booking_route_id:
+          type: string
+          readOnly: true
+          nullable: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        from_location:
+          type: string
+          title: From
+          maxLength: 200
+        to_location:
+          type: string
+          title: To
+          maxLength: 200
+        meta_title:
+          type: string
+          maxLength: 200
+        meta_description:
+          type: string
+        hero_title:
+          type: string
+          maxLength: 300
+        sub_headline:
+          type: string
+          maxLength: 500
+        body:
+          type: string
+        distance:
+          type: string
+          maxLength: 50
+        time:
+          type: string
+          maxLength: 50
+        sedan_price:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        van_price:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        what_makes_better: {}
+        whats_included: {}
+        destination_highlights: {}
+        ideal_for: {}
+        vehicle_options:
+          type: string
+          readOnly: true
+        faq:
+          type: string
+          readOnly: true
+        image:
+          type: string
+          format: uri
+        book_cta_label:
+          type: string
+          maxLength: 100
+        book_cta_support:
+          type: string
+          maxLength: 200
+      required:
+      - body
+      - book_cta_label
+      - book_cta_support
+      - booking_route_id
+      - distance
+      - faq
+      - from_location
+      - hero_title
+      - image
+      - meta_description
+      - meta_title
+      - sedan_price
+      - slug
+      - sub_headline
+      - time
+      - to_location
+      - van_price
+      - vehicle_options
+    TimePeriodEnum:
+      enum:
+      - Day Tariff
+      - Night Tariff
+      type: string
+      description: |-
+        * `Day Tariff` - Day Tariff
+        * `Night Tariff` - Night Tariff
+    TransferInformation:
+      type: object
+      properties:
+        flight_number:
+          type: string
+          maxLength: 50
+        adults:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        children:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        luggage:
+          $ref: '#/components/schemas/LuggageEnum'
+      required:
+      - flight_number
+      - luggage
+    TripTypeEnum:
+      enum:
+      - One Way
+      - Return
+      type: string
+      description: |-
+        * `One Way` - One Way
+        * `Return` - Return
+    VehicleTypeEnum:
+      enum:
+      - Standard Car
+      - Minivan
+      type: string
+      description: |-
+        * `Standard Car` - Standard Car
+        * `Minivan` - Minivan
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

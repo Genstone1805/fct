@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     "corsheaders",
+    'drf_spectacular',
 
     # Apps
     'routes',
@@ -148,6 +149,7 @@ REST_FRAMEWORK = {
         'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
