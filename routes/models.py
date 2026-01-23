@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.text import slugify
 
 
-class VehicleOption(models.Model):
+class Vehicle(models.Model):
     VEHICLE_TYPE = [
         ("Standard Car", "Standard Car"),
         ("Minivan","Minivan")
     ]
     route = models.ForeignKey(
-        'RouteDetail',
+        'Route',
         on_delete=models.CASCADE,
         related_name='vehicle_options'
     )
@@ -30,7 +30,7 @@ class VehicleOption(models.Model):
 
 class RouteFAQ(models.Model):
     route = models.ForeignKey(
-        'RouteDetail',
+        'Route',
         on_delete=models.CASCADE,
         related_name='faq'
     )
@@ -45,7 +45,7 @@ class RouteFAQ(models.Model):
         return self.question
 
 
-class RouteDetail(models.Model):
+class Route(models.Model):
     booking_route_id = models.CharField(max_length=100, blank=True, null=True)
 
     slug = models.SlugField(max_length=200, unique=True, blank=True)

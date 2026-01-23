@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from routes.models import VehicleOption, RouteFAQ, RouteDetail
+from routes.models import Vehicle, RouteFAQ, Route
 
 
 class CreateVehicleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = VehicleOption
+        model = Vehicle
         fields = ['id', 'route', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
 
 
@@ -17,7 +17,7 @@ class CreateRouteFAQSerializer(serializers.ModelSerializer):
 class NestedVehicleSerializer(serializers.ModelSerializer):
     """Serializer for vehicle options when nested in route response."""
     class Meta:
-        model = VehicleOption
+        model = Vehicle
         fields = ['id', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
 
 
@@ -30,7 +30,7 @@ class NestedFAQSerializer(serializers.ModelSerializer):
 
 class CreateRouteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RouteDetail
+        model = Route
         fields = [
             'id',
             'booking_route_id',

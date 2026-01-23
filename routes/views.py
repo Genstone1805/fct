@@ -1,9 +1,9 @@
 from rest_framework.generics import ListAPIView
 
-from .models import RouteDetail
-from .serializers import RouteDetailSerializer
+from .models import Route
+from .serializers import RouteListSerializer
 
 
 class RouteListView(ListAPIView):
-    queryset = RouteDetail.objects.all()
-    serializer_class = RouteDetailSerializer
+    queryset = Route.objects.all()
+    serializer_class = RouteListSerializer

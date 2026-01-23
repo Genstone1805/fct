@@ -2,13 +2,13 @@ import json
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
-from routes.models import VehicleOption, RouteFAQ, RouteDetail
+from routes.models import Vehicle, RouteFAQ, Route
 from .serializers import CreateVehicleSerializer, CreateRouteFAQSerializer, CreateRouteSerializer
 
 
-class CreateVehicleOptionView(CreateAPIView):
+class CreateVehicleView(CreateAPIView):
     """Create a new vehicle option for a route."""
-    queryset = VehicleOption.objects.all()
+    queryset = Vehicle.objects.all()
     serializer_class = CreateVehicleSerializer
     authentication_classes = []
     permission_classes = [AllowAny]
@@ -22,9 +22,9 @@ class CreateRouteFAQView(CreateAPIView):
     permission_classes = [AllowAny]
 
 
-class CreateRouteDetailView(CreateAPIView):
+class CreateRouteView(CreateAPIView):
     """Create a new route detail with optional nested vehicle options and FAQs."""
-    queryset = RouteDetail.objects.all()
+    queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
     authentication_classes = []
@@ -72,7 +72,7 @@ class CreateRouteDetailView(CreateAPIView):
 
         # Create vehicle options and attach the route
         for vehicle_data in self._vehicle_options_data:
-            VehicleOption.objects.create(
+            Vehicle.objects.create(
                 route=route,
                 vehicle_type=vehicle_data.get('vehicle_type'),
                 max_passengers=vehicle_data.get('max_passengers'),
@@ -91,7 +91,7 @@ class CreateRouteDetailView(CreateAPIView):
 
 class RouteListView(ListAPIView):
     """List all routes for dropdown selection."""
-    queryset = RouteDetail.objects.all()
+    queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
     authentication_classes = []
     permission_classes = [AllowAny]

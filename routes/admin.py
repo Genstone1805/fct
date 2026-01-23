@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import RouteFAQ, RouteDetail, VehicleOption
+from .models import RouteFAQ, Route, Vehicle
 
 admin.site.register(RouteFAQ)
-admin.site.register(RouteDetail)
-admin.site.register(VehicleOption)
+admin.site.register(Route)
+admin.site.register(Vehicle)

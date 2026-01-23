@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from .models import VehicleOption, RouteFAQ, RouteDetail
+from .models import Vehicle, RouteFAQ, Route
 
-class VehicleOptionSerializer(serializers.ModelSerializer):
+class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = VehicleOption
+        model = Vehicle
         fields = ['vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
 
 class RouteFAQSerializer(serializers.ModelSerializer):
@@ -12,12 +12,12 @@ class RouteFAQSerializer(serializers.ModelSerializer):
         model = RouteFAQ
         fields = ['question', 'answer']
 
-class RouteDetailSerializer(serializers.ModelSerializer):
+class RouteListSerializer(serializers.ModelSerializer):
     vehicle_options = serializers.SerializerMethodField()
     faq = serializers.SerializerMethodField()
 
     class Meta:
-        model = RouteDetail
+        model = Route
         fields = [
             'booking_route_id',
             'slug',
@@ -46,8 +46,8 @@ class RouteDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['booking_route_id', 'slug']
 
     def get_vehicle_options(self, obj):
-        options = VehicleOption.objects.filter(route=obj)
-        return VehicleOptionSerializer(options, many=True).data
+        options = Vehicle.objects.filter(route=obj)
+        return VehicleSerializer(options, many=True).data
 
     def get_faq(self, obj):
         faqs = RouteFAQ.objects.filter(route=obj)
