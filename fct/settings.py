@@ -208,8 +208,8 @@ LOGGING = {
             'style': '{',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
-        'request': {
-            'format': '[{asctime}] {levelname} | {method} {path} | Status: {status_code} | Duration: {duration}ms | IP: {ip} | User: {user}',
+        'simple': {
+            'format': '[{asctime}] {levelname} {message}',
             'style': '{',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
@@ -244,11 +244,15 @@ LOGGING = {
             'encoding': 'utf-8',
         },
     },
+    'root': {
+        'handlers': ['console', 'all_file'],
+        'level': 'INFO',
+    },
     'loggers': {
         'django': {
             'handlers': ['console', 'all_file'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'django.request': {
             'handlers': ['console', 'error_file', 'all_file'],
@@ -260,5 +264,40 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'print': {
+            'handlers': ['all_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
+
+
+# Redirect print statements to logging
+import sys
+import logging
+
+class LoggingWriter:
+    """Redirect stdout/stderr to logging."""
+    def __init__(self, logger, level, original_stream):
+        self.logger = logger
+        self.level = level
+        self.original_stream = original_stream
+        self.buffer = ''
+
+    def write(self, message):
+        # Write to original stream (console)
+        if self.original_stream:
+            self.original_stream.write(message)
+        # Log non-empty messages
+        if message and message.strip():
+            self.logger.log(self.level, message.strip())
+
+    def flush(self):
+        if self.original_stream:
+            self.original_stream.flush()
+
+# Set up print statement logging
+_print_logger = logging.getLogger('print')
+sys.stdout = LoggingWriter(_print_logger, logging.INFO, sys.__stdout__)
+sys.stderr = LoggingWriter(_print_logger, logging.ERROR, sys.__stderr__)
