@@ -3,7 +3,7 @@ import string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -18,6 +18,7 @@ from .serializers import (
     RequestPasswordResetSerializer,
     VerifyResetCodeSerializer,
     UserProfileSerializer,
+    UserUpdateSerializer,
 )
 
 
@@ -305,3 +306,42 @@ First Class Transfer Team
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserListView(generics.ListAPIView):
+    """List all users. Admin only."""
+    queryset = UserProfile.objects.all().order_by('-date_joined')
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAdminUser]
+
+    @extend_schema(responses={200: UserProfileSerializer(many=True)})
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update, or delete a user. Admin only."""
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_serializer_class(self):  # type: ignore[override]
+        if self.request.method in ['PUT', 'PATCH']:
+            return UserUpdateSerializer
+        return UserProfileSerializer
+
+    @extend_schema(responses={200: UserProfileSerializer})
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(request=UserUpdateSerializer, responses={200: UserProfileSerializer})
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @extend_schema(request=UserUpdateSerializer, responses={200: UserProfileSerializer})
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    @extend_schema(responses={204: None})
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)

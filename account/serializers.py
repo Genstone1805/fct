@@ -55,5 +55,29 @@ class VerifyResetCodeSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id', 'email', 'phone_number', 'dp', 'full_name', 'date_joined', 'user_permissions', 'is_staff']
+        fields = ['id', 'email', 'phone_number', 'dp', 'full_name', 'date_joined', 'user_permissions', 'is_staff', 'disabled', 'added_by']
         read_only_fields = ['id', 'date_joined']
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    permissions = serializers.ListField(
+        child=serializers.ChoiceField(choices=VALID_PERMISSIONS),
+        required=False,
+        source='user_permissions'
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = ['email', 'phone_number', 'dp', 'full_name', 'permissions', 'is_staff', 'disabled']
+
+    def validate_email(self, value):
+        instance = self.instance
+        if instance and UserProfile.objects.filter(email=value).exclude(pk=instance.pk).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def validate_phone_number(self, value):
+        instance = self.instance
+        if value and instance and UserProfile.objects.filter(phone_number=value).exclude(pk=instance.pk).exists():
+            raise serializers.ValidationError("A user with this phone number already exists.")
+        return value

@@ -5,6 +5,8 @@ from .views import (
     LoginView,
     RequestPasswordResetView,
     VerifyResetCodeView,
+    UserListView,
+    UserDetailView,
 )
 
 urlpatterns = [
@@ -13,4 +15,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('password-reset/request/', RequestPasswordResetView.as_view(), name='password-reset-request'),
     path('password-reset/verify/', VerifyResetCodeView.as_view(), name='password-reset-verify'),
+    path('users/', UserListView.as_view(), name='user-list'),
+    path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 ]
