@@ -87,6 +87,12 @@ class SignUpView(APIView):
                 user.dp = serializer.validated_data['dp']
 
             user.save()
+            
+            print("user details are")
+            print(user.full_name)
+            print(user.user_permissions)
+            
+            
 
             # Send email with credentials
             subject = "Welcome to First Class Transfer - Your Login Credentials"
@@ -122,6 +128,7 @@ First Class Transfer Team
             except Exception as e:
                 # Log the error but don't fail the registration
                 print(f"Failed to send email: {e}")
+                
 
             return Response(
                 {
