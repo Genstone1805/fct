@@ -53,10 +53,7 @@ class SignUpView(APIView):
     def post(self, request):
         user = request.user
         serializer = SignUpSerializer(data=request.data)
-        print(request.data)
-        print("...........................................")
         if serializer.is_valid():
-            print(serializer.validated_data)
             # Generate password
             generated_password = generate_password()
 
@@ -87,10 +84,7 @@ class SignUpView(APIView):
                 user.dp = serializer.validated_data['dp']
 
             user.save()
-            
-            print("user details are")
-            print(user.full_name)
-            print(user.user_permissions)
+           
             
             
 
@@ -133,7 +127,6 @@ First Class Transfer Team
             return Response(
                 {
                     "message": "Account created successfully. Your login credentials have been sent to your email.",
-                    "user": UserProfileSerializer(user).data
                 },
                 status=status.HTTP_201_CREATED
             )
