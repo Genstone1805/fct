@@ -1,5 +1,6 @@
 from django.db import models
-from routes.models import Route, Vehicle
+from routes.models import Route
+from vehicle.models import Vehicle
 from driver.models import Driver
 
 import secrets
@@ -33,6 +34,11 @@ class Booking(models.Model):
     ("One Way","One Way"),
     ("Return","Return")
   ]
+  
+  VEHICLE_TYPE = [
+        ("Standard Car", "Standard Car"),
+        ("Minivan","Minivan")
+    ]
 
   TIME_PERIOD_CHOICES = [
     ("Day Tariff","Day Tariff"),
@@ -61,8 +67,9 @@ class Booking(models.Model):
   booking_id = models.CharField(max_length=100, blank=True, null=True)
   route = models.ForeignKey(Route, on_delete=models.CASCADE)
   status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Pending")
-  vehicle= models.ForeignKey(Vehicle, on_delete=models.CASCADE)
-  payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15 )
+  price = models.PositiveIntegerField(default=1)
+  vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100, default="Standard Car")
+  payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15, default="Card" )
   payment_status = models.CharField(choices=PAYMENT_STATUS, max_length=15, default="Not Paid")
   payment_id = models.CharField(max_length=25, null=True, blank=True)
   trip_type = models.CharField(choices=TRIP_TYPE_CHOICES, max_length=15 )
@@ -71,6 +78,7 @@ class Booking(models.Model):
   time_period = models.CharField(choices=TIME_PERIOD_CHOICES, max_length=15 )
   return_date = models.DateField(null=True, blank=True)
   return_time = models.TimeField(null=True, blank=True)
+  vehicle= models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True, blank=True)
   driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True)
   transfer_information = models.ForeignKey(TransferInformation, on_delete=models.CASCADE)
   passenger_information = models.ForeignKey(PassengerDetail, on_delete=models.CASCADE)

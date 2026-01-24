@@ -12,6 +12,7 @@ urlpatterns = [
     path('control/', include("admin.urls")),
     path('booking/', include("booking.urls")),
     path('drivers/', include("driver.urls")),
+    path('vehicles/', include("vehicle.urls")),
     path('account/', include("account.urls")),
     
     # Templates

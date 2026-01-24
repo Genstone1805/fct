@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from .models import Booking, TransferInformation, PassengerDetail
-from routes.models import Route, Vehicle
+from routes.models import Route
+from vehicle.models import Vehicle
 from driver.models import Driver
 
 
@@ -33,7 +34,7 @@ class RouteListSerializer(serializers.ModelSerializer):
 class VehicleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['fixed_price', 'vehicle_type']
+        fields = ['license_plate', 'maker', 'model', 'type']
 
 
 class DriverListSerializer(serializers.ModelSerializer):
@@ -75,7 +76,7 @@ class RouteDetailSerializer(serializers.ModelSerializer):
 class VehicleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
+        fields = ['license_plate', 'maker', 'model', 'type', 'max_passengers', 'status']
 
 
 class DriverDetailSerializer(serializers.ModelSerializer):
@@ -168,5 +169,18 @@ class AssignDriverSerializer(serializers.ModelSerializer):
         if value and value.status != "Available":
             raise serializers.ValidationError(
                 f"Driver is currently '{value.status}'. Only available drivers can be assigned."
+            )
+        return value
+
+
+class AssignVehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ['vehicle']
+
+    def validate_vehicle(self, value):
+        if value and value.status != "Available":
+            raise serializers.ValidationError(
+                f"Vehicle is currently '{value.status}'. Only available vehicles can be assigned."
             )
         return value

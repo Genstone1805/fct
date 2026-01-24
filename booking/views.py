@@ -7,6 +7,7 @@ from .serializers import (
     BookingListSerializer,
     BookingDetailSerializer,
     AssignDriverSerializer,
+    AssignVehicleSerializer,
 )
 from .filters import BookingFilter
 
@@ -43,4 +44,11 @@ class AssignDriverView(UpdateAPIView):
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.all()
-    http_method_names = ['patch']
+
+
+class AssignVehicleView(UpdateAPIView):
+    serializer_class = AssignVehicleSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
+    queryset = Booking.objects.all()
