@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -44,12 +44,13 @@ def generate_code():
 
 class SignUpView(APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'adminUsers']
 
     @extend_schema(request=SignUpSerializer, responses={201: UserProfileSerializer})
     def post(self, request):
+        user = request.user
         serializer = SignUpSerializer(data=request.data)
         if serializer.is_valid():
             # Generate password
@@ -67,6 +68,7 @@ class SignUpView(APIView):
                 password=generated_password,
                 phone_number=serializer.validated_data.get('phone_number'),
                 full_name=serializer.validated_data.get('full_name', ''),
+                added_by = user.full_name
             )
 
             # Set permissions
