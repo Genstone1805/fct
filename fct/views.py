@@ -2,8 +2,6 @@ import os
 from django.conf import settings
 from django.http import HttpResponse
 from django.views import View
-from django.contrib.admin.views.decorators import staff_member_required
-from django.utils.decorators import method_decorator
 
 
 LOG_FILES = {
@@ -13,7 +11,6 @@ LOG_FILES = {
 }
 
 
-@method_decorator(staff_member_required, name='dispatch')
 class LogViewerView(View):
     """
     View to display log files in the browser.
