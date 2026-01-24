@@ -46,7 +46,7 @@ class RouteFAQ(models.Model):
 
 
 class Route(models.Model):
-    booking_route_id = models.CharField(max_length=100, blank=True, null=True)
+    route_id = models.CharField(max_length=100, blank=True, null=True)
 
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     from_location = models.CharField(max_length=200, verbose_name='From')
@@ -85,13 +85,13 @@ class Route(models.Model):
         if not self.slug:
             self.slug = slugify(f"{self.from_location}-{self.to_location}")
             
-        generate_booking_id = not self.booking_route_id
+        generate_booking_id = not self.route_id
         super().save(*args, **kwargs)
 
         if generate_booking_id:
             random_str = ''.join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(5))
-            self.booking_route_id = f"fct{random_str}{self.pk}"
-            super().save(update_fields=['booking_route_id'])
+            self.route_id = f"fct{random_str}{self.pk}"
+            super().save(update_fields=['route_id'])
 
     def __str__(self):
         return f"{self.from_location} → {self.to_location}"

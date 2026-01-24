@@ -19,7 +19,7 @@ class RouteListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = [
-            'booking_route_id',
+            'route_id',
             'slug',
             'from_location',
             'to_location',
@@ -42,7 +42,7 @@ class RouteListSerializer(serializers.ModelSerializer):
             'book_cta_label',
             'book_cta_support',
         ]
-        read_only_fields = ['booking_route_id', 'slug']
+        read_only_fields = ['route_id', 'slug']
 
     def get_vehicle_options(self, obj):
         options = Vehicle.objects.filter(route=obj)

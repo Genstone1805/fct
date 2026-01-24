@@ -12,7 +12,9 @@
       "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py migrate)",
       "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py startapp driver)",
       "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations:*)",
-      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\pip.exe\" install:*)"
+      "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\pip.exe\" install:*)",
+      "Bash(\"env/Scripts/python.exe\" manage.py makemigrations:*)",
+      "Bash(\"env/Scripts/python.exe\" manage.py migrate booking)"
     ]
   }
 }

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
+from rest_framework.permissions import AllowAny
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -43,6 +44,7 @@ def generate_code():
 
 class SignUpView(APIView):
     parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
 
     ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'adminUsers']
 
@@ -126,6 +128,8 @@ First Class Transfer Team
 
 
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+    
     @extend_schema(request=LoginSerializer, responses={200: UserProfileSerializer})
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -161,6 +165,8 @@ class LoginView(APIView):
 
 
 class RequestPasswordResetView(APIView):
+    permission_classes = [AllowAny]
+    
     @extend_schema(request=RequestPasswordResetSerializer)
     def post(self, request):
         serializer = RequestPasswordResetSerializer(data=request.data)
@@ -216,6 +222,8 @@ First Class Transfer Team
 
 
 class VerifyResetCodeView(APIView):
+    permission_classes = [AllowAny]
+    
     @extend_schema(request=VerifyResetCodeSerializer)
     def post(self, request):
         serializer = VerifyResetCodeSerializer(data=request.data)

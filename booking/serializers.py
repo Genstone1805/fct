@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from .models import Booking, TransferInformation, PassengerDetail
+from routes.models import Route, Vehicle
+from driver.models import Driver
 
 
 class TransferInformationSerializer(serializers.ModelSerializer):
@@ -13,6 +15,102 @@ class PassengerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = PassengerDetail
         fields = ['full_name', 'phone_number', 'email_address', 'additional_information']
+
+
+# Nested serializers for list view
+class PassengerListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PassengerDetail
+        fields = ['full_name', 'email_address']
+
+
+class RouteListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Route
+        fields = ['from_location', 'to_location']
+
+
+class VehicleListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = ['fixed_price', 'vehicle_type']
+
+
+class DriverListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Driver
+        fields = ['full_name']
+
+
+class BookingListSerializer(serializers.ModelSerializer):
+    passenger_information = PassengerListSerializer(read_only=True)
+    route = RouteListSerializer(read_only=True)
+    vehicle = VehicleListSerializer(read_only=True)
+    driver = DriverListSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            'booking_id',
+            'passenger_information',
+            'route',
+            'pickup_date',
+            'pickup_time',
+            'payment_type',
+            'payment_id',
+            'vehicle',
+            'driver',
+            'status',
+            'payment_status',
+        ]
+
+
+# Nested serializers for detail view
+class RouteDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Route
+        fields = ['route_id', 'from_location', 'to_location', 'distance', 'time']
+
+
+class VehicleDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = ['vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
+
+
+class DriverDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Driver
+        fields = ['full_name', 'email', 'phone_number', 'status']
+
+
+class BookingDetailSerializer(serializers.ModelSerializer):
+    transfer_information = TransferInformationSerializer(read_only=True)
+    passenger_information = PassengerDetailSerializer(read_only=True)
+    route = RouteDetailSerializer(read_only=True)
+    vehicle = VehicleDetailSerializer(read_only=True)
+    driver = DriverDetailSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            'booking_id',
+            'route',
+            'vehicle',
+            'driver',
+            'payment_type',
+            'payment_status',
+            'payment_id',
+            'trip_type',
+            'pickup_date',
+            'pickup_time',
+            'time_period',
+            'return_date',
+            'return_time',
+            'status',
+            'transfer_information',
+            'passenger_information',
+        ]
 
 
 class BookingCreateSerializer(serializers.ModelSerializer):
@@ -45,7 +143,6 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         booking = Booking.objects.create(
             transfer_information=transfer_info,
             passenger_information=passenger_info,
-            status='Pending',
             **validated_data
         )
 
@@ -58,3 +155,18 @@ class BookingCreateSerializer(serializers.ModelSerializer):
                     "Return date and time are required for return trips."
                 )
         return data
+
+
+class AssignDriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ['driver']
+
+    def validate_driver(self, value):
+        if value and not value.is_active:
+            raise serializers.ValidationError("Cannot assign an inactive driver.")
+        if value and value.status != "Available":
+            raise serializers.ValidationError(
+                f"Driver is currently '{value.status}'. Only available drivers can be assigned."
+            )
+        return value

@@ -104,7 +104,7 @@ class RouteDetailView(RetrieveAPIView):
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
     authentication_classes = []
-    lookup_field = "booking_route_id"
+    lookup_field = "route_id"
     permission_classes = [AllowAny]
 
 
@@ -114,7 +114,7 @@ class UpdateRouteView(JSONFieldParserMixin, RetrieveUpdateDestroyAPIView):
     serializer_class = UpdateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
     authentication_classes = []
-    lookup_field = "booking_route_id"
+    lookup_field = "route_id"
     permission_classes = [AllowAny]
 
 

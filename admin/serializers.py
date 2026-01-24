@@ -62,7 +62,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
         model = Route
         fields = [
             'id',
-            'booking_route_id',
+            'route_id',
             'slug',
             'from_location',
             'to_location',
@@ -85,7 +85,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'vehicle_options',
             'faq',
         ]
-        read_only_fields = ['booking_route_id', 'slug']
+        read_only_fields = ['route_id', 'slug']
 
     def to_representation(self, instance):
         """Include nested vehicle options and FAQs in the response."""
@@ -104,7 +104,7 @@ class UpdateRouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = [
-            'booking_route_id',
+            'route_id',
             'slug',
             'from_location',
             'to_location',
@@ -125,5 +125,5 @@ class UpdateRouteSerializer(serializers.ModelSerializer):
             'book_cta_label',
             'book_cta_support',
         ]
-        read_only_fields = ['booking_route_id', 'slug']
+        read_only_fields = ['route_id', 'slug']
 
