@@ -148,7 +148,7 @@ class LoginView(APIView):
                 return Response(
                     {
                         "message": "Login successful",
-                        "user": UserProfileSerializer(user).data,
+                        "permissions": user.user_permissions,
                         "tokens": tokens
                     },
                     status=status.HTTP_200_OK

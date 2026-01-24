@@ -13,7 +13,11 @@ urlpatterns = [
     path('booking/', include("booking.urls")),
     path('drivers/', include("driver.urls")),
     path('account/', include("account.urls")),
-    path('manage/', TemplateView.as_view(template_name='admin/dashboard.html'), name='admin-dashboard'),
+    
+    # Templates
+    path('template/manage/', TemplateView.as_view(template_name='admin/dashboard.html'), name='admin-dashboard'),
+    path('template/login/', TemplateView.as_view(template_name='admin/login.html'), name='login-page'),
+    path('template/password-reset/', TemplateView.as_view(template_name='admin/password-reset.html'), name='password-reset-page'),
     
     # YOUR PATTERNS
     path('download-docs/', SpectacularAPIView.as_view(), name='schema'),

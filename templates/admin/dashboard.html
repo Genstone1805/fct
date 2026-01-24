@@ -313,6 +313,132 @@
         background: #138496;
       }
 
+      /* Permissions grid styles */
+      .permissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-bottom: 15px;
+      }
+
+      .permission-item {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #fafafa;
+      }
+
+      .permission-item:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+      }
+
+      .permission-item input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .permission-item
+        input[type="checkbox"]:checked
+        + .permission-label::before {
+        background: #667eea;
+        border-color: #667eea;
+      }
+
+      .permission-item
+        input[type="checkbox"]:checked
+        + .permission-label::after {
+        content: "\2713";
+        position: absolute;
+        left: 5px;
+        top: 1px;
+        color: white;
+        font-size: 12px;
+      }
+
+      .permission-item:has(input:checked) {
+        border-color: #667eea;
+        background: #f0f4ff;
+      }
+
+      .permission-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+        position: relative;
+        padding-left: 28px;
+      }
+
+      .permission-label::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 2px;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .permission-desc {
+        font-size: 0.85rem;
+        color: #666;
+        padding-left: 28px;
+      }
+
+      .btn-link {
+        background: none;
+        border: none;
+        color: #667eea;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-decoration: underline;
+        padding: 0;
+      }
+
+      .btn-link:hover {
+        color: #764ba2;
+      }
+
+      .btn-secondary-link {
+        display: inline-block;
+        padding: 12px 24px;
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary-link:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-danger {
+        padding: 12px 24px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
       @media (max-width: 768px) {
         .container {
           padding: 10px;
@@ -323,6 +449,10 @@
         }
 
         .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .permissions-grid {
           grid-template-columns: 1fr;
         }
       }
@@ -340,6 +470,7 @@
         <button class="tab-btn active" data-tab="routes">Create Route</button>
         <button class="tab-btn" data-tab="vehicles">Add Vehicle Option</button>
         <button class="tab-btn" data-tab="faqs">Add FAQ</button>
+        <button class="tab-btn" data-tab="admin-users">Admin Users</button>
       </div>
 
       <!-- Routes Tab -->
@@ -782,10 +913,124 @@
           </form>
         </div>
       </div>
+
+      <!-- Admin Users Tab -->
+      <div id="admin-users" class="tab-content">
+        <div class="card">
+          <h2>Create Admin User</h2>
+          <p class="section-description">
+            Create a new admin user account. A password will be automatically
+            generated and sent to their email address.
+          </p>
+
+          <div id="admin-alert" class="alert"></div>
+
+          <form id="admin-form" enctype="multipart/form-data">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="admin_full_name">Full Name *</label>
+                <input
+                  type="text"
+                  id="admin_full_name"
+                  name="full_name"
+                  required
+                  placeholder="e.g., John Doe"
+                />
+              </div>
+              <div class="form-group">
+                <label for="admin_email">Email Address *</label>
+                <input
+                  type="email"
+                  id="admin_email"
+                  name="email"
+                  required
+                  placeholder="e.g., john@example.com"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="admin_phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="admin_phone"
+                  name="phone_number"
+                  placeholder="e.g., +34 600 000 000"
+                />
+              </div>
+              <div class="form-group">
+                <label for="admin_dp">Profile Picture</label>
+                <input type="file" id="admin_dp" name="dp" accept="image/*" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Permissions *</label>
+              <p class="section-description" style="margin-bottom: 10px">
+                Select the permissions this user should have. Users with all
+                permissions become administrators.
+              </p>
+              <div class="permissions-grid">
+                <label class="permission-item">
+                  <input type="checkbox" name="permissions" value="booking" />
+                  <span class="permission-label">Booking Management</span>
+                  <span class="permission-desc">View and manage bookings</span>
+                </label>
+                <label class="permission-item">
+                  <input type="checkbox" name="permissions" value="drivers" />
+                  <span class="permission-label">Drivers Management</span>
+                  <span class="permission-desc">Manage driver accounts</span>
+                </label>
+                <label class="permission-item">
+                  <input type="checkbox" name="permissions" value="routes" />
+                  <span class="permission-label">Routes Management</span>
+                  <span class="permission-desc">Create and edit routes</span>
+                </label>
+                <label class="permission-item">
+                  <input
+                    type="checkbox"
+                    name="permissions"
+                    value="adminUsers"
+                  />
+                  <span class="permission-label">Admin Users</span>
+                  <span class="permission-desc">Manage admin accounts</span>
+                </label>
+              </div>
+              <button
+                type="button"
+                class="btn-link"
+                onclick="toggleAllPermissions()"
+              >
+                Select All / Deselect All
+              </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="admin-submit-btn">
+              Create Admin User
+            </button>
+          </form>
+        </div>
+
+        <div class="card" style="margin-top: 20px">
+          <h2>Quick Links</h2>
+          <p class="section-description">
+            Manage your account or sign out of the admin panel.
+          </p>
+          <div style="display: flex; gap: 15px; flex-wrap: wrap">
+            <a href="/password-reset/" class="btn btn-secondary-link"
+              >Reset Password</a
+            >
+            <button type="button" class="btn btn-danger" onclick="logout()">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-      const API_BASE = "/api/admin";
+      const API_BASE = "/control";
       let vehicleOptionIndex = 0;
       let faqIndex = 0;
 
@@ -1122,14 +1367,14 @@
                   (faqCount > 0 ? ` | ${faqCount} FAQ(s) added` : ""),
                 true,
               );
-              document.getElementById("route-form").reset();
               // Clear nested items
-              document.getElementById("vehicle_options_container").innerHTML =
-                "";
-              document.getElementById("faq_container").innerHTML = "";
-              updateVehicleCount();
-              updateFAQCount();
-              loadRoutes();
+              //document.getElementById("route-form").reset();
+              //document.getElementById("vehicle_options_container").innerHTML =
+              //   "";
+              //document.getElementById("faq_container").innerHTML = "";
+              //updateVehicleCount();
+              //updateFAQCount();
+              //loadRoutes();
             } else {
               const error = await response.json();
               showAlert(
@@ -1230,6 +1475,104 @@
           }
 
           setLoading("faq-submit-btn", false);
+        });
+
+      // Toggle all permissions
+      function toggleAllPermissions() {
+        const checkboxes = document.querySelectorAll(
+          '#admin-form input[name="permissions"]',
+        );
+        const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+        checkboxes.forEach((cb) => (cb.checked = !allChecked));
+      }
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userPermissions");
+        window.location.href = "/template/login/";
+      }
+
+      // Admin form submission
+      document
+        .getElementById("admin-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          setLoading("admin-submit-btn", true);
+
+          const formData = new FormData();
+          formData.append(
+            "full_name",
+            document.getElementById("admin_full_name").value,
+          );
+          formData.append(
+            "email",
+            document.getElementById("admin_email").value,
+          );
+
+          const phone = document.getElementById("admin_phone").value;
+          if (phone) {
+            formData.append("phone_number", phone);
+          }
+
+          const dpFile = document.getElementById("admin_dp").files[0];
+          if (dpFile) {
+            formData.append("dp", dpFile);
+          }
+
+          // Get selected permissions
+          const permissions = [];
+          document
+            .querySelectorAll('#admin-form input[name="permissions"]:checked')
+            .forEach((cb) => {
+              permissions.push(cb.value);
+            });
+
+          if (permissions.length === 0) {
+            showAlert(
+              "admin-alert",
+              "Please select at least one permission.",
+              false,
+            );
+            setLoading("admin-submit-btn", false);
+            return;
+          }
+
+          // Append each permission separately for FormData
+          permissions.forEach((perm) => {
+            formData.append("permissions", perm);
+          });
+
+          try {
+            const response = await fetch(`/account/signup/`, {
+              method: "POST",
+              body: formData,
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              showAlert(
+                "admin-alert",
+                `Admin user created successfully! Login credentials have been sent to ${result.user.email}`,
+                true,
+              );
+              // document.getElementById("admin-form").reset();
+            } else {
+              const error = await response.json();
+              let errorMsg = "Failed to create admin user.";
+              if (error.email) {
+                errorMsg = `Email: ${error.email[0]}`;
+              } else if (typeof error === "object") {
+                errorMsg = JSON.stringify(error);
+              }
+              showAlert("admin-alert", errorMsg, false);
+            }
+          } catch (error) {
+            showAlert("admin-alert", `Error: ${error.message}`, false);
+          }
+
+          setLoading("admin-submit-btn", false);
         });
 
       // Initialize

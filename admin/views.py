@@ -1,9 +1,46 @@
 import json
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import (
+    CreateAPIView, ListAPIView, RetrieveAPIView,
+    UpdateAPIView, DestroyAPIView, RetrieveUpdateDestroyAPIView
+)
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from routes.models import Vehicle, RouteFAQ, Route
-from .serializers import CreateVehicleSerializer, CreateRouteFAQSerializer, CreateRouteSerializer
+from .serializers import (
+    CreateVehicleSerializer, UpdateVehicleSerializer,
+    CreateRouteFAQSerializer, UpdateRouteFAQSerializer,
+    CreateRouteSerializer, UpdateRouteSerializer
+)
+
+
+class JSONFieldParserMixin:
+    """Mixin to parse JSON string fields from multipart form data."""
+
+    json_fields = [
+        'what_makes_better', 'whats_included',
+        'destination_highlights', 'ideal_for',
+        'vehicle_options', 'faq'
+    ]
+
+    def get_serializer(self, *args, **kwargs):
+        """Parse JSON fields from multipart form data."""
+        if 'data' in kwargs:
+            data = kwargs['data']
+            if hasattr(data, 'dict'):
+                data = data.dict()
+            else:
+                data = dict(data)
+
+            for field in self.json_fields:
+                if field in data and isinstance(data[field], str):
+                    try:
+                        data[field] = json.loads(data[field])
+                    except (json.JSONDecodeError, TypeError):
+                        pass
+
+            kwargs['data'] = data
+
+        return super().get_serializer(*args, **kwargs)
 
 
 class CreateVehicleView(CreateAPIView):
@@ -22,7 +59,7 @@ class CreateRouteFAQView(CreateAPIView):
     permission_classes = [AllowAny]
 
 
-class CreateRouteView(CreateAPIView):
+class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     """Create a new route detail with optional nested vehicle options and FAQs."""
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
@@ -30,48 +67,14 @@ class CreateRouteView(CreateAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
-    # Store parsed nested data for use in perform_create
-    _vehicle_options_data = []
-    _faq_data = []
-
-    def get_serializer(self, *args, **kwargs):
-        """Parse JSON fields from multipart form data."""
-        if args:
-            data = args[0]
-            if hasattr(data, 'dict'):
-                data = data.dict()
-            else:
-                data = dict(data)
-
-            # Parse JSON array fields
-            json_fields = [
-                'what_makes_better', 'whats_included',
-                'destination_highlights', 'ideal_for',
-                'vehicle_options', 'faq'
-            ]
-            
-            for field in json_fields:
-                if field in data and isinstance(data[field], str):
-                    try:
-                        data[field] = json.loads(data[field])
-                    except (json.JSONDecodeError, TypeError):
-                        pass
-
-            # Extract and store nested data for later creation
-            self._vehicle_options_data = data.pop('vehicle_options', []) or []
-            self._faq_data = data.pop('faq', []) or []
-
-            args = (data,) + args[1:]
-
-        return super().get_serializer(*args, **kwargs)
-
     def perform_create(self, serializer):
         """Create the route and then create associated vehicle options and FAQs."""
-        # Save the route
+        vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
+        faq_data = serializer.validated_data.pop('faq', [])
+
         route = serializer.save()
 
-        # Create vehicle options and attach the route
-        for vehicle_data in self._vehicle_options_data:
+        for vehicle_data in vehicle_options_data:
             Vehicle.objects.create(
                 route=route,
                 vehicle_type=vehicle_data.get('vehicle_type'),
@@ -80,18 +83,54 @@ class CreateRouteView(CreateAPIView):
                 fixed_price=vehicle_data.get('fixed_price')
             )
 
-        # Create FAQs and attach the route
-        for faq_data in self._faq_data:
+        for faq_item in faq_data:
             RouteFAQ.objects.create(
                 route=route,
-                question=faq_data.get('question'),
-                answer=faq_data.get('answer')
+                question=faq_item.get('question'),
+                answer=faq_item.get('answer')
             )
 
 
 class RouteListView(ListAPIView):
-    """List all routes for dropdown selection."""
+    """List all routes."""
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
     authentication_classes = []
+    permission_classes = [AllowAny]
+
+
+class RouteDetailView(RetrieveAPIView):
+    """Retrieve a single route by ID."""
+    queryset = Route.objects.all()
+    serializer_class = CreateRouteSerializer
+    authentication_classes = []
+    lookup_field = "booking_route_id"
+    permission_classes = [AllowAny]
+
+
+class UpdateRouteView(JSONFieldParserMixin, RetrieveUpdateDestroyAPIView):
+    """Update an existing route with optional nested vehicle options and FAQs."""
+    queryset = Route.objects.all()
+    serializer_class = UpdateRouteSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    authentication_classes = []
+    lookup_field = "booking_route_id"
+    permission_classes = [AllowAny]
+
+
+class VehicleDetailView(RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a vehicle option."""
+    queryset = Vehicle.objects.all()
+    authentication_classes = []
+    serializer_class = UpdateVehicleSerializer
+    permission_classes = [AllowAny]
+    lookup_field="pk"
+
+
+class FAQDetailView(RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a FAQ."""
+    queryset = RouteFAQ.objects.all()
+    authentication_classes = []
+    serializer_class = UpdateRouteFAQSerializer
+    lookup_field="pk"
     permission_classes = [AllowAny]

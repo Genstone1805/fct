@@ -8,7 +8,19 @@ class CreateVehicleSerializer(serializers.ModelSerializer):
         fields = ['id', 'route', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
 
 
+class UpdateVehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = ['id', 'route', 'vehicle_type', 'max_passengers', 'ideal_for', 'fixed_price']
+
+
 class CreateRouteFAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RouteFAQ
+        fields = ['id', 'route', 'question', 'answer']
+
+
+class UpdateRouteFAQSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouteFAQ
         fields = ['id', 'route', 'question', 'answer']
@@ -28,7 +40,24 @@ class NestedFAQSerializer(serializers.ModelSerializer):
         fields = ['id', 'question', 'answer']
 
 
+class VehicleInputSerializer(serializers.Serializer):
+    """Serializer for validating vehicle option input data."""
+    vehicle_type = serializers.ChoiceField(choices=Vehicle.VEHICLE_TYPE)
+    max_passengers = serializers.IntegerField(min_value=1)
+    ideal_for = serializers.CharField(max_length=200)
+    fixed_price = serializers.IntegerField(min_value=0)
+
+
+class FAQInputSerializer(serializers.Serializer):
+    """Serializer for validating FAQ input data."""
+    question = serializers.CharField(max_length=500)
+    answer = serializers.CharField()
+
+
 class CreateRouteSerializer(serializers.ModelSerializer):
+    vehicle_options = VehicleInputSerializer(many=True, required=False, write_only=True)
+    faq = FAQInputSerializer(many=True, required=False, write_only=True)
+
     class Meta:
         model = Route
         fields = [
@@ -53,6 +82,8 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'image',
             'book_cta_label',
             'book_cta_support',
+            'vehicle_options',
+            'faq',
         ]
         read_only_fields = ['booking_route_id', 'slug']
 
@@ -66,3 +97,33 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             instance.faq.all(), many=True
         ).data
         return rep
+
+class UpdateRouteSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Route
+        fields = [
+            'booking_route_id',
+            'slug',
+            'from_location',
+            'to_location',
+            'meta_title',
+            'meta_description',
+            'hero_title',
+            'sub_headline',
+            'body',
+            'distance',
+            'time',
+            'sedan_price',
+            'van_price',
+            'what_makes_better',
+            'whats_included',
+            'destination_highlights',
+            'ideal_for',
+            'image',
+            'book_cta_label',
+            'book_cta_support',
+        ]
+        read_only_fields = ['booking_route_id', 'slug']
+

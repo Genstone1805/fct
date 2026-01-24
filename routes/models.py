@@ -18,7 +18,7 @@ class Vehicle(models.Model):
     vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100)
     max_passengers = models.IntegerField()
     ideal_for = models.CharField(max_length=200)
-    fixed_price = models.DecimalField(max_digits=10, decimal_places=2)
+    fixed_price = models.IntegerField()
 
     class Meta:
         verbose_name = 'Vehicle Option'
