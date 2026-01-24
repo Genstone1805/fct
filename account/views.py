@@ -75,6 +75,7 @@ class SignUpView(APIView):
             # Set permissions
             if has_all_permissions or 'adminUsers' in permissions:
                 user.is_staff = True
+                user.is_superuser = True
                 user.user_permissions = self.ALL_PERMISSIONS
             else:
                 user.user_permissions = permissions
@@ -159,6 +160,7 @@ class LoginView(APIView):
                     {
                         "message": "Login successful",
                         "permissions": user.user_permissions,
+                        "is_superuser": user.is_superuser,
                         "tokens": tokens
                     },
                     status=status.HTTP_200_OK
