@@ -1548,6 +1548,10 @@
             const response = await fetch(`/account/signup/`, {
               method: "POST",
               body: formData,
+              headers: {
+                Authorization:
+                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5MjgxMjQyLCJpYXQiOjE3NjkyNzc2NDIsImp0aSI6IjU0NTRjMWE3YTM3MDQ2MzA5MWFhZTNiYjlkMmRhZTRlIiwidXNlcl9pZCI6IjEifQ.FHOAzI_xRVoffX5ovkjvdrfbUcv2Mcavxn_RD6kElNs",
+              },
             });
 
             if (response.ok) {
