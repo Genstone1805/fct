@@ -34,7 +34,7 @@ class RouteListSerializer(serializers.ModelSerializer):
 class VehicleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['license_plate', 'maker', 'model', 'type']
+        fields = ['license_plate', 'make', 'model', 'type']
 
 
 class DriverListSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class RouteDetailSerializer(serializers.ModelSerializer):
 class VehicleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['license_plate', 'maker', 'model', 'type', 'max_passengers', 'status']
+        fields = ['license_plate', 'make', 'model', 'type', 'max_passengers', 'status']
 
 
 class DriverDetailSerializer(serializers.ModelSerializer):
