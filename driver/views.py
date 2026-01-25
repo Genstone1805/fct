@@ -1,19 +1,30 @@
-from rest_framework import viewsets
-from rest_framework.generics import ListAPIView
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-
-from account.permissions import HasDriverPermission
-from .models import Driver
+from account.models import UserProfile
 from .serializers import DriverSerializer, AvailableDriverSerializer
 
 
-class DriverViewSet(viewsets.ModelViewSet):
-    queryset = Driver.objects.all()
+class DriverListView(generics.ListAPIView):
+    """List all users where is_driver=True"""
     serializer_class = DriverSerializer
-    permission_classes = [IsAuthenticated, HasDriverPermission]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(is_driver=True)
 
 
-class AvailableDriverListView(ListAPIView):
-    queryset = Driver.objects.filter(status="Available")
+class DriverDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, Update, or Destroy a driver"""
+    serializer_class = DriverSerializer
+    queryset = UserProfile.objects.filter(is_driver=True)
+    lookup_field = 'pk'
+    permission_classes = [IsAuthenticated]
+
+
+class AvailableDriverListView(generics.ListAPIView):
+    """List all available drivers (is_driver=True and status='Available')"""
     serializer_class = AvailableDriverSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(is_driver=True, status='Available')

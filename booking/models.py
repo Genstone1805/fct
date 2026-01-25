@@ -1,7 +1,9 @@
 from django.db import models
 from routes.models import Route
 from vehicle.models import Vehicle
-from driver.models import Driver
+from django.contrib.auth import get_user_model
+
+user = get_user_model()
 
 import secrets
 import string
@@ -79,7 +81,7 @@ class Booking(models.Model):
   return_date = models.DateField(null=True, blank=True)
   return_time = models.TimeField(null=True, blank=True)
   vehicle= models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True, blank=True)
-  driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True)
+  driver = models.ForeignKey(user, on_delete=models.SET_NULL, null=True, blank=True)
   transfer_information = models.ForeignKey(TransferInformation, on_delete=models.CASCADE)
   passenger_information = models.ForeignKey(PassengerDetail, on_delete=models.CASCADE)
   

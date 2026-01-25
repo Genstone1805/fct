@@ -56,62 +56,104 @@ class SignUpView(APIView):
         if serializer.is_valid():
             # Generate password
             generated_password = generate_password()
-
-            # Get permissions from request
+            
+            is_driver = serializer.validated_data.get("is_driver", "")
             permissions = serializer.validated_data.get('permissions', [])
-
-            # Check if all permissions are selected (make user an admin)
-            has_all_permissions = set(self.ALL_PERMISSIONS) == set(permissions)
-
-            # Create user with the generated password
-            user = UserProfile.objects.create_user(
-                email=serializer.validated_data['email'],
-                password=generated_password,
-                phone_number=serializer.validated_data.get('phone_number'),
-                full_name=serializer.validated_data.get('full_name', ''),
-                added_by = user.full_name
-            )
-
-            # Set permissions
-            if has_all_permissions or 'adminUsers' in permissions:
-                user.is_staff = True
-                user.is_superuser = True
-                user.user_permissions = self.ALL_PERMISSIONS
+            
+            if is_driver:
+                user = UserProfile.objects.create_user(
+                    email=serializer.validated_data['email'],
+                    password=generated_password,
+                    phone_number=serializer.validated_data.get('phone_number'),
+                    full_name=serializer.validated_data.get('full_name', ''),
+                    is_driver = serializer.validated_data.get('is_driver', ''),
+                    added_by = user.full_name
+                )
             else:
-                user.user_permissions = permissions
+                # Get permissions from request
 
-            # Handle profile picture upload
-            if 'dp' in serializer.validated_data:
-                user.dp = serializer.validated_data['dp']
+                # Check if all permissions are selected (make user an admin)
+                has_all_permissions = set(self.ALL_PERMISSIONS) == set(permissions)
+
+                # Create user with the generated password
+                user = UserProfile.objects.create_user(
+                    email=serializer.validated_data['email'],
+                    password=generated_password,
+                    phone_number=serializer.validated_data.get('phone_number'),
+                    full_name=serializer.validated_data.get('full_name', ''),
+                    added_by = user.full_name
+                )
+
+                # Set permissions
+                if has_all_permissions or 'adminUsers' in permissions:
+                    user.is_staff = True
+                    user.is_superuser = True
+                    user.user_permissions = self.ALL_PERMISSIONS
+                else:
+                    user.user_permissions = permissions
+                    user.is_staff = True
+
+                # Handle profile picture upload
+                if 'dp' in serializer.validated_data:
+                    user.dp = serializer.validated_data['dp']
 
             user.save()
-           
-            
-            
 
             # Send email with credentials
             subject = "Welcome to First Class Transfer - Your Login Credentials"
             permissions_text = ", ".join(permissions) if permissions else "None"
-            role_text = "Administrator" if user.is_staff else "Staff"
+            role_text = "Administrator" if user.is_superuser else "Staff"
+            
+            if user.is_driver:
+                message = f"""
+                    Hello {user.full_name or 'there'},
 
-            message = f"""
-Hello {user.full_name or 'there'},
+                    Welcome to First Class Transfer!  
+                    You’ve been successfully onboarded as a **Driver** on our platform.
 
-Welcome to First Class Transfer! Your account has been created successfully.
+                    Below are your login details:
 
-Here are your login credentials:
+                    Email: {user.email}  
+                    Temporary Password: {generated_password}
 
-Email: {user.email}
-Password: {generated_password}
+                    Role: Driver  
 
-Your Role: {role_text}
-Your Permissions: {permissions_text}
+                    Next steps:
+                    - visit the login page on our site
+                    - Change your password immediately for security
+                    - Log into your dashboard
 
-Please keep these credentials safe and change your password after your first login.
+                    You’re now part of our trusted driver network, and we’re excited to have you on board. If you need support, our team is ready to assist.
 
-Best regards,
-First Class Transfer Team
-            """
+                    Drive safe and deliver excellence.
+
+                    Best regards,  
+                    First Class Transfer Team
+                """
+            else:
+                message = f"""
+                    Hello {user.full_name or 'there'},
+
+                    Welcome to First Class Transfer! Your account has been created successfully.
+
+                    Here are your login credentials:
+
+                    Email: {user.email}
+                    Password: {generated_password}
+
+                    Your Role: {role_text}
+                    Your Permissions: {permissions_text}
+                    
+                    Next steps:
+                    - visit the login page on our site
+                    - Change your password immediately for security
+                    - Log into your dashboard
+
+                    Please keep these credentials safe and change your password after your first login.
+
+                    Best regards,
+                    First Class Transfer Team
+                """
             try:
                 send_mail(
                     subject,

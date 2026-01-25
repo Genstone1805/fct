@@ -1,11 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import DriverViewSet, AvailableDriverListView
-
-router = DefaultRouter()
-router.register(r'', DriverViewSet, basename='driver')
+from django.urls import path
+from .views import DriverListView, DriverDetailView, AvailableDriverListView
 
 urlpatterns = [
-    path('available/', AvailableDriverListView.as_view(), name='driver-available'),
-    path('', include(router.urls)),
+    path('', DriverListView.as_view(), name='driver-list'),
+    path('<int:pk>/', DriverDetailView.as_view(), name='driver-detail'),
+    path('available/', AvailableDriverListView.as_view(), name='available-drivers'),
 ]

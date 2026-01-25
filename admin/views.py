@@ -69,27 +69,44 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
 
     def perform_create(self, serializer):
         """Create the route and then create associated vehicle options and FAQs."""
+        print(serializer.validated_data)
+        print("-----------------------------------------------------------------")
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faq', [])
 
         route = serializer.save()
+        
+        
 
+        print("vehicle options List are")
+        print("--------------------------------------------------------------------")
         for vehicle_data in vehicle_options_data:
-            Vehicle.objects.create(
+            vehicle = Vehicle.objects.create(
                 route=route,
                 vehicle_type=vehicle_data.get('vehicle_type'),
                 max_passengers=vehicle_data.get('max_passengers'),
                 ideal_for=vehicle_data.get('ideal_for'),
                 fixed_price=vehicle_data.get('fixed_price')
             )
+            print(vehicle.id)
+            print("option in the loop")
 
+        print("--------------------------------------------------------------------")
+        print("Faqs List are")
+        print("--------------------------------------------------------------------")
         for faq_item in faq_data:
-            RouteFAQ.objects.create(
+            route = RouteFAQ.objects.create(
                 route=route,
                 question=faq_item.get('question'),
                 answer=faq_item.get('answer')
             )
+            print(route.id)
+            print("Option in the loop")
 
+        print("route vehicle options")
+        print(route.vehicle_options)
+        print("route Faq options")
+        print(route.vehicle_options)
 
 class RouteListView(ListAPIView):
     """List all routes."""

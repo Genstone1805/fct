@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Booking, TransferInformation, PassengerDetail
 from routes.models import Route
 from vehicle.models import Vehicle
-from driver.models import Driver
+from account.models import UserProfile
 
 
 class TransferInformationSerializer(serializers.ModelSerializer):
@@ -39,7 +39,7 @@ class VehicleListSerializer(serializers.ModelSerializer):
 
 class DriverListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Driver
+        model = UserProfile
         fields = ['full_name']
 
 
@@ -81,7 +81,7 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
 
 class DriverDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Driver
+        model = UserProfile
         fields = ['full_name', 'email', 'phone_number', 'status']
 
 
