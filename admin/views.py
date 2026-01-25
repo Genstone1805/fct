@@ -67,52 +67,29 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
-    def create(self, request, *args, **kwargs):
-        print("========== RAW REQUEST DATA ==========")
-        print(request.data)
-        print("======================================")
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            print("========== SERIALIZER ERRORS ==========")
-            print(serializer.errors)
-            print("========================================")
-        return super().create(request, *args, **kwargs)
-
     def perform_create(self, serializer):
         """Create the route and then create associated vehicle options and FAQs."""
-        print(serializer.validated_data)
-        print("-----------------------------------------------------------------")
+
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
 
         route = serializer.save()
-        
-        
 
-        print("vehicle options List are")
-        print("--------------------------------------------------------------------")
         for vehicle_data in vehicle_options_data:
-            vehicle = Vehicle.objects.create(
+            Vehicle.objects.create(
                 route=route,
                 vehicle_type=vehicle_data.get('vehicle_type'),
                 max_passengers=vehicle_data.get('max_passengers'),
                 ideal_for=vehicle_data.get('ideal_for'),
                 fixed_price=vehicle_data.get('fixed_price')
             )
-            print(vehicle.id)
-            print("option in the loop")
-
-        print("--------------------------------------------------------------------")
-        print("Faqs List are")
-        print("--------------------------------------------------------------------")
+            
         for faq_item in faq_data:
-            faq = RouteFAQ.objects.create(
+            RouteFAQ.objects.create(
                 route=route,
                 question=faq_item.get('question'),
                 answer=faq_item.get('answer')
             )
-            print(faq.id)
-            print("Option in the loop")
 
 class RouteListView(ListAPIView):
     """List all routes."""
@@ -131,7 +108,7 @@ class RouteDetailView(RetrieveAPIView):
     permission_classes = [AllowAny]
 
 
-class UpdateRouteView(JSONFieldParserMixin, RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroyAPIView):
     """Update an existing route with optional nested vehicle options and FAQs."""
     queryset = Route.objects.all()
     serializer_class = UpdateRouteSerializer
@@ -139,6 +116,58 @@ class UpdateRouteView(JSONFieldParserMixin, RetrieveUpdateDestroyAPIView):
     authentication_classes = []
     lookup_field = "route_id"
     permission_classes = [AllowAny]
+    
+    def update(self, request, *args, **kwargs):
+        print("================== RAW REQUEST DATA =========================")
+        print(request.data)
+        print("==============================================================")
+
+        serializer = self.get_serializer(data=request.data, instance=self.get_object(), partial=kwargs.get('partial', False))
+        if not serializer.is_valid():
+            print("================== SERIALIZER ERRORS ========================")
+            print(serializer.errors)
+            print("==============================================================")
+
+        return super().update(request, *args, **kwargs)
+    def perform_update(self, serializer):
+        """Update the route and update/create associated vehicle options and FAQs."""
+
+        vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
+        faq_data = serializer.validated_data.pop('faqs', [])
+
+        route = serializer.save()
+
+        for vehicle_data in vehicle_options_data:
+            vehicle_id = vehicle_data.get('id')
+            if vehicle_id:
+                Vehicle.objects.filter(id=vehicle_id, route=route).update(
+                    vehicle_type=vehicle_data.get('vehicle_type'),
+                    max_passengers=vehicle_data.get('max_passengers'),
+                    ideal_for=vehicle_data.get('ideal_for'),
+                    fixed_price=vehicle_data.get('fixed_price')
+                )
+            else:
+                Vehicle.objects.create(
+                    route=route,
+                    vehicle_type=vehicle_data.get('vehicle_type'),
+                    max_passengers=vehicle_data.get('max_passengers'),
+                    ideal_for=vehicle_data.get('ideal_for'),
+                    fixed_price=vehicle_data.get('fixed_price')
+                )
+
+        for faq_item in faq_data:
+            faq_id = faq_item.get('id')
+            if faq_id:
+                RouteFAQ.objects.filter(id=faq_id, route=route).update(
+                    question=faq_item.get('question'),
+                    answer=faq_item.get('answer')
+                )
+            else:
+                RouteFAQ.objects.create(
+                    route=route,
+                    question=faq_item.get('question'),
+                    answer=faq_item.get('answer')
+                )
 
 
 class VehicleDetailView(RetrieveUpdateDestroyAPIView):
