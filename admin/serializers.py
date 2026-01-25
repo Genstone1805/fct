@@ -94,7 +94,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             instance.vehicle_options.all(), many=True
         ).data
         rep['faqs'] = NestedFAQSerializer(
-            instance.faq.all(), many=True
+            instance.faqs.all(), many=True
         ).data
         return rep
 
