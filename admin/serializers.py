@@ -55,7 +55,7 @@ class FAQInputSerializer(serializers.Serializer):
 
 
 class CreateRouteSerializer(serializers.ModelSerializer):
-    vehicle_options = VehicleInputSerializer(many=True, required=False, write_only=True)
+    vehicle_options = VehicleInputSerializer(many=True,  write_only=True)
     faq = FAQInputSerializer(many=True, required=False, write_only=True)
 
     class Meta:
@@ -90,7 +90,6 @@ class CreateRouteSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Include nested vehicle options and FAQs in the response."""
         rep = super().to_representation(instance)
-        print(rep)
         rep['vehicle_options'] = NestedVehicleSerializer(
             instance.vehicle_options.all(), many=True
         ).data
