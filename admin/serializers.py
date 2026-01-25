@@ -90,6 +90,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Include nested vehicle options and FAQs in the response."""
         rep = super().to_representation(instance)
+        print(rep)
         rep['vehicle_options'] = NestedVehicleSerializer(
             instance.vehicle_options.all(), many=True
         ).data
