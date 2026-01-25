@@ -86,6 +86,7 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
         faq_data = serializer.validated_data.pop('faq', [])
 
         route = serializer.save()
+        print(route)
         
         
 
