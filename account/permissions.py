@@ -53,9 +53,6 @@ class HasDriverPermission(BasePermission):
 
 
 class HasRoutePermission(BasePermission):
-    """
-    Permission class that checks if the user has 'routes' permission.
-    """
     message = "You do not have permission to access route resources."
 
     def has_permission(self, request, view):

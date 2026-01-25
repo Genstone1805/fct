@@ -65,7 +65,6 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
-    authentication_classes = []
     permission_classes = [HasRoutePermission]
 
     def perform_create(self, serializer):
@@ -96,7 +95,6 @@ class RouteListView(ListAPIView):
     """List all routes."""
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
-    authentication_classes = []
     permission_classes = [HasRoutePermission]
 
 
@@ -114,7 +112,6 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
     queryset = Route.objects.all()
     serializer_class = UpdateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
-    authentication_classes = []
     lookup_field = "route_id"
     permission_classes = [HasRoutePermission]
     

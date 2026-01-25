@@ -42,6 +42,7 @@ class NestedFAQSerializer(serializers.ModelSerializer):
 
 class VehicleInputSerializer(serializers.Serializer):
     """Serializer for validating vehicle option input data."""
+    id = serializers.IntegerField(required=False)
     vehicle_type = serializers.ChoiceField(choices=Vehicle.VEHICLE_TYPE)
     max_passengers = serializers.IntegerField(min_value=1)
     ideal_for = serializers.CharField(max_length=200)
@@ -50,28 +51,14 @@ class VehicleInputSerializer(serializers.Serializer):
 
 class FAQInputSerializer(serializers.Serializer):
     """Serializer for validating FAQ input data."""
-    question = serializers.CharField(max_length=250)
-    answer = serializers.CharField(max_length=700)
-
-class VehicleUpdateSerializer(serializers.Serializer):
-    """Serializer for validating vehicle option input data."""
-    id = serializers.IntegerField()
-    vehicle_type = serializers.ChoiceField(choices=Vehicle.VEHICLE_TYPE)
-    max_passengers = serializers.IntegerField(min_value=1)
-    ideal_for = serializers.CharField(max_length=200)
-    fixed_price = serializers.IntegerField(min_value=0)
-
-
-class FAQUpdateSerializer(serializers.Serializer):
-    """Serializer for validating FAQ input data."""
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(required=False)
     question = serializers.CharField(max_length=250)
     answer = serializers.CharField(max_length=700)
 
 
 class CreateRouteSerializer(serializers.ModelSerializer):
     vehicle_options = VehicleInputSerializer(many=True, required=True)
-    faqs = FAQInputSerializer(many=True, required=True)
+    faqs = FAQInputSerializer(many=True, required=False)
 
     class Meta:
         model = Route
@@ -114,8 +101,8 @@ class CreateRouteSerializer(serializers.ModelSerializer):
         return rep
     
 class UpdateRouteSerializer(serializers.ModelSerializer):
-    vehicle_options = VehicleUpdateSerializer(many=True, required=False)
-    faqs = FAQUpdateSerializer(many=True, required=False)
+    vehicle_options = VehicleInputSerializer(many=True, required=False)
+    faqs = FAQInputSerializer(many=True, required=False)
 
     class Meta:
         model = Route
