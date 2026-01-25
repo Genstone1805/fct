@@ -19,7 +19,7 @@ class JSONFieldParserMixin:
     json_fields = [
         'what_makes_better', 'whats_included',
         'destination_highlights', 'ideal_for',
-        'vehicle_options', 'faq'
+        'vehicle_options', 'faqs'
     ]
 
     def get_serializer(self, *args, **kwargs):
