@@ -67,6 +67,12 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        print("========== RAW REQUEST DATA ==========")
+        print(request.data)
+        print("======================================")
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         """Create the route and then create associated vehicle options and FAQs."""
         print(serializer.validated_data)
