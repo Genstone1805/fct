@@ -10,7 +10,7 @@ from rest_framework.permissions import BasePermission
     # def has_permission(self, request, view):
     #     if not request.user or not request.user.is_authenticated:
     #         return False
-    #     if request.user.is_staff:
+    #     if request.user.is_superuser:
     #         return True
     #     if 'booking' in request.user.user_permissions:
     #         return True
@@ -32,7 +32,7 @@ class HasBookingPermission(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         # Admin users have all permissions
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         return 'booking' in request.user.user_permissions
 
@@ -47,7 +47,7 @@ class HasDriverPermission(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         # Admin users have all permissions
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         return 'drivers' in request.user.user_permissions
 
@@ -62,7 +62,7 @@ class HasRoutePermission(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         # Admin users have all permissions
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         return 'routes' in request.user.user_permissions
 
@@ -76,7 +76,7 @@ class IsAdminUser(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        return request.user.is_staff or 'adminUsers' in request.user.user_permissions
+        return request.user.is_superuser or 'adminUsers' in request.user.user_permissions
 
 
 class HasAnyPermission(BasePermission):
@@ -88,6 +88,6 @@ class HasAnyPermission(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return True
         return len(request.user.user_permissions) > 0
