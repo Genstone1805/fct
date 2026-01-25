@@ -56,7 +56,7 @@ class FAQInputSerializer(serializers.Serializer):
 
 class CreateRouteSerializer(serializers.ModelSerializer):
     vehicle_options = VehicleInputSerializer(many=True)
-    faq = FAQInputSerializer(many=True, required=True)
+    faqs = FAQInputSerializer(many=True, required=True)
 
     class Meta:
         model = Route
@@ -83,7 +83,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'book_cta_label',
             'book_cta_support',
             'vehicle_options',
-            'faq',
+            'faqs',
         ]
         read_only_fields = ['route_id', 'slug']
 
@@ -93,7 +93,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
         rep['vehicle_options'] = NestedVehicleSerializer(
             instance.vehicle_options.all(), many=True
         ).data
-        rep['faq'] = NestedFAQSerializer(
+        rep['faqs'] = NestedFAQSerializer(
             instance.faq.all(), many=True
         ).data
         return rep
