@@ -32,7 +32,7 @@ class RouteFAQ(models.Model):
     route = models.ForeignKey(
         'Route',
         on_delete=models.CASCADE,
-        related_name='faq'
+        related_name='faqs'
     )
     question = models.CharField(max_length=500)
     answer = models.TextField()
@@ -71,7 +71,7 @@ class Route(models.Model):
     ideal_for = models.JSONField(default=list, blank=True)
 
     # vehicle_options: accessed via reverse FK (VehicleOption.route)
-    # faq: accessed via reverse FK (RouteFAQ.route)
+    # faqs: accessed via reverse FK (RouteFAQ.route)
 
     image = models.ImageField(upload_to="Route Images")
     book_cta_label = models.CharField(max_length=100)
