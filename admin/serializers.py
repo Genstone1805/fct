@@ -50,12 +50,12 @@ class VehicleInputSerializer(serializers.Serializer):
 
 class FAQInputSerializer(serializers.Serializer):
     """Serializer for validating FAQ input data."""
-    question = serializers.CharField(max_length=500)
-    answer = serializers.CharField()
+    question = serializers.CharField(max_length=250)
+    answer = serializers.CharField(max_length=700)
 
 
 class CreateRouteSerializer(serializers.ModelSerializer):
-    vehicle_options = VehicleInputSerializer(many=True)
+    vehicle_options = VehicleInputSerializer(many=True, required=True)
     faqs = FAQInputSerializer(many=True, required=True)
 
     class Meta:
