@@ -70,9 +70,12 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     def create(self, request, *args, **kwargs):
         print("========== RAW REQUEST DATA ==========")
         print(request.data)
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
         print("======================================")
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("========== SERIALIZER ERRORS ==========")
+            print(serializer.errors)
+            print("========================================")
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
