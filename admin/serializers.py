@@ -55,8 +55,8 @@ class FAQInputSerializer(serializers.Serializer):
 
 
 class CreateRouteSerializer(serializers.ModelSerializer):
-    vehicle_options = VehicleInputSerializer(many=True,  write_only=True)
-    faq = FAQInputSerializer(many=True, required=False, write_only=True)
+    vehicle_options = VehicleInputSerializer(many=True)
+    faq = FAQInputSerializer(many=True, required=False)
 
     class Meta:
         model = Route
