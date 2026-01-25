@@ -95,18 +95,13 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
         print("Faqs List are")
         print("--------------------------------------------------------------------")
         for faq_item in faq_data:
-            route = RouteFAQ.objects.create(
+            faq = RouteFAQ.objects.create(
                 route=route,
                 question=faq_item.get('question'),
                 answer=faq_item.get('answer')
             )
-            print(route.id)
+            print(faq.id)
             print("Option in the loop")
-
-        print("route vehicle options")
-        print(route.vehicle_options)
-        print("route Faq options")
-        print(route.vehicle_options)
 
 class RouteListView(ListAPIView):
     """List all routes."""
