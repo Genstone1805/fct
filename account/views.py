@@ -61,6 +61,7 @@ class SignUpView(APIView):
         
         try:
             if not serializer.is_valid(raise_exception=True):
+                print(serializer.errors)
                 return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
