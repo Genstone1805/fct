@@ -23,11 +23,10 @@ from django.db import transaction, IntegrityError
 class DriverFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
     email = filters.CharFilter(field_name='email', lookup_expr='icontains')
-    status = filters.CharFilter(field_name='status', lookup_expr='iexact')
 
     class Meta:
         model = UserProfile
-        fields = ['status', 'name', 'email']
+        fields = ['name', 'email']
         
         
 
@@ -40,7 +39,6 @@ class CreateDriverView(APIView):
     def post(self, request):
         admin = request.user
         serializer = DriverRegistrationSerializer(data=request.data)
-        user = None
         try:
             if not serializer.is_valid(raise_exception=True):
                 print(serializer.errors)
@@ -48,9 +46,6 @@ class CreateDriverView(APIView):
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-                
-            print(request.data)
-            print(serializer.validated_data)
                 
                 
             generated_password = generate_password()
@@ -134,37 +129,11 @@ class CreateDriverView(APIView):
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
     serializer_class = DriverListSerializer
-    # permission_classes = [HasDriverPermission]
+    permission_classes = [HasDriverPermission]
     queryset = UserProfile.objects.filter(is_driver=True)
     pagination_class = CustomPagination
     filterset_class = DriverFilter
 
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        total_drivers = UserProfile.objects.filter(is_driver=True).count()
-        available_drivers = UserProfile.objects.filter(is_driver=True, status="Available").count()
-    
-        off_duty_drivers = UserProfile.objects.filter(is_driver=True, status="Unavailable").count()
-        
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            response = self.get_paginated_response(serializer.data)
-            response.data['all'] = total_drivers
-            response.data['available'] = available_drivers
-            response.data['unavailable'] = off_duty_drivers
-            return response
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({
-            'results': serializer.data,
-            'all': total_drivers,
-            'available': available_drivers,         
-            'unavailable': available_drivers,         
-        })
-    
     
 
 class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
@@ -177,7 +146,7 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         user = request.user
         driver = self.get_object()
-        partial = kwargs.get["partial", False]
+        partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=driver, data=request.data, partial=partial)
         
         if not serializer.is_valid():
@@ -214,4 +183,4 @@ class AvailableDriverListView(generics.ListAPIView):
     """List all available drivers (is_driver=True and status='Available')"""
     serializer_class = AvailableDriverSerializer
     permission_classes = [HasDriverPermission]
-    queryset = UserProfile.objects.filter(is_driver=True, status='Available')
+    queryset = UserProfile.objects.filter(is_driver=True)

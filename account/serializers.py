@@ -64,6 +64,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['email', 'phone_number', 'dp', 'full_name', 'permissions', 'is_staff', 'disabled']
+        read_only_fields = ["email"]
 
     def validate_email(self, value):
         instance = self.instance

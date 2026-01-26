@@ -29,11 +29,6 @@ class CustomUserManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     
-    STATUS_CHOICES = [
-        ("Available", "Available"),
-        ("Unavailable", "Unavailable"),
-    ]
-    
     # Required fields for AbstractBaseUser
     dp = models.ImageField(blank=True)
     
@@ -46,7 +41,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_driver = models.BooleanField(default=False)
     license_number = models.CharField(max_length=50, null=True, blank=True)
-    status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Available", blank=True)
     date_joined = models.DateTimeField(default=timezone.now)
     disabled = models.BooleanField(default=False)
     ip_address = models.GenericIPAddressField(null=True, blank=True)

@@ -363,14 +363,23 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     @extend_schema(request=UserUpdateSerializer, responses={200: UserProfileSerializer})
     def put(self, request, *args, **kwargs):
+        admin = request.user
+        user = self.get_object()
+        log_user_activity(user, f"User Updated: {user.email} → {user.full_name} ({user.id}) by {admin.full_name}", request)
         return super().put(request, *args, **kwargs)
 
     @extend_schema(request=UserUpdateSerializer, responses={200: UserProfileSerializer})
     def patch(self, request, *args, **kwargs):
+        admin = request.user
+        user = self.get_object()
+        log_user_activity(user, f"User Updated: {user.email} → {user.full_name} ({user.id}) by {admin.full_name}", request)
         return super().patch(request, *args, **kwargs)
 
     @extend_schema(responses={204: None})
     def delete(self, request, *args, **kwargs):
+        admin = request.user
+        user = self.get_object()
+        log_user_activity(user, f"User Deleted: {user.email} → {user.full_name} ({user.id}) by {admin.full_name}", request)
         return super().delete(request, *args, **kwargs)
 
 
@@ -383,7 +392,8 @@ class DownloadActivityLogView(APIView):
 
         if not os.path.exists(log_path):
             raise Http404("Activity log file not found.")
-
+        user = request.user
+        log_user_activity(user, f"Activity log downloaded: {user.email} → {user.full_name} ({user.id})", request)
         return FileResponse(
             open(log_path, 'rb'),
             as_attachment=True,

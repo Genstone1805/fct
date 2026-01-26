@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class Vehicle(models.Model):
@@ -7,14 +10,8 @@ class Vehicle(models.Model):
         ("Minivan", "Minivan"),
     ]
 
-    STATUS_CHOICES = [
-        ("Available", "Available"),
-        ("Unavailable", "Unavailable"),
-    ]
 
-    # Status
-    status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Available")
-    
+    added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # Basic vehicle info
     license_plate = models.CharField(max_length=20, unique=True)
     make = models.CharField(max_length=50)
