@@ -51,6 +51,8 @@ class CreateDriverView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
                 
+            print(request.data)
+                
                 
             generated_password = generate_password()
             
