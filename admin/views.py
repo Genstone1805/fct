@@ -73,6 +73,9 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
         print("===============DATA SENT========================")
 
         if not serializer.is_valid():
+            print("===============ERROR MESSAGE========================")
+            print(str(serializer.errors))
+            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
@@ -84,7 +87,6 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
-        print(faq_data)
 
         try:
             with transaction.atomic():
