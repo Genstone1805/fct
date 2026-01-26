@@ -32,8 +32,12 @@ class RecursiveCamelCaseFormParser(CamelCaseFormParser):
     def parse(self, stream, media_type=None, parser_context=None):
         data = super().parse(stream, media_type, parser_context)
         # Ensure nested data is also converted
+        # Use .dict() for QueryDict to get single values instead of lists
         if hasattr(data, 'data'):
-            data.data = recursive_underscoreize(dict(data.data))
+            if hasattr(data.data, 'dict'):
+                data.data = recursive_underscoreize(data.data.dict())
+            else:
+                data.data = recursive_underscoreize(data.data)
         return data
 
 
@@ -44,8 +48,12 @@ class RecursiveCamelCaseMultiPartParser(CamelCaseMultiPartParser):
     def parse(self, stream, media_type=None, parser_context=None):
         result = super().parse(stream, media_type, parser_context)
         # Ensure nested data is also converted
+        # Use .dict() for QueryDict to get single values instead of lists
         if hasattr(result, 'data'):
-            result.data = recursive_underscoreize(dict(result.data))
+            if hasattr(result.data, 'dict'):
+                result.data = recursive_underscoreize(result.data.dict())
+            else:
+                result.data = recursive_underscoreize(result.data)
         return result
 
 
