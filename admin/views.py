@@ -4,12 +4,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView, RetrieveAPIView,
+    CreateAPIView, ListAPIView,
     RetrieveUpdateDestroyAPIView
 )
 from account.permissions import HasRoutePermission
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import AllowAny
 from routes.models import Vehicle, RouteFAQ, Route
 from .serializers import ( CreateRouteSerializer )
 from account.utils import log_user_activity
@@ -66,24 +65,12 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     def create(self, request, *args, **kwargs):
         user=request.user
         serializer = self.get_serializer(data=request.data)
-        
-        
-        print("===============DATA SENT========================")
-        print(request.data)
-        print("===============DATA SENT========================")
 
         if not serializer.is_valid():
-            print("===============ERROR MESSAGE========================")
-            print(str(serializer.errors))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-        print("===============DATA SENT========================")
-        print(serializer.validated_data)
-        print("===============DATA SENT========================")
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
@@ -108,29 +95,20 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
                         answer=faq_item.get('answer')
                     )
 
-            log_user_activity(user, f"Created route: {route.from_location} → {route.to_location} ({route.route_id})")
+            log_user_activity(user, f"Created route: {route.from_location} → {route.to_location} ({route.route_id})", request)
 
             return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:
-            print("===============ERROR MESSAGE========================")
-            print(str(e))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Database integrity error', 'details': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except ValidationError as e:
-            print("===============ERROR MESSAGE========================")
-            print(str(e))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print("===============ERROR MESSAGE========================")
-            print(str(e))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Failed to create route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -150,7 +128,6 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
         partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
         
-       
 
         if not serializer.is_valid():
             return Response(
@@ -185,48 +162,21 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
                             answer=faq_item.get('answer')
                         )
 
-            log_user_activity(user, f"Updated route: {route.from_location} → {route.to_location} ({route.route_id})")
+            log_user_activity(user, f"Updated route: {route.from_location} → {route.to_location} ({route.route_id})", request)
 
             return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:
-            print("===============ERROR MESSAGE========================")
-            print(str(e))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Database integrity error', 'details': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except ValidationError as e:
-            print("===============ERROR MESSAGE========================")
-            print(str(e))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print("===============ERROR MESSAGE========================")
-            print(str(e))
-            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-# class VehicleDetailView(RetrieveUpdateDestroyAPIView):
-#     """Retrieve, update or delete a vehicle option."""
-#     queryset = Vehicle.objects.all()
-#     authentication_classes = []
-#     serializer_class = UpdateVehicleSerializer
-#     permission_classes = [AllowAny]
-#     lookup_field="pk"
-
-
-# class FAQDetailView(RetrieveUpdateDestroyAPIView):
-#     """Retrieve, update or delete a FAQ."""
-#     queryset = RouteFAQ.objects.all()
-#     authentication_classes = []
-#     serializer_class = UpdateRouteFAQSerializer
-#     lookup_field="pk"
-#     permission_classes = [AllowAny]

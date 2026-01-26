@@ -204,6 +204,11 @@ EMAIL_USE_SSL = False
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
+# Create log files if they don't exist
+for log_file in ['user_activity.log', 'requests.log', 'errors.log', 'all.log']:
+    log_path = LOGS_DIR / log_file
+    log_path.touch(exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

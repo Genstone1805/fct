@@ -31,8 +31,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     
     STATUS_CHOICES = [
         ("Available", "Available"),
-        ("On Trip", "On Trip"),
-        ("Off Duty", "Off Duty"),
+        ("Unavailable", "Unavailable"),
     ]
     
     # Required fields for AbstractBaseUser

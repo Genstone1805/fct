@@ -1,30 +1,74 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from django_filters import rest_framework as filters
 from account.models import UserProfile
 from .serializers import DriverSerializer, AvailableDriverSerializer
+from account.permissions import HasDriverPermission
+
+
+class DriverPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class DriverFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    email = filters.CharFilter(field_name='email', lookup_expr='icontains')
+    status = filters.CharFilter(field_name='status', lookup_expr='iexact')
+
+    class Meta:
+        model = UserProfile
+        fields = ['status', 'name', 'email']
 
 
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
     serializer_class = DriverSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [HasDriverPermission]
+    queryset = UserProfile.objects.filter(is_driver=True)
+    pagination_class = DriverPagination
+    filterset_class = DriverFilter
 
-    def get_queryset(self):
-        return UserProfile.objects.filter(is_driver=True)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        total_drivers = UserProfile.objects.filter(is_driver=True).count()
+        available_drivers = UserProfile.objects.filter(is_driver=True, status="Available").count()
+    
+        off_duty_drivers = UserProfile.objects.filter(is_driver=True, status="Unavailable").count()
+        
 
-class DriverDetailView(generics.RetrieveUpdateDestroyAPIView):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            response.data['all'] = total_drivers
+            response.data['available'] = available_drivers
+            response.data['unavailable'] = off_duty_drivers
+            return response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'results': serializer.data,
+            'all': total_drivers,
+            'available': available_drivers,         
+            'unavailable': available_drivers,         
+        })
+    
+    
+
+class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, Update, or Destroy a driver"""
     serializer_class = DriverSerializer
     queryset = UserProfile.objects.filter(is_driver=True)
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasDriverPermission]
 
 
 class AvailableDriverListView(generics.ListAPIView):
     """List all available drivers (is_driver=True and status='Available')"""
     serializer_class = AvailableDriverSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return UserProfile.objects.filter(is_driver=True, status='Available')
+    permission_classes = [HasDriverPermission]
+    queryset = UserProfile.objects.filter(is_driver=True, status='Available')
