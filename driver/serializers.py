@@ -2,7 +2,7 @@ from rest_framework import serializers
 from account.models import UserProfile
 
 
-class DriverSerializer(serializers.ModelSerializer):
+class DriverListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
@@ -10,6 +10,15 @@ class DriverSerializer(serializers.ModelSerializer):
             'license_number', 'status', 'date_joined', 'is_active', 'disabled'
         ]
         read_only_fields = ['id', 'date_joined']
+
+class DriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'id', 'email', 'phone_number', 'dp', 'full_name',
+            'license_number', 'status', 'date_joined', 'is_active', 'disabled'
+        ]
+        read_only_fields = ['id', 'date_joined', "email"]
 
 
 class DriverUpdateSerializer(serializers.ModelSerializer):

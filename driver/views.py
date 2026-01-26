@@ -1,17 +1,10 @@
 from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 from django_filters import rest_framework as filters
 from account.models import UserProfile
-from .serializers import DriverSerializer, AvailableDriverSerializer
+from .serializers import DriverSerializer, AvailableDriverSerializer, DriverListSerializer
 from account.permissions import HasDriverPermission
-
-
-class DriverPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
+from fct.utils import CustomPagination
 
 class DriverFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
@@ -25,10 +18,10 @@ class DriverFilter(filters.FilterSet):
 
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
-    serializer_class = DriverSerializer
-    # permission_classes = [HasDriverPermission]
+    serializer_class = DriverListSerializer
+    permission_classes = [HasDriverPermission]
     queryset = UserProfile.objects.filter(is_driver=True)
-    pagination_class = DriverPagination
+    pagination_class = CustomPagination
     filterset_class = DriverFilter
 
 
@@ -65,6 +58,13 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.filter(is_driver=True)
     lookup_field = 'pk'
     permission_classes = [HasDriverPermission]
+    
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        driver = self.get_object()
+        partial = kwargs.get["partial", False]
+        serializer = self.get_serializer(instance=driver, data=request.data, partial=partial)
+        return Response("ok", status=200)
 
 
 class AvailableDriverListView(generics.ListAPIView):
