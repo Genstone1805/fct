@@ -143,6 +143,8 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'pk'
     permission_classes = [HasDriverPermission]
     
+    
+    @extend_schema(request=DriverSerializer)
     def update(self, request, *args, **kwargs):
         user = request.user
         driver = self.get_object()
