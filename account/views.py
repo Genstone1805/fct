@@ -78,7 +78,7 @@ class SignUpView(APIView):
                     added_by = admin.full_name
                 )
                 
-                log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.route_id})", request)
+                log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.id})", request)
             else:
                 # Get permissions from request
 
@@ -107,6 +107,7 @@ class SignUpView(APIView):
                 if 'dp' in serializer.validated_data:
                     user.dp = serializer.validated_data['dp']
 
+                log_user_activity(admin, f"Created User: {admin.full_name} → {admin.email} ({admin.id})", request)
             user.save()
 
             # Send email with credentials
