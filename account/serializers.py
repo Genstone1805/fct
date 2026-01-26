@@ -21,11 +21,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A user with this email already exists.")
         return value
 
-    def validate_phone_number(self, value):
-        if value and UserProfile.objects.filter(phone_number=value).exists():
-            raise serializers.ValidationError("A user with this phone number already exists.")
-        return value
-
     def validate_permissions(self, value):
         for perm in value:
             if perm not in VALID_PERMISSIONS:
@@ -74,10 +69,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance = self.instance
         if instance and UserProfile.objects.filter(email=value).exclude(pk=instance.pk).exists():
             raise serializers.ValidationError("A user with this email already exists.")
-        return value
-
-    def validate_phone_number(self, value):
-        instance = self.instance
-        if value and instance and UserProfile.objects.filter(phone_number=value).exclude(pk=instance.pk).exists():
-            raise serializers.ValidationError("A user with this phone number already exists.")
         return value

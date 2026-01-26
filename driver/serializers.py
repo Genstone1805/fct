@@ -14,11 +14,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A user with this email already exists.")
         return value
 
-    def validate_phone_number(self, value):
-        if value and UserProfile.objects.filter(phone_number=value).exists():
-            raise serializers.ValidationError("A user with this phone number already exists.")
-        return value
-
 class DriverListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
