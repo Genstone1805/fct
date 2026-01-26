@@ -58,7 +58,7 @@ class SignUpView(APIView):
     def post(self, request):
         admin = request.user
         serializer = SignUpSerializer(data=request.data)
-        
+        user = None
         try:
             if not serializer.is_valid(raise_exception=True):
                 print(serializer.errors)
@@ -83,6 +83,10 @@ class SignUpView(APIView):
                     license_number = serializer.validated_data.get('license_number', ''),
                     added_by = admin.full_name
                 )
+                
+                # Handle profile picture upload
+                if 'dp' in serializer.validated_data:
+                    user.dp = serializer.validated_data['dp']
                 
                 log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.id})", request)
             else:
@@ -118,8 +122,7 @@ class SignUpView(APIView):
 
             # Send email with credentials
             subject = "Welcome to First Class Transfer - Your Login Credentials"
-            permissions_text = ", ".join(permissions) if permissions else "None"
-            role_text = "Administrator" if user.is_superuser else "Staff"
+            
             
             if user.is_driver:
                 message = f"""
@@ -148,6 +151,9 @@ class SignUpView(APIView):
                     First Class Transfer Team
                 """
             else:
+                permissions_text = ", ".join(permissions) if permissions else "None"
+                role_text = "Administrator" if user.is_superuser else "Staff"
+            
                 message = f"""
                     Hello {user.full_name or 'there'},
 
