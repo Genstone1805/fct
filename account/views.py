@@ -60,8 +60,13 @@ class SignUpView(APIView):
         serializer = SignUpSerializer(data=request.data)
         
         try:
-            serializer.is_valid(raise_exception=True)
-            # Generate password
+            if not serializer.is_valid(raise_exception=True):
+                return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+                
+                
             generated_password = generate_password()
             
             is_driver = serializer.validated_data.get("is_driver", "")
