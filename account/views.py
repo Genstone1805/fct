@@ -58,8 +58,9 @@ class SignUpView(APIView):
     def post(self, request):
         admin = request.user
         serializer = SignUpSerializer(data=request.data)
+        
         try:
-            serializer.is_valid()
+            serializer.is_valid(raise_exception=True)
             # Generate password
             generated_password = generate_password()
             
