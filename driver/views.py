@@ -149,6 +149,11 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
         partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=driver, data=request.data, partial=partial)
         
+        
+        print("============================ERROR==================================")
+        print(request.data)
+        print("============================ERROR==================================")
+        
         if not serializer.is_valid():
             print(serializer.errors)
             return Response(
