@@ -21,7 +21,7 @@ class DriverFilter(filters.FilterSet):
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
     serializer_class = DriverListSerializer
-    permission_classes = [HasDriverPermission]
+    # permission_classes = [HasDriverPermission]
     queryset = UserProfile.objects.filter(is_driver=True)
     pagination_class = CustomPagination
     filterset_class = DriverFilter
