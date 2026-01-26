@@ -14,6 +14,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny, IsAdminUser
 from account.utils import log_user_activity
 from rest_framework.validators import ValidationError
+from contextlib import suppress
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -70,114 +71,65 @@ class SignUpView(APIView):
                 
             generated_password = generate_password()
             
-            is_driver = serializer.validated_data.get("is_driver", "")
             permissions = serializer.validated_data.get('permissions', [])
-            
-            if is_driver:
-                user = UserProfile.objects.create_user(
-                    email=serializer.validated_data['email'],
-                    password=generated_password,
-                    phone_number=serializer.validated_data.get('phone_number'),
-                    full_name=serializer.validated_data.get('full_name', ''),
-                    is_driver = serializer.validated_data.get('is_driver', ''),
-                    license_number = serializer.validated_data.get('license_number', ''),
-                    added_by = admin.full_name
-                )
-                
-                # Handle profile picture upload
-                if 'dp' in serializer.validated_data:
-                    user.dp = serializer.validated_data['dp']
-                
-                log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.id})", request)
+
+            # Check if all permissions are selected (make user an admin)
+            has_all_permissions = set(self.ALL_PERMISSIONS) == set(permissions)
+
+            # Create user with the generated password
+            user = UserProfile.objects.create_user(
+                email=serializer.validated_data['email'],
+                password=generated_password,
+                phone_number=serializer.validated_data.get('phone_number'),
+                full_name=serializer.validated_data.get('full_name', ''),
+                added_by = admin.full_name
+            )
+
+            # Set permissions
+            if has_all_permissions or 'adminUsers' in permissions:
+                user.is_staff = True
+                user.is_superuser = True
+                user.user_permissions = self.ALL_PERMISSIONS
             else:
-                # Get permissions from request
+                user.user_permissions = permissions
+                user.is_staff = True
 
-                # Check if all permissions are selected (make user an admin)
-                has_all_permissions = set(self.ALL_PERMISSIONS) == set(permissions)
+            # Handle profile picture upload
+            if 'dp' in serializer.validated_data:
+                user.dp = serializer.validated_data['dp']
 
-                # Create user with the generated password
-                user = UserProfile.objects.create_user(
-                    email=serializer.validated_data['email'],
-                    password=generated_password,
-                    phone_number=serializer.validated_data.get('phone_number'),
-                    full_name=serializer.validated_data.get('full_name', ''),
-                    added_by = admin.full_name
-                )
-
-                # Set permissions
-                if has_all_permissions or 'adminUsers' in permissions:
-                    user.is_staff = True
-                    user.is_superuser = True
-                    user.user_permissions = self.ALL_PERMISSIONS
-                else:
-                    user.user_permissions = permissions
-                    user.is_staff = True
-
-                # Handle profile picture upload
-                if 'dp' in serializer.validated_data:
-                    user.dp = serializer.validated_data['dp']
-
-                log_user_activity(admin, f"Created User: {admin.full_name} → {admin.email} ({admin.id})", request)
             user.save()
+            log_user_activity(admin, f"Created User: {admin.full_name} → {admin.email} ({admin.id})", request)
 
             # Send email with credentials
-            subject = "Welcome to First Class Transfer - Your Login Credentials"
-            
-            
-            if user.is_driver:
-                message = f"""
-                    Hello {user.full_name or 'there'},
+            subject = "Welcome to First Class Transfer - Your Login Credentials"  
+            permissions_text = ", ".join(permissions) if permissions else "None"
+            role_text = "Administrator" if user.is_superuser else "Staff"
+        
+            message = f"""
+                Hello {user.full_name or 'there'},
 
-                    Welcome to First Class Transfer!  
-                    You’ve been successfully onboarded as a **Driver** on our platform.
+                Welcome to First Class Transfer! Your account has been created successfully.
 
-                    Below are your login details:
+                Here are your login credentials:
 
-                    Email: {user.email}  
-                    Temporary Password: {generated_password}
+                Email: {user.email}
+                Password: {generated_password}
 
-                    Role: Driver  
+                Your Role: {role_text}
+                Your Permissions: {permissions_text}
+                
+                Next steps:
+                - visit the login page on our site
+                - Change your password immediately for security
+                - Log into your dashboard
 
-                    Next steps:
-                    - visit the login page on our site
-                    - Change your password immediately for security
-                    - Log into your dashboard
+                Please keep these credentials safe and change your password after your first login.
 
-                    You’re now part of our trusted driver network, and we’re excited to have you on board. If you need support, our team is ready to assist.
-
-                    Drive safe and deliver excellence.
-
-                    Best regards,  
-                    First Class Transfer Team
-                """
-            else:
-                permissions_text = ", ".join(permissions) if permissions else "None"
-                role_text = "Administrator" if user.is_superuser else "Staff"
-            
-                message = f"""
-                    Hello {user.full_name or 'there'},
-
-                    Welcome to First Class Transfer! Your account has been created successfully.
-
-                    Here are your login credentials:
-
-                    Email: {user.email}
-                    Password: {generated_password}
-
-                    Your Role: {role_text}
-                    Your Permissions: {permissions_text}
-                    
-                    Next steps:
-                    - visit the login page on our site
-                    - Change your password immediately for security
-                    - Log into your dashboard
-
-                    Please keep these credentials safe and change your password after your first login.
-
-                    Best regards,
-                    First Class Transfer Team
-                """
-            try:
+                Best regards,
+                First Class Transfer Team
+            """
+            with suppress(Exception):
                 send_mail(
                     subject,
                     message,
@@ -185,10 +137,6 @@ class SignUpView(APIView):
                     [user.email],
                     fail_silently=False,
                 )
-            except Exception as e:
-                # Log the error but don't fail the registration
-                print(f"Failed to send email: {e}")
-                
 
             return Response(
                 {
@@ -197,13 +145,11 @@ class SignUpView(APIView):
                 status=status.HTTP_201_CREATED
             )
         except ValidationError as e:
-            print(str(e))
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print(str(e))
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

@@ -1,6 +1,5 @@
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from account.permissions import HasVehiclePermission
-
 from .models import Vehicle
 from .serializers import VehicleSerializer, AvailableVehicleSerializer
 

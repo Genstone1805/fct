@@ -2,6 +2,23 @@ from rest_framework import serializers
 from account.models import UserProfile
 
 
+
+class SignUpSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ['email', 'phone_number', 'dp', 'full_name', "license_number", "is_driver"]
+
+    def validate_email(self, value):
+        if UserProfile.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def validate_phone_number(self, value):
+        if value and UserProfile.objects.filter(phone_number=value).exists():
+            raise serializers.ValidationError("A user with this phone number already exists.")
+        return value
+
 class DriverListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
