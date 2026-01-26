@@ -160,11 +160,16 @@ REST_FRAMEWORK = {
     ),
 
     'DEFAULT_PARSER_CLASSES': (
-        'djangorestframework_camel_case.parser.CamelCaseFormParser',
-        'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
-        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        'fct.parsers.RecursiveCamelCaseFormParser',
+        'fct.parsers.RecursiveCamelCaseMultiPartParser',
+        'fct.parsers.RecursiveCamelCaseJSONParser',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# Camel case settings for nested object conversion
+JSON_UNDERSCOREIZE = {
+    'no_underscore_before_number': True,
 }
 
 from datetime import timedelta
