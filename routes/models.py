@@ -1,8 +1,11 @@
 import secrets
 import string
-
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
+
+
+User = get_user_model()
 
 
 class Vehicle(models.Model):
@@ -46,6 +49,7 @@ class RouteFAQ(models.Model):
 
 
 class Route(models.Model):
+    added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     route_id = models.CharField(max_length=100, blank=True, null=True)
 
     slug = models.SlugField(max_length=200, unique=True, blank=True)

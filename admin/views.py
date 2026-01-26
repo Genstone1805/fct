@@ -1,4 +1,8 @@
 import json
+from django.db import transaction, IntegrityError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     CreateAPIView, ListAPIView, RetrieveAPIView,
     RetrieveUpdateDestroyAPIView
@@ -7,11 +11,8 @@ from account.permissions import HasRoutePermission
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from routes.models import Vehicle, RouteFAQ, Route
-from .serializers import (
-    CreateVehicleSerializer, UpdateVehicleSerializer,
-    CreateRouteFAQSerializer, UpdateRouteFAQSerializer,
-    CreateRouteSerializer, UpdateRouteSerializer
-)
+from .serializers import ( CreateRouteSerializer )
+from account.utils import log_user_activity
 
 
 class JSONFieldParserMixin:
@@ -42,22 +43,14 @@ class JSONFieldParserMixin:
             kwargs['data'] = data
 
         return super().get_serializer(*args, **kwargs)
+    
 
+class RouteListView(ListAPIView):
+    """List all routes."""
+    queryset = Route.objects.all()
+    serializer_class = CreateRouteSerializer
+    permission_classes = [HasRoutePermission]
 
-# class CreateVehicleView(CreateAPIView):
-#     """Create a new vehicle option for a route."""
-#     queryset = Vehicle.objects.all()
-#     serializer_class = CreateVehicleSerializer
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
-
-
-# class CreateRouteFAQView(CreateAPIView):
-#     """Create a new FAQ for a route."""
-#     queryset = RouteFAQ.objects.all()
-#     serializer_class = CreateRouteFAQSerializer
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
 
 
 class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
@@ -67,105 +60,127 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [HasRoutePermission]
 
-    def perform_create(self, serializer):
-        """Create the route and then create associated vehicle options and FAQs."""
+    def create(self, request, *args, **kwargs):
+        user=request.user
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
 
-        route = serializer.save()
+        try:
+            with transaction.atomic():
+                route = Route.objects.create(**serializer.validated_data, added_by=user)
 
-        for vehicle_data in vehicle_options_data:
-            Vehicle.objects.create(
-                route=route,
-                vehicle_type=vehicle_data.get('vehicle_type'),
-                max_passengers=vehicle_data.get('max_passengers'),
-                ideal_for=vehicle_data.get('ideal_for'),
-                fixed_price=vehicle_data.get('fixed_price')
+                for vehicle_data in vehicle_options_data:
+                    Vehicle.objects.create(
+                        route=route,
+                        vehicle_type=vehicle_data.get('vehicle_type'),
+                        max_passengers=vehicle_data.get('max_passengers'),
+                        ideal_for=vehicle_data.get('ideal_for'),
+                        fixed_price=vehicle_data.get('fixed_price')
+                    )
+
+                for faq_item in faq_data:
+                    RouteFAQ.objects.create(
+                        route=route,
+                        question=faq_item.get('question'),
+                        answer=faq_item.get('answer')
+                    )
+
+            log_user_activity(user, f"Created route: {route.from_location} → {route.to_location} ({route.route_id})")
+
+            return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
+        except IntegrityError as e:
+            return Response(
+                {'error': 'Database integrity error', 'details': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
             )
-            
-        for faq_item in faq_data:
-            RouteFAQ.objects.create(
-                route=route,
-                question=faq_item.get('question'),
-                answer=faq_item.get('answer')
+        except ValidationError as e:
+            return Response(
+                {'error': 'Validation error', 'details': e.detail},
+                status=status.HTTP_400_BAD_REQUEST
             )
-
-class RouteListView(ListAPIView):
-    """List all routes."""
-    queryset = Route.objects.all()
-    serializer_class = CreateRouteSerializer
-    permission_classes = [HasRoutePermission]
-
-
-# class RouteDetailView(RetrieveAPIView):
-#     """Retrieve a single route by ID."""
-#     queryset = Route.objects.all()
-#     serializer_class = CreateRouteSerializer
-#     authentication_classes = []
-#     lookup_field = "route_id"
-#     permission_classes = [AllowAny]
-
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to create route', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroyAPIView):
-    """Update an existing route with optional nested vehicle options and FAQs."""
+    """Retrieve, update or delete an existing route with nested vehicle options and FAQs."""
     queryset = Route.objects.all()
-    serializer_class = UpdateRouteSerializer
+    serializer_class = CreateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
     lookup_field = "route_id"
     permission_classes = [HasRoutePermission]
-    
+
     def update(self, request, *args, **kwargs):
-        print("================== RAW REQUEST DATA =========================")
+        user = request.user
+        route = self.get_object()
+        partial = kwargs.get('partial', False)
+        serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
+        
+        print("===============DATA SENT========================")
         print(request.data)
-        print("==============================================================")
+        print("===============DATA SENT========================")
 
-        serializer = self.get_serializer(data=request.data, instance=self.get_object(), partial=kwargs.get('partial', False))
         if not serializer.is_valid():
-            print("================== SERIALIZER ERRORS ========================")
-            print(serializer.errors)
-            print("==============================================================")
-
-        return super().update(request, *args, **kwargs)
-    def perform_update(self, serializer):
-        """Update the route and update/create associated vehicle options and FAQs."""
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
 
-        route = serializer.save()
+        try:
+            with transaction.atomic():
+                route = serializer.save()
 
-        for vehicle_data in vehicle_options_data:
-            vehicle_id = vehicle_data.get('id')
-            if vehicle_id:
-                Vehicle.objects.filter(id=vehicle_id, route=route).update(
-                    vehicle_type=vehicle_data.get('vehicle_type'),
-                    max_passengers=vehicle_data.get('max_passengers'),
-                    ideal_for=vehicle_data.get('ideal_for'),
-                    fixed_price=vehicle_data.get('fixed_price')
-                )
-            else:
-                Vehicle.objects.create(
-                    route=route,
-                    vehicle_type=vehicle_data.get('vehicle_type'),
-                    max_passengers=vehicle_data.get('max_passengers'),
-                    ideal_for=vehicle_data.get('ideal_for'),
-                    fixed_price=vehicle_data.get('fixed_price')
-                )
+                if vehicle_options_data:
+                    route.vehicle_options.all().delete()
+                    for vehicle_data in vehicle_options_data:
+                        Vehicle.objects.create(
+                            route=route,
+                            vehicle_type=vehicle_data.get('vehicle_type'),
+                            max_passengers=vehicle_data.get('max_passengers'),
+                            ideal_for=vehicle_data.get('ideal_for'),
+                            fixed_price=vehicle_data.get('fixed_price')
+                        )
 
-        for faq_item in faq_data:
-            faq_id = faq_item.get('id')
-            if faq_id:
-                RouteFAQ.objects.filter(id=faq_id, route=route).update(
-                    question=faq_item.get('question'),
-                    answer=faq_item.get('answer')
-                )
-            else:
-                RouteFAQ.objects.create(
-                    route=route,
-                    question=faq_item.get('question'),
-                    answer=faq_item.get('answer')
-                )
+                if faq_data:
+                    route.faqs.all().delete()
+                    for faq_item in faq_data:
+                        RouteFAQ.objects.create(
+                            route=route,
+                            question=faq_item.get('question'),
+                            answer=faq_item.get('answer')
+                        )
+
+            log_user_activity(user, f"Updated route: {route.from_location} → {route.to_location} ({route.route_id})")
+
+            return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
+        except IntegrityError as e:
+            return Response(
+                {'error': 'Database integrity error', 'details': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except ValidationError as e:
+            return Response(
+                {'error': 'Validation error', 'details': e.detail},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to update route', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # class VehicleDetailView(RetrieveUpdateDestroyAPIView):

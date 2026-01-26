@@ -1,8 +1,10 @@
+import os
 import random
 import string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.http import FileResponse, Http404
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -20,6 +22,7 @@ from .serializers import (
     UserProfileSerializer,
     UserUpdateSerializer,
 )
+from .utils import get_activity_log_path
 
 
 def get_tokens_for_user(user):
@@ -392,3 +395,20 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     @extend_schema(responses={204: None})
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
+class DownloadActivityLogView(APIView):
+    """Download the user activity log file. Admin only."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        log_path = get_activity_log_path()
+
+        if not os.path.exists(log_path):
+            raise Http404("Activity log file not found.")
+
+        return FileResponse(
+            open(log_path, 'rb'),
+            as_attachment=True,
+            filename='user_activity.log'
+        )

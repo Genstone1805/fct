@@ -52,6 +52,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     disabled = models.BooleanField(default=False)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     last_login = models.DateTimeField(null=True, blank=True)
+    activity_log = models.JSONField(default=list, blank=True)
 
     objects = CustomUserManager()
 
