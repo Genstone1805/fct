@@ -13,8 +13,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny, IsAdminUser
 from account.utils import log_user_activity
-from django.db import transaction, IntegrityError
-from rest_framework.validators import ValidationError
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -53,15 +51,13 @@ class SignUpView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAdminUser]
 
-    ALL_PERMISSIONS = ['booking', 'drivers', 'routes', "vehicles", 'adminUsers']
+    ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'adminUsers']
 
     @extend_schema(request=SignUpSerializer, responses={201: UserProfileSerializer})
     def post(self, request):
         admin = request.user
         serializer = SignUpSerializer(data=request.data)
-        user = ""
-        try:
-            serializer.is_valid()
+        if serializer.is_valid():
             # Generate password
             generated_password = generate_password()
             
@@ -69,17 +65,15 @@ class SignUpView(APIView):
             permissions = serializer.validated_data.get('permissions', [])
             
             if is_driver:
-                with transaction.atomic():
-                    user = UserProfile.objects.create_user(
-                        email=serializer.validated_data['email'],
-                        password=generated_password,
-                        phone_number=serializer.validated_data.get('phone_number'),
-                        full_name=serializer.validated_data.get('full_name', ''),
-                        is_driver = serializer.validated_data.get('is_driver', ''),
-                        added_by = admin.full_name
-                    )
-                    
-                    user.save()                
+                user = UserProfile.objects.create_user(
+                    email=serializer.validated_data['email'],
+                    password=generated_password,
+                    phone_number=serializer.validated_data.get('phone_number'),
+                    full_name=serializer.validated_data.get('full_name', ''),
+                    is_driver = serializer.validated_data.get('is_driver', ''),
+                    added_by = admin.full_name
+                )
+                
                 log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.route_id})", request)
             else:
                 # Get permissions from request
@@ -88,30 +82,28 @@ class SignUpView(APIView):
                 has_all_permissions = set(self.ALL_PERMISSIONS) == set(permissions)
 
                 # Create user with the generated password
-                with transaction.atomic():
-                    user = UserProfile.objects.create_user(
-                        email=serializer.validated_data['email'],
-                        password=generated_password,
-                        phone_number=serializer.validated_data.get('phone_number'),
-                        full_name=serializer.validated_data.get('full_name', ''),
-                        added_by = admin.full_name
-                    )
+                user = UserProfile.objects.create_user(
+                    email=serializer.validated_data['email'],
+                    password=generated_password,
+                    phone_number=serializer.validated_data.get('phone_number'),
+                    full_name=serializer.validated_data.get('full_name', ''),
+                    added_by = admin.full_name
+                )
 
-                    # Set permissions
-                    if has_all_permissions or 'adminUsers' in permissions:
-                        user.is_staff = True
-                        user.is_superuser = True
-                        user.user_permissions = self.ALL_PERMISSIONS
-                    else:
-                        user.user_permissions = permissions
-                        user.is_staff = True
+                # Set permissions
+                if has_all_permissions or 'adminUsers' in permissions:
+                    user.is_staff = True
+                    user.is_superuser = True
+                    user.user_permissions = self.ALL_PERMISSIONS
+                else:
+                    user.user_permissions = permissions
+                    user.is_staff = True
 
-                    # Handle profile picture upload
-                    if 'dp' in serializer.validated_data:
-                        user.dp = serializer.validated_data['dp']
+                # Handle profile picture upload
+                if 'dp' in serializer.validated_data:
+                    user.dp = serializer.validated_data['dp']
 
-                    user.save()
-                log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.route_id})", request)
+            user.save()
 
             # Send email with credentials
             subject = "Welcome to First Class Transfer - Your Login Credentials"
@@ -187,21 +179,7 @@ class SignUpView(APIView):
                 },
                 status=status.HTTP_201_CREATED
             )
-        except IntegrityError as e:
-            return Response(
-                {'error': 'Database integrity error', 'details': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except ValidationError as e:
-            return Response(
-                {'error': 'Validation error', 'details': e.detail},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            return Response(
-                {'error': 'Failed to update route', 'details': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -231,7 +209,6 @@ class LoginView(APIView):
                         "message": "Login successful",
                         "permissions": user.user_permissions,
                         "is_superuser": user.is_superuser,
-                        "is_driver": user.is_driver,
                         "tokens": tokens
                     },
                     status=status.HTTP_200_OK
