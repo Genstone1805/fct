@@ -117,19 +117,18 @@ class CreateDriverView(APIView):
             )
                 
         except ValidationError as e:
+            print(serializer.errors)
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         except Exception as e:
+            print(serializer.errors)
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-
 
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
