@@ -152,9 +152,9 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(instance=driver, data=request.data, partial=partial)
         
         
-        print("============================ERROR==================================")
+        print("============================dt==================================")
         print(request.data)
-        print("============================ERROR==================================")
+        print("============================DT==================================")
         
         if not serializer.is_valid():
             print(serializer.errors)
@@ -163,6 +163,9 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        print("============================validated dT==================================")
+        print(serializer.validated_data)
+        print("============================validated data==================================")
         try:
             with transaction.atomic():
                 driver = serializer.save()
