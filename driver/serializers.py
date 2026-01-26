@@ -3,7 +3,7 @@ from account.models import UserProfile
 
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class DriverRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile

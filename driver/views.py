@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAdminUser
 from drf_spectacular.utils import extend_schema
-from account.serializers import SignUpSerializer, UserProfileSerializer
+from account.serializers import UserProfileSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from account.views import generate_password
@@ -11,12 +11,10 @@ from django.conf import settings
 from rest_framework.validators import ValidationError
 from contextlib import suppress
 
-
-
 from rest_framework import generics
 from django_filters import rest_framework as filters
 from account.models import UserProfile
-from .serializers import DriverSerializer, AvailableDriverSerializer, DriverListSerializer
+from .serializers import DriverSerializer, AvailableDriverSerializer, DriverListSerializer, DriverRegistrationSerializer
 from account.permissions import HasDriverPermission
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
@@ -38,10 +36,10 @@ class CreateDriverView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAdminUser]
 
-    @extend_schema(request=SignUpSerializer, responses={201: UserProfileSerializer})
+    @extend_schema(request=DriverRegistrationSerializer, responses={201: UserProfileSerializer})
     def post(self, request):
         admin = request.user
-        serializer = SignUpSerializer(data=request.data)
+        serializer = DriverRegistrationSerializer(data=request.data)
         user = None
         try:
             if not serializer.is_valid(raise_exception=True):
