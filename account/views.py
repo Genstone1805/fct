@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny, IsAdminUser
 from account.utils import log_user_activity
+from rest_framework.validators import ValidationError
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -57,7 +58,8 @@ class SignUpView(APIView):
     def post(self, request):
         admin = request.user
         serializer = SignUpSerializer(data=request.data)
-        if serializer.is_valid():
+        try:
+            serializer.is_valid()
             # Generate password
             generated_password = generate_password()
             
@@ -71,6 +73,7 @@ class SignUpView(APIView):
                     phone_number=serializer.validated_data.get('phone_number'),
                     full_name=serializer.validated_data.get('full_name', ''),
                     is_driver = serializer.validated_data.get('is_driver', ''),
+                    license_number = serializer.validated_data.get('license_number', ''),
                     added_by = admin.full_name
                 )
                 
@@ -179,7 +182,16 @@ class SignUpView(APIView):
                 },
                 status=status.HTTP_201_CREATED
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            return Response(
+                {'error': 'Validation error', 'details': e.detail},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to update route', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class LoginView(APIView):
