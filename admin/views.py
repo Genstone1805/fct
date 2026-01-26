@@ -167,16 +167,25 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
 
             return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:
+            print("===============ERROR MESSAGE========================")
+            print(str(e))
+            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Database integrity error', 'details': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except ValidationError as e:
+            print("===============ERROR MESSAGE========================")
+            print(str(e))
+            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
+            print("===============ERROR MESSAGE========================")
+            print(str(e))
+            print("===============ERROR MESSAGE========================")
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
