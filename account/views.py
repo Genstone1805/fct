@@ -184,11 +184,13 @@ class SignUpView(APIView):
                 status=status.HTTP_201_CREATED
             )
         except ValidationError as e:
+            print(str(e))
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
+            print(str(e))
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
