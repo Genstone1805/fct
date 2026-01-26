@@ -63,6 +63,17 @@ class HasRoutePermission(BasePermission):
             return True
         return 'routes' in request.user.user_permissions
 
+class HasVehiclePermission(BasePermission):
+    message = "You do not have permission to access route resources."
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        # Admin users have all permissions
+        if request.user.is_superuser:
+            return True
+        return 'vehicles' in request.user.user_permissions
+
 
 class IsAdminUser(BasePermission):
     """

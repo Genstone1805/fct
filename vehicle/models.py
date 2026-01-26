@@ -9,10 +9,7 @@ class Vehicle(models.Model):
 
     STATUS_CHOICES = [
         ("Available", "Available"),
-        ("Assigned", "Assigned"),
-        ("In Service", "In Service"),
-        ("Maintenance", "Maintenance"),
-        ("Out of Service", "Out of Service"),
+        ("Unavailable", "Unavailable"),
     ]
 
     # Status

@@ -5,6 +5,8 @@ from account.models import UserProfile
 from .serializers import DriverSerializer, AvailableDriverSerializer, DriverListSerializer
 from account.permissions import HasDriverPermission
 from fct.utils import CustomPagination
+from account.utils import log_user_activity
+from django.db import transaction, IntegrityError
 
 class DriverFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
@@ -64,7 +66,35 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
         driver = self.get_object()
         partial = kwargs.get["partial", False]
         serializer = self.get_serializer(instance=driver, data=request.data, partial=partial)
-        return Response("ok", status=200)
+        
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            with transaction.atomic():
+                driver = serializer.save()
+
+            log_user_activity(user, f"Updated Driver: {driver.email} → {driver.full_name} ({driver.id})", request)
+
+            return Response({"message":"Driver Updated"}, status=status.HTTP_200_OK)
+        except IntegrityError as e:
+            return Response(
+                {'error': 'Database integrity error', 'details': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except ValidationError as e:
+            return Response(
+                {'error': 'Validation error', 'details': e.detail},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to update route', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class AvailableDriverListView(generics.ListAPIView):
