@@ -38,7 +38,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     dp = models.ImageField(blank=True)
     
     full_name = models.CharField(max_length=80, blank=True)
-    phone_number = PhoneNumberField(unique=True, blank=True, null=True)
+    phone_number = models.CharField(blank=True, max_length=20, null=True)
     email = models.EmailField(unique=True)
     added_by = models.CharField(max_length=100, default="", blank=True)
     user_permissions = models.JSONField(default=list, blank=True)
