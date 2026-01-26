@@ -30,7 +30,7 @@ class DriverSerializer(serializers.ModelSerializer):
             'id', 'email', 'phone_number', 'dp', 'full_name',
             'license_number', 'date_joined', 'is_active', 'disabled'
         ]
-        read_only_fields = ['id', 'date_joined', "email"]
+        read_only_fields = ['id', 'date_joined', "email", 'is_active', 'disabled']
 
 class AvailableDriverSerializer(serializers.ModelSerializer):
     class Meta:
