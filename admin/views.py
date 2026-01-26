@@ -13,6 +13,7 @@ from rest_framework.permissions import AllowAny
 from routes.models import Vehicle, RouteFAQ, Route
 from .serializers import ( CreateRouteSerializer )
 from account.utils import log_user_activity
+from fct.parsers import recursive_underscoreize
 
 
 class JSONFieldParserMixin:
@@ -36,7 +37,9 @@ class JSONFieldParserMixin:
             for field in self.json_fields:
                 if field in data and isinstance(data[field], str):
                     try:
-                        data[field] = json.loads(data[field])
+                        parsed = json.loads(data[field])
+                        # Convert camelCase keys to snake_case in parsed JSON
+                        data[field] = recursive_underscoreize(parsed)
                     except (json.JSONDecodeError, TypeError):
                         pass
 
@@ -135,6 +138,9 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        print("===============DATA SENT========================")
+        print(serializer.validated_data)
+        print("===============DATA SENT========================")
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
