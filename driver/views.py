@@ -52,6 +52,7 @@ class CreateDriverView(APIView):
             )
                 
             print(request.data)
+            print(serializer.validated_data)
                 
                 
             generated_password = generate_password()
