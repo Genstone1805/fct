@@ -84,6 +84,7 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
+        print(faq_data)
 
         try:
             with transaction.atomic():
