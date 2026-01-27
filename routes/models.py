@@ -10,9 +10,10 @@ User = get_user_model()
 
 class Vehicle(models.Model):
     VEHICLE_TYPE = [
-        ("Standard Car", "Standard Car"),
-        ("Minivan","Minivan")
+        ("sedan", "sedan"),
+        ("vclass","vclass")
     ]
+    
     route = models.ForeignKey(
         'Route',
         on_delete=models.CASCADE,

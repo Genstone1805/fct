@@ -38,8 +38,8 @@ class  Booking(models.Model):
   ]
   
   VEHICLE_TYPE = [
-        ("Sedan", "Sedan"),
-        ("V Class","V Class")
+        ("sedan", "sedan"),
+        ("vclass","vclass")
     ]
 
   TIME_PERIOD_CHOICES = [
