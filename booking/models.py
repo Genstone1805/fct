@@ -84,7 +84,7 @@ class  Booking(models.Model):
   driver = models.ForeignKey(user, on_delete=models.SET_NULL, null=True, blank=True)
   transfer_information = models.ForeignKey(TransferInformation, on_delete=models.CASCADE)
   passenger_information = models.ForeignKey(PassengerDetail, on_delete=models.CASCADE)
-  
+
   class Meta:
         verbose_name = 'Booking Detail'
         verbose_name_plural = 'Booking Details'
