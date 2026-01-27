@@ -9,6 +9,7 @@ from rest_framework import status
 from admin.views import JSONFieldParserMixin
 
 from .models import Booking
+from routes.models import Route
 from .serializers import (
     BookingCreateSerializer,
     BookingListSerializer,
@@ -46,7 +47,7 @@ class BookingCreateView(CreateAPIView):
     json_fields = ['transfer_information', 'passenger_information']
 
     def get_serializer(self, *args, **kwargs):
-        """Parse JSON fields from multipart form data."""
+        """Parse JSON fields from multipart form data and convert route_id to pk."""
         if 'data' in kwargs:
             data = kwargs['data']
             if hasattr(data, 'dict'):
@@ -54,6 +55,7 @@ class BookingCreateView(CreateAPIView):
             else:
                 data = dict(data)
 
+            # Parse JSON string fields
             for field in self.json_fields:
                 if field in data and isinstance(data[field], str):
                     try:
@@ -62,9 +64,38 @@ class BookingCreateView(CreateAPIView):
                     except (json.JSONDecodeError, TypeError):
                         pass
 
+            # Convert route_id (string) to route pk (integer)
+            if 'route' in data and isinstance(data['route'], str):
+                try:
+                    route = Route.objects.get(route_id=data['route'])
+                    data['route'] = route.pk
+                except Route.DoesNotExist:
+                    pass  # Let serializer handle the validation error
+
             kwargs['data'] = data
 
         return super().get_serializer(*args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Mutate data here as needed
+        # Example: validated_data = serializer.validated_data
+        # validated_data['some_field'] = modified_value
+
+        booking = serializer.save()
+
+        return Response(
+            {"message": "Booking created successfully", "booking_id": booking.booking_id},
+            status=status.HTTP_201_CREATED
+        )
+        
     
 
 
