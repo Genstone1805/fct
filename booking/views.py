@@ -49,13 +49,16 @@ class BookingCreateView(CreateAPIView):
     def get_serializer(self, *args, **kwargs):
         """Parse JSON fields from multipart form data and convert route_id to pk."""
         if 'data' in kwargs:
-            data = kwargs['data']
-            if hasattr(data, 'dict'):
-                data = data.dict()
+            raw_data = kwargs['data']
+            if hasattr(raw_data, 'dict'):
+                data: dict = raw_data.dict()
             else:
-                data = dict(data)
+                data: dict = dict(raw_data)
 
-            # Parse JSON string fields
+            # Convert camelCase keys to snake_case for all top-level fields
+            data = dict(recursive_underscoreize(data))
+
+            # Parse JSON string fields (now using snake_case keys)
             for field in self.json_fields:
                 if field in data and isinstance(data[field], str):
                     try:
@@ -67,8 +70,8 @@ class BookingCreateView(CreateAPIView):
             # Convert route_id (string) to route pk (integer)
             if 'route' in data and isinstance(data['route'], str):
                 try:
-                    route = Route.objects.get(route_id=data['route'])
-                    data['route'] = route.pk
+                    route_obj = Route.objects.get(route_id=data['route'])
+                    data['route'] = route_obj.pk
                 except Route.DoesNotExist:
                     pass  # Let serializer handle the validation error
 
