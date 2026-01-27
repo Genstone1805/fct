@@ -8,6 +8,7 @@ from .views import (
     UserListView,
     UserDetailView,
     DownloadActivityLogView,
+    UserUpdateUpView
 )
 
 urlpatterns = [
@@ -18,5 +19,6 @@ urlpatterns = [
     path('password-reset/verify/', VerifyResetCodeView.as_view(), name='password-reset-verify'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('users/<int:pk>/update/', UserUpdateUpView.as_view(), name='user-update'),
     path('activity-log/download/', DownloadActivityLogView.as_view(), name='download-activity-log'),
 ]

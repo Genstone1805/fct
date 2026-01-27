@@ -14,6 +14,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny, IsAdminUser
 from account.utils import log_user_activity
 from rest_framework.validators import ValidationError
+from rest_framework.generics import RetrieveUpdateAPIView
 from contextlib import suppress
 
 from .models import UserProfile, PasswordResetCode
@@ -399,3 +400,49 @@ class DownloadActivityLogView(APIView):
             as_attachment=True,
             filename='user_activity.log'
         )
+
+class UserUpdateUpView(RetrieveUpdateAPIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAdminUser]
+    serializer_class = UserUpdateSerializer
+
+    ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
+
+    def update(self, request, *args, **kwargs):
+        admin = request.user
+        user = self.get_object()
+
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        try:
+
+            permissions = serializer.validated_data.get('permissions', [])
+
+            serializer.save()
+            apply_permissions(user, permissions, self.ALL_PERMISSIONS)
+
+            if 'dp' in serializer.validated_data:
+                user.dp = serializer.validated_data['dp']
+
+            user.save()
+
+            log_user_activity(
+                admin,
+                f"Updated User: {user.full_name} ({user.email})",
+                request
+            )
+
+            return Response(
+                {"message": "User updated successfully"},
+                status=status.HTTP_200_OK
+            )
+        except ValidationError as e:
+            return Response(
+                {'error': 'Validation error', 'details': e.detail},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to update route', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
