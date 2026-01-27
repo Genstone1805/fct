@@ -66,21 +66,23 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ['email', 'phone_number', 'dp', 'full_name', 'permissions', 'is_staff', 'disabled']
         read_only_fields = ["email"]
+        
+    def to_internal_value(self, data):
+        data = data.copy()
+
+        permissions = data.get('permissions')
+        if isinstance(permissions, str):
+            try:
+                data['permissions'] = json.loads(permissions)
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({
+                    'permissions': 'Invalid permissions format'
+                })
+
+        return super().to_internal_value(data)
 
     def validate_email(self, value):
         instance = self.instance
         if instance and UserProfile.objects.filter(email=value).exclude(pk=instance.pk).exists():
             raise serializers.ValidationError("A user with this email already exists.")
-        return value
-    
-    def validate_permissions(self, value):
-        if isinstance(value, str):
-            try:
-                value = json.loads(value)
-            except json.JSONDecodeError:
-                raise serializers.ValidationError("Invalid permissions format")
-
-        if not isinstance(value, list):
-            raise serializers.ValidationError("Permissions must be a list")
-
         return value
