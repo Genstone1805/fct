@@ -6,8 +6,8 @@ User = get_user_model()
 
 class Vehicle(models.Model):
     VEHICLE_TYPE_CHOICES = [
-        ("Sedan", "Sedan"),
-        ("Minivan", "Minivan"),
+        ("sedan", "sedan"),
+        ("vclass","vclass")
     ]
 
 

@@ -178,19 +178,16 @@ class AvailableDriversView(APIView):
 class AvailableVehiclesView(APIView):
     permission_classes = [HasBookingPermission]
 
-    def get(self, request):
+    def get(self, request, booking_id):
         from vehicle.models import Vehicle
 
         vehicle_type = request.query_params.get('vehicle_type')
 
         if not vehicle_type:
-            return Response(
-                {"error": "vehicle_type query parameter is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        vehicles = Vehicle.objects.filter(type=vehicle_type)
-
+            vehicles = Vehicle.objects.filter(type=vehicle_type)
+        else:
+            vehicles = Vehicle.objects.all()
+            
         serializer = AvailableVehicleSerializer(vehicles, many=True)
         return Response(serializer.data)
 
