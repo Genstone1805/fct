@@ -230,19 +230,13 @@ If you did not request this, please ignore this email.
 Best regards,
 First Class Transfer Team
             """
-            try:
+            with suppress(Exception):
                 send_mail(
                     subject,
                     message,
                     settings.EMAIL_FROM,
                     [user.email],
                     fail_silently=False,
-                )
-            except Exception as e:
-                print(f"Failed to send email: {e}")
-                return Response(
-                    {"error": "Failed to send verification email. Please try again."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
             return Response(
@@ -314,19 +308,13 @@ Please log in with this new password and consider changing it for security.
 Best regards,
 First Class Transfer Team
             """
-            try:
+            with suppress(Exception):
                 send_mail(
                     subject,
                     message,
                     settings.EMAIL_FROM,
                     [user.email],
                     fail_silently=False,
-                )
-            except Exception as e:
-                print(f"Failed to send email: {e}")
-                return Response(
-                    {"error": "Password was reset but failed to send email. Please contact support."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
             return Response(
@@ -456,13 +444,11 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
                 status=status.HTTP_200_OK
             )
         except ValidationError as e:
-            print(str(e))
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print(str(e))
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
