@@ -417,42 +417,32 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
 
         serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        try:
 
-            permissions = serializer.validated_data.get('permissions', [])
+        permissions = serializer.validated_data.get('user_permissions', [])
 
-            serializer.save()
-            if set(permissions) == set(all_permissions) or 'adminUsers' in permissions:
-                user.is_staff = True
-                user.is_superuser = True
-            else:
-                user.is_staff = True
-                user.is_superuser = False
+        serializer.save()
 
-            user.custom_permissions = permissions
+        if set(permissions) == set(self.ALL_PERMISSIONS) or 'adminUsers' in permissions:
+            user.is_staff = True
+            user.is_superuser = True
+        else:
+            user.is_staff = True
+            user.is_superuser = False
 
-            if 'dp' in serializer.validated_data:
-                user.dp = serializer.validated_data['dp']
+        user.custom_permissions = permissions
 
-            user.save()
+        if 'dp' in serializer.validated_data:
+            user.dp = serializer.validated_data['dp']
 
-            log_user_activity(
-                admin,
-                f"Updated User: {user.full_name} ({user.email})",
-                request
-            )
+        user.save()
 
-            return Response(
-                {"message": "User updated successfully"},
-                status=status.HTTP_200_OK
-            )
-        except ValidationError as e:
-            return Response(
-                {'error': 'Validation error', 'details': e.detail},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            return Response(
-                {'error': 'Failed to update route', 'details': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        log_user_activity(
+            admin,
+            f"Updated User: {user.full_name} ({user.email})",
+            request
+        )
+
+        return Response(
+            {"message": "User updated successfully"},
+            status=status.HTTP_200_OK
+        )
