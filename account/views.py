@@ -401,10 +401,13 @@ class DownloadActivityLogView(APIView):
             filename='user_activity.log'
         )
 
+
 class UserUpdateUpView(RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAdminUser]
     serializer_class = UserUpdateSerializer
+    queryset = UserProfile.objects.all()
+    lookup_field = "pk"
 
     ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
 
@@ -419,7 +422,14 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
             permissions = serializer.validated_data.get('permissions', [])
 
             serializer.save()
-            apply_permissions(user, permissions, self.ALL_PERMISSIONS)
+            if set(permissions) == set(all_permissions) or 'adminUsers' in permissions:
+                user.is_staff = True
+                user.is_superuser = True
+            else:
+                user.is_staff = True
+                user.is_superuser = False
+
+            user.custom_permissions = permissions
 
             if 'dp' in serializer.validated_data:
                 user.dp = serializer.validated_data['dp']
