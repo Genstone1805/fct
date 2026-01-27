@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import UserProfile
-import json
 
 
 VALID_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
@@ -66,20 +65,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ['email', 'phone_number', 'dp', 'full_name', 'permissions', 'is_staff', 'disabled']
         read_only_fields = ["email"]
-        
-    def to_internal_value(self, data):
-        data = data.copy()
-
-        permissions = data.get('permissions')
-        if isinstance(permissions, str):
-            try:
-                data['permissions'] = json.loads(permissions)
-            except json.JSONDecodeError:
-                raise serializers.ValidationError({
-                    'permissions': 'Invalid permissions format'
-                })
-
-        return super().to_internal_value(data)
 
     def validate_email(self, value):
         instance = self.instance
