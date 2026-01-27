@@ -55,13 +55,11 @@ class  Booking(models.Model):
   PAYMENT_STATUS = [
     ("Paid","Paid"),
     ("Paid 20%","Paid 20%"),
-    ("Not Paid","Not Paid")
   ]
 
   STATUS_CHOICES = [
     ("Pending", "Pending"),
-    ("Confirmed", "Confirmed"),
-    ("In Progress", "In Progress"),
+    ("Assigned", "Assigned"),
     ("Completed", "Completed"),
     ("Cancelled", "Cancelled"),
   ]
@@ -70,9 +68,9 @@ class  Booking(models.Model):
   route = models.ForeignKey(Route, on_delete=models.CASCADE)
   status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Pending")
   price = models.PositiveIntegerField(default=1)
-  vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100, default="Standard Car")
-  payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15, default="Card" )
-  payment_status = models.CharField(choices=PAYMENT_STATUS, max_length=15, default="Not Paid")
+  vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100)
+  payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15 )
+  payment_status = models.CharField(choices=PAYMENT_STATUS, max_length=15)
   payment_id = models.CharField(max_length=25, null=True, blank=True)
   trip_type = models.CharField(choices=TRIP_TYPE_CHOICES, max_length=15 )
   pickup_date = models.DateField()
@@ -91,6 +89,13 @@ class  Booking(models.Model):
 
   def save(self, *args, **kwargs):
       generate_booking_id = not self.booking_id
+      
+      if self.payment_type == "Cash":
+        self.payment_status = "Paid 20%"
+        
+      if self.payment_type == "Card":
+        self.payment_status = "Paid"
+        
       super().save(*args, **kwargs)
 
       if generate_booking_id:
