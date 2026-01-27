@@ -14,6 +14,6 @@ urlpatterns = [
     path('list/', BookingListView.as_view(), name='booking-list'),
     path('<str:booking_id>/update/', BookingUpdateView.as_view(), name='booking-update'),
     path('<str:booking_id>/assign/', AssignDriverVehicleView.as_view(), name='booking-assign'),
-    path('available-drivers/', AvailableDriversView.as_view(), name='booking-available-drivers'),
-    path('available-vehicles/', AvailableVehiclesView.as_view(), name='booking-available-vehicles'),
+    path('<str:booking_id>/available-drivers/', AvailableDriversView.as_view(), name='booking-available-drivers'),
+    path('<str:booking_id>/available-vehicles/', AvailableVehiclesView.as_view(), name='booking-available-vehicles'),
 ]
