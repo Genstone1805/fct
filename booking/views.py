@@ -46,33 +46,6 @@ class BookingCreateView(CreateAPIView):
 
     json_fields = ['transfer_information', 'passenger_information']
 
-    # Value mappings for frontend -> backend conversion
-    TRIP_TYPE_MAP = {
-        'one-way': 'One Way',
-        'one_way': 'One Way',
-        'return': 'Return',
-    }
-
-    TIME_PERIOD_MAP = {
-        'day': 'Day Tariff',
-        'day_tariff': 'Day Tariff',
-        'night': 'Night Tariff',
-        'night_tariff': 'Night Tariff',
-    }
-
-    PAYMENT_TYPE_MAP = {
-        'cash': 'Cash',
-        'card': 'Card',
-    }
-
-    LUGGAGE_MAP = {
-        'hand': 'Hand luggage only',
-        'hand_luggage': 'Hand luggage only',
-        'medium': 'Medium (1–2 suitcases)',
-        'large': 'Large (3–4 suitcases)',
-        'extra_large': 'Extra large (5+ suitcases)',
-    }
-
     def get_serializer(self, *args, **kwargs):
         """Parse JSON fields from multipart form data and convert route_id to pk."""
         if 'data' in kwargs:
@@ -94,77 +67,13 @@ class BookingCreateView(CreateAPIView):
                     except (json.JSONDecodeError, TypeError):
                         pass
 
-            # Convert route slug or route_id to route pk
+            # Convert route_id (string) to route pk (integer)
             if 'route' in data and isinstance(data['route'], str):
-                route_identifier = data['route']
                 try:
-                    # Try by route_id first, then by slug
-                    try:
-                        route_obj = Route.objects.get(route_id=route_identifier)
-                    except Route.DoesNotExist:
-                        route_obj = Route.objects.get(slug=route_identifier)
+                    route_obj = Route.objects.get(route_id=data['route'])
                     data['route'] = route_obj.pk
                 except Route.DoesNotExist:
                     pass  # Let serializer handle the validation error
-
-            # Map trip_type values
-            if 'trip_type' in data:
-                data['trip_type'] = self.TRIP_TYPE_MAP.get(
-                    data['trip_type'].lower() if isinstance(data['trip_type'], str) else data['trip_type'],
-                    data['trip_type']
-                )
-
-            # Map time_period values
-            if 'time_period' in data:
-                data['time_period'] = self.TIME_PERIOD_MAP.get(
-                    data['time_period'].lower() if isinstance(data['time_period'], str) else data['time_period'],
-                    data['time_period']
-                )
-
-            # Map payment_type values (handle payment_method -> payment_type)
-            if 'payment_method' in data:
-                data['payment_type'] = self.PAYMENT_TYPE_MAP.get(
-                    data['payment_method'].lower() if isinstance(data['payment_method'], str) else data['payment_method'],
-                    data['payment_method']
-                )
-                del data['payment_method']
-            elif 'payment_type' in data:
-                data['payment_type'] = self.PAYMENT_TYPE_MAP.get(
-                    data['payment_type'].lower() if isinstance(data['payment_type'], str) else data['payment_type'],
-                    data['payment_type']
-                )
-
-            # Transform transfer_information fields
-            if 'transfer_information' in data and isinstance(data['transfer_information'], dict):
-                ti = data['transfer_information']
-                # Map baggage_type -> luggage
-                if 'baggage_type' in ti:
-                    ti['luggage'] = self.LUGGAGE_MAP.get(
-                        ti['baggage_type'].lower() if isinstance(ti['baggage_type'], str) else ti['baggage_type'],
-                        ti['baggage_type']
-                    )
-                    del ti['baggage_type']
-                elif 'luggage' in ti:
-                    ti['luggage'] = self.LUGGAGE_MAP.get(
-                        ti['luggage'].lower() if isinstance(ti['luggage'], str) else ti['luggage'],
-                        ti['luggage']
-                    )
-
-            # Transform passenger_information fields
-            if 'passenger_information' in data and isinstance(data['passenger_information'], dict):
-                pi = data['passenger_information']
-                # Map field names
-                if 'name' in pi:
-                    pi['full_name'] = pi.pop('name')
-                if 'phone' in pi:
-                    pi['phone_number'] = pi.pop('phone')
-                if 'email' in pi:
-                    pi['email_address'] = pi.pop('email')
-                # Move adults/children to transfer_information if present
-                if 'adults' in pi and 'transfer_information' in data:
-                    data['transfer_information']['adults'] = pi.pop('adults')
-                if 'children' in pi and 'transfer_information' in data:
-                    data['transfer_information']['children'] = pi.pop('children')
 
             kwargs['data'] = data
 
