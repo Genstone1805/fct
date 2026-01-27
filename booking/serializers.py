@@ -63,18 +63,7 @@ class BookingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = [
-            'booking_id',
-            'passenger_information',
-            'route',
-            'pickup_date',
-            'pickup_time',
-            'payment_type',
-            'payment_id',
-            'vehicle',
-            'driver',
-            'payment_status',
-        ]
+        fields = ["__all__"]
 
 
 # Nested serializers for detail view
