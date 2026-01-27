@@ -12,10 +12,10 @@ from .models import Booking
 from routes.models import Route
 from .serializers import (
     BookingCreateSerializer,
-    BookingListSerializer,
     BookingDetailSerializer,
     AssignDriverSerializer,
     AssignVehicleSerializer,
+    AssignDriverVehicleSerializer,
     AvailableDriverSerializer,
     AvailableVehicleSerializer,
     BookingUpdateSerializer,
@@ -23,17 +23,15 @@ from .serializers import (
 from .filters import BookingFilter
 from .utils import get_available_drivers, get_available_vehicles
 from .emails import (
-    send_driver_assigned_to_passenger,
-    send_booking_assigned_to_driver,
-    send_vehicle_assigned_to_passenger,
     send_booking_updated_to_passenger,
     send_booking_updated_to_driver,
+    send_assignment_to_passenger,
+    send_assignment_to_driver,
 )
 from notifications.utils import (
     create_booking_assigned_notification,
     create_booking_updated_notification,
     create_booking_status_notification,
-    create_vehicle_assigned_notification,
 )
 from fct.parsers import recursive_underscoreize
 
@@ -113,15 +111,6 @@ class BookingListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     filterset_class = BookingFilter
 
-
-class BookingDetailView(RetrieveAPIView):
-    serializer_class = BookingDetailSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'booking_id'
-    lookup_url_kwarg = 'booking_id'
-    queryset = Booking.objects.all()
-
-
 class BookingUpdateView(UpdateAPIView):
     """
     Update booking details (reschedule, change status, etc.)
@@ -162,50 +151,6 @@ class BookingUpdateView(UpdateAPIView):
                 else:
                     # General update notification
                     create_booking_updated_notification(booking, changes)
-
-
-class AssignDriverView(UpdateAPIView):
-    serializer_class = AssignDriverSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'booking_id'
-    lookup_url_kwarg = 'booking_id'
-    queryset = Booking.objects.select_related(
-        'passenger_information',
-        'transfer_information',
-        'route',
-        'vehicle',
-        'driver'
-    )
-
-    def perform_update(self, serializer):
-        booking = serializer.save()
-        # Send email notifications and create driver notification
-        if booking.driver:
-            send_driver_assigned_to_passenger(booking)
-            send_booking_assigned_to_driver(booking)
-            create_booking_assigned_notification(booking)
-
-
-class AssignVehicleView(UpdateAPIView):
-    serializer_class = AssignVehicleSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'booking_id'
-    lookup_url_kwarg = 'booking_id'
-    queryset = Booking.objects.select_related(
-        'passenger_information',
-        'route',
-        'vehicle',
-        'driver'
-    )
-
-    def perform_update(self, serializer):
-        booking = serializer.save()
-        # Send email notification to passenger
-        if booking.vehicle:
-            send_vehicle_assigned_to_passenger(booking)
-            # Create notification for driver if assigned
-            if booking.driver:
-                create_vehicle_assigned_notification(booking)
 
 
 class AvailableDriversView(APIView):
@@ -254,3 +199,37 @@ class AvailableVehiclesView(APIView):
 
         serializer = AvailableVehicleSerializer(available_vehicles, many=True)
         return Response(serializer.data)
+
+
+class AssignDriverVehicleView(UpdateAPIView):
+    """
+    Assign both driver and vehicle to a booking.
+    Accepts driver ID and vehicle ID, validates availability, and assigns them.
+    """
+    serializer_class = AssignDriverVehicleSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
+    queryset = Booking.objects.select_related(
+        'passenger_information',
+        'transfer_information',
+        'route',
+        'vehicle',
+        'driver'
+    )
+
+    def perform_update(self, serializer):
+        booking = serializer.save()
+
+        # Update status to Assigned (both driver and vehicle are required)
+        booking.status = 'Assigned'
+        booking.save(update_fields=['status'])
+
+        # Send email to passenger with driver and vehicle info
+        send_assignment_to_passenger(booking)
+
+        # Send email to driver with booking and vehicle info
+        send_assignment_to_driver(booking)
+
+        # Create notification for the driver
+        create_booking_assigned_notification(booking)

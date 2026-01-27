@@ -175,6 +175,141 @@ First Class Transfer Team
     return False
 
 
+def send_assignment_to_passenger(booking):
+    """
+    Send email to passenger notifying them that both driver and vehicle have been assigned.
+    Includes complete driver and vehicle information.
+    """
+    passenger = booking.passenger_information
+    driver = booking.driver
+    vehicle = booking.vehicle
+    route = booking.route
+
+    if not passenger or not passenger.email_address or not driver or not vehicle:
+        return False
+
+    subject = f"Your Booking #{booking.booking_id} is Confirmed - Driver & Vehicle Assigned"
+
+    message = f"""
+Dear {passenger.full_name},
+
+Great news! Your booking has been confirmed. A driver and vehicle have been assigned.
+
+Booking Details:
+- Booking ID: {booking.booking_id}
+- Route: {route.from_location} → {route.to_location}
+- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+- Trip Type: {booking.trip_type}
+
+Driver Information:
+- Name: {driver.full_name}
+- Phone: {driver.phone_number or 'Will be provided'}
+
+Vehicle Information:
+- Type: {vehicle.type}
+- Make/Model: {vehicle.make} {vehicle.model}
+- License Plate: {vehicle.license_plate}
+- Max Passengers: {vehicle.max_passengers}
+
+{"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
+{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+
+Your driver will arrive at the pickup location on time. Please ensure you are ready at the scheduled time.
+
+Payment Information:
+- Payment Method: {booking.payment_type}
+- Payment Status: {booking.payment_status}
+
+If you have any questions, please don't hesitate to contact us.
+
+Best regards,
+First Class Transfer Team
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [passenger.email_address],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
+def send_assignment_to_driver(booking):
+    """
+    Send email to driver notifying them about the booking assignment with vehicle info.
+    """
+    driver = booking.driver
+    passenger = booking.passenger_information
+    route = booking.route
+    vehicle = booking.vehicle
+
+    if not driver or not driver.email or not vehicle:
+        return False
+
+    subject = f"New Booking Assignment - #{booking.booking_id}"
+
+    dashboard_url = f"{settings.FRONTEND_URL}/driver/bookings"
+
+    message = f"""
+Dear {driver.full_name},
+
+You have been assigned to a new booking.
+
+Booking Details:
+- Booking ID: {booking.booking_id}
+- Route: {route.from_location} → {route.to_location}
+- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+- Estimated Duration: {route.duration_minutes} minutes
+- Trip Type: {booking.trip_type}
+
+Passenger Information:
+- Name: {passenger.full_name}
+- Phone: {passenger.phone_number}
+- Email: {passenger.email_address}
+- Adults: {booking.transfer_information.adults}
+- Children: {booking.transfer_information.children or 0}
+- Luggage: {booking.transfer_information.luggage}
+{f"- Additional Info: {passenger.additional_information}" if passenger.additional_information else ""}
+
+Vehicle Assigned to You:
+- Type: {vehicle.type}
+- Make/Model: {vehicle.make} {vehicle.model}
+- License Plate: {vehicle.license_plate}
+
+{"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
+{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+
+Please log in to your dashboard to view all your bookings:
+{dashboard_url}
+
+Please ensure you arrive at the pickup location on time with the assigned vehicle.
+
+Best regards,
+First Class Transfer Team
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [driver.email],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
 def send_booking_updated_to_passenger(booking, changes=None):
     """
     Send email to passenger notifying them that their booking has been updated.
