@@ -15,7 +15,9 @@
       "Bash(\"c:\\\\Users\\\\gusan\\\\Documents\\\\projects\\\\business\\\\first_class_transfer\\\\env\\\\Scripts\\\\pip.exe\" install:*)",
       "Bash(\"env/Scripts/python.exe\" manage.py makemigrations:*)",
       "Bash(\"env/Scripts/python.exe\" manage.py migrate booking)",
-      "Bash(\"env/Scripts/python.exe\" manage.py check)"
+      "Bash(\"env/Scripts/python.exe\" manage.py check)",
+      "Bash(.envScriptsactivate)",
+      "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations routes)"
     ]
   }
 }

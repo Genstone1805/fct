@@ -13,7 +13,7 @@ class Vehicle(models.Model):
 
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # Basic vehicle info
-    license_plate = models.CharField(max_length=20, unique=True)
+    license_plate = models.CharField(max_length=20)
     make = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
     year = models.CharField(max_length=4, null=True, blank=True)

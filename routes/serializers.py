@@ -30,6 +30,7 @@ class RouteListSerializer(serializers.ModelSerializer):
             'body',
             'distance',
             'time',
+            'duration_minutes',
             'sedan_price',
             'van_price',
             'what_makes_better',

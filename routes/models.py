@@ -65,7 +65,11 @@ class Route(models.Model):
     body = models.TextField()
 
     distance = models.CharField(max_length=50)
-    time = models.CharField(max_length=50)
+    time = models.CharField(max_length=50)  # Display string (e.g., "45 mins")
+    duration_minutes = models.PositiveIntegerField(
+        default=30,
+        help_text="Duration of the route in minutes (used for availability calculation)"
+    )
     sedan_price = models.IntegerField()
     van_price = models.IntegerField()
 

@@ -43,6 +43,18 @@ class DriverListSerializer(serializers.ModelSerializer):
         fields = ['full_name']
 
 
+class AvailableDriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'full_name', 'email', 'phone_number']
+
+
+class AvailableVehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = ['id', 'license_plate', 'make', 'model', 'type', 'max_passengers']
+
+
 class BookingListSerializer(serializers.ModelSerializer):
     passenger_information = PassengerListSerializer(read_only=True)
     route = RouteListSerializer(read_only=True)
@@ -69,7 +81,7 @@ class BookingListSerializer(serializers.ModelSerializer):
 class RouteDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ['route_id', 'from_location', 'to_location', 'distance', 'time']
+        fields = ['route_id', 'from_location', 'to_location', 'distance', 'time', 'duration_minutes']
 
 
 class VehicleDetailSerializer(serializers.ModelSerializer):
@@ -161,8 +173,68 @@ class AssignDriverSerializer(serializers.ModelSerializer):
         model = Booking
         fields = ['driver']
 
+    def validate_driver(self, value):
+        from .utils import (
+            get_conflicting_booking_for_driver,
+            get_booking_time_windows,
+            format_time_window,
+        )
+
+        if not value:
+            return value
+
+        booking = self.instance
+
+        # Check for conflicting bookings
+        conflicting_booking = get_conflicting_booking_for_driver(
+            driver=value,
+            booking=booking,
+            exclude_booking_id=booking.booking_id if booking else None
+        )
+
+        if conflicting_booking:
+            windows = get_booking_time_windows(conflicting_booking)
+            window_str = ", ".join([format_time_window(s, e) for s, e in windows])
+            raise serializers.ValidationError(
+                f"Driver '{value.full_name}' is unavailable. "
+                f"Already assigned to booking #{conflicting_booking.booking_id} "
+                f"({window_str})."
+            )
+
+        return value
+
 
 class AssignVehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ['vehicle']
+
+    def validate_vehicle(self, value):
+        from .utils import (
+            get_conflicting_booking_for_vehicle,
+            get_booking_time_windows,
+            format_time_window,
+        )
+
+        if not value:
+            return value
+
+        booking = self.instance
+
+        # Check for conflicting bookings
+        conflicting_booking = get_conflicting_booking_for_vehicle(
+            vehicle=value,
+            booking=booking,
+            exclude_booking_id=booking.booking_id if booking else None
+        )
+
+        if conflicting_booking:
+            windows = get_booking_time_windows(conflicting_booking)
+            window_str = ", ".join([format_time_window(s, e) for s, e in windows])
+            raise serializers.ValidationError(
+                f"Vehicle '{value}' is unavailable. "
+                f"Already assigned to booking #{conflicting_booking.booking_id} "
+                f"({window_str})."
+            )
+
+        return value
