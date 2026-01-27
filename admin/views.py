@@ -93,7 +93,7 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
                 route = Route.objects.create(**serializer.validated_data, added_by=user)
 
                 for vehicle_data in vehicle_options_data:
-                    Vehicle.objects.create(
+                    RouteVehicle.objects.create(
                         route=route,
                         vehicle_type=vehicle_data.get('vehicle_type'),
                         max_passengers=vehicle_data.get('max_passengers'),
@@ -110,7 +110,7 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
 
             log_user_activity(user, f"Created route: {route.from_location} → {route.to_location} ({route.route_id})", request)
 
-            return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
+            return Response({"message":"Route Created"}, status=status.HTTP_201_CREATED)
         except IntegrityError as e:
             return Response(
                 {'error': 'Database integrity error', 'details': str(e)},
@@ -162,7 +162,7 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
                 if vehicle_options_data:
                     route.vehicle_options.all().delete()
                     for vehicle_data in vehicle_options_data:
-                        Vehicle.objects.create(
+                        RouteVehicle.objects.create(
                             route=route,
                             vehicle_type=vehicle_data.get('vehicle_type'),
                             max_passengers=vehicle_data.get('max_passengers'),
