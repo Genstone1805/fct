@@ -53,7 +53,7 @@ class SignUpView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAdminUser]
 
-    ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'adminUsers']
+    ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
 
     @extend_schema(request=SignUpSerializer, responses={201: UserProfileSerializer})
     def post(self, request):
@@ -62,7 +62,6 @@ class SignUpView(APIView):
         user = None
         try:
             if not serializer.is_valid(raise_exception=True):
-                print(serializer.errors)
                 return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
@@ -145,13 +144,11 @@ class SignUpView(APIView):
                 status=status.HTTP_201_CREATED
             )
         except ValidationError as e:
-            print(serializer.errors)
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print(serializer.errors)
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
