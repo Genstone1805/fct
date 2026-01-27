@@ -141,12 +141,7 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
         partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
         
-        
-        print(request.data)
-        
-
         if not serializer.is_valid():
-            print(serializer.errors)
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
@@ -183,19 +178,16 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
 
             return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:
-            print(str(e))
             return Response(
                 {'error': 'Database integrity error', 'details': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except ValidationError as e:
-            print(str(e))
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print(str(e))
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
