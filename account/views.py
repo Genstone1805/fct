@@ -453,3 +453,23 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class UserActivityLogView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        log_path = os.path.join(settings.BASE_DIR, "logs/requests.log")
+
+        if not os.path.exists(log_path):
+            return Response({"logs": []})
+
+        with open(log_path, "r") as file:
+            lines = file.readlines()
+
+        # Optional: show latest entries only
+        logs = lines[-200:]
+
+        return Response({
+            "logs": logs
+        })

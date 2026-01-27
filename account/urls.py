@@ -8,7 +8,8 @@ from .views import (
     UserListView,
     UserDetailView,
     DownloadActivityLogView,
-    UserUpdateUpView
+    UserUpdateUpView,
+    UserActivityLogView
 )
 
 urlpatterns = [
@@ -20,5 +21,6 @@ urlpatterns = [
     path('users/', UserListView.as_view(), name='user-list'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('users/<int:pk>/update/', UserUpdateUpView.as_view(), name='user-update'),
-    path('activity-log/download/', DownloadActivityLogView.as_view(), name='download-activity-log'),
+    path('activities/', UserActivityLogView.as_view(), name='user-log'),
+    path('activities/download/', DownloadActivityLogView.as_view(), name='download-activity-log'),
 ]
