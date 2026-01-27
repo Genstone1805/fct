@@ -15,7 +15,23 @@ class BookingFilter(django_filters.FilterSet):
         field_name='vehicle__vehicle_type',
         lookup_expr='exact'
     )
+    from_location = django_filters.CharFilter(
+        field_name='route__from_location',
+        lookup_expr='icontains'
+    )
+    to_location = django_filters.CharFilter(
+        field_name='route__to_location',
+        lookup_expr='icontains'
+    )
 
     class Meta:
         model = Booking
-        fields = ['status', 'pickup_date', 'return_date', 'passenger_name', 'vehicle_type']
+        fields = [
+            'status',
+            'pickup_date',
+            'return_date',
+            'passenger_name',
+            'vehicle_type',
+            'from_location',
+            'to_location',
+        ]
