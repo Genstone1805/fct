@@ -142,7 +142,7 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
         serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
         
         
-        print(request.user)
+        print(request.data)
         
 
         if not serializer.is_valid():
