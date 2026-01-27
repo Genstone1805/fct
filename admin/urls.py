@@ -4,7 +4,9 @@ from .views import (
     RouteListView,
     RetrieveUpdateDestroyRouteView,
     AdminAnalyticsView,
-    AdminAnalyticsView
+    AdminAnalyticsView,
+    DownloadActivityLogView,
+    UserActivityLogView
 )
 
 urlpatterns = [
@@ -13,4 +15,6 @@ urlpatterns = [
     path('routes/create/', CreateRouteView.as_view(), name='admin-route-create'),
     path('routes/<str:route_id>', RetrieveUpdateDestroyRouteView.as_view(), name='admin-route-update'),
     path('dashboard/', AdminAnalyticsView.as_view(), name='admin-dashboard'),
+    path('activities/', UserActivityLogView.as_view(), name='user-log'),
+    path('activities/download/', DownloadActivityLogView.as_view(), name='download-activity-log'),
 ]

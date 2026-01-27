@@ -1,4 +1,6 @@
 import json
+import os
+from django.conf import settings
 from datetime import timedelta
 from django.db import transaction, IntegrityError
 from django.db.models import Count, Sum, Q
@@ -491,3 +493,24 @@ class AdminAnalyticsView(APIView):
         }
 
         return Response(analytics)
+
+
+
+class UserActivityLogView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        log_path = os.path.join(settings.BASE_DIR, "logs/requests.log")
+
+        if not os.path.exists(log_path):
+            return Response({"logs": []})
+
+        with open(log_path, "r") as file:
+            lines = file.readlines()
+
+        # Optional: show latest entries only
+        logs = lines[-200:]
+
+        return Response({
+            "logs": logs
+        })

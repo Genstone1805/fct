@@ -4,7 +4,6 @@ import string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.http import FileResponse, Http404
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,8 +25,6 @@ from .serializers import (
     UserProfileSerializer,
     UserUpdateSerializer,
 )
-from .utils import get_activity_log_path
-
 
 def get_tokens_for_user(user):
     """Generate JWT tokens for a user."""
@@ -372,24 +369,6 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
-class DownloadActivityLogView(APIView):
-    """Download the user activity log file. Admin only."""
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        log_path = get_activity_log_path()
-
-        if not os.path.exists(log_path):
-            raise Http404("Activity log file not found.")
-        user = request.user
-        log_user_activity(user, f"Activity log downloaded: {user.email} → {user.full_name} ({user.id})", request)
-        return FileResponse(
-            open(log_path, 'rb'),
-            as_attachment=True,
-            filename='user_activity.log'
-        )
-
-
 class UserUpdateUpView(RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAdminUser]
@@ -453,23 +432,3 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-class UserActivityLogView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        log_path = os.path.join(settings.BASE_DIR, "logs/requests.log")
-
-        if not os.path.exists(log_path):
-            return Response({"logs": []})
-
-        with open(log_path, "r") as file:
-            lines = file.readlines()
-
-        # Optional: show latest entries only
-        logs = lines[-200:]
-
-        return Response({
-            "logs": logs
-        })
