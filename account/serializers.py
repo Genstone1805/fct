@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import UserProfile
 
 
-VALID_PERMISSIONS = ['booking', 'drivers', 'routes', 'adminUsers']
+VALID_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
 
 
 class SignUpSerializer(serializers.ModelSerializer):
