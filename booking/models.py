@@ -15,7 +15,7 @@ class TransferInformation(models.Model):
   LUGGAGE_CHOICES = [
     ("Hand","Hand"),
     ("Medium","Medium"),
-    ("large","large"),
+    ("Large","Large"),
     ("Extra Large","Extra Large"),
   ]
 
@@ -38,8 +38,8 @@ class  Booking(models.Model):
   ]
   
   VEHICLE_TYPE = [
-        ("Standard Car", "Standard Car"),
-        ("Minivan","Minivan")
+        ("Sedan", "Sedan"),
+        ("V Class","V Class")
     ]
 
   TIME_PERIOD_CHOICES = [
