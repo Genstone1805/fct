@@ -183,6 +183,7 @@ class LoginView(APIView):
                         "message": "Login successful",
                         "permissions": user.user_permissions,
                         "is_superuser": user.is_superuser,
+                        "is_driver": user.is_driver,
                         "tokens": tokens
                     },
                     status=status.HTTP_200_OK

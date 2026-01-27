@@ -61,7 +61,6 @@ class BookingListSerializer(serializers.ModelSerializer):
             'payment_id',
             'vehicle',
             'driver',
-            'status',
             'payment_status',
         ]
 
@@ -76,13 +75,13 @@ class RouteDetailSerializer(serializers.ModelSerializer):
 class VehicleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ['license_plate', 'make', 'model', 'type', 'max_passengers', 'status']
+        fields = ['license_plate', 'make', 'model', 'type', 'max_passengers']
 
 
 class DriverDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['full_name', 'email', 'phone_number', 'status']
+        fields = ['full_name', 'email', 'phone_number']
 
 
 class BookingDetailSerializer(serializers.ModelSerializer):
@@ -108,7 +107,6 @@ class BookingDetailSerializer(serializers.ModelSerializer):
             'time_period',
             'return_date',
             'return_time',
-            'status',
             'transfer_information',
             'passenger_information',
         ]
@@ -163,24 +161,8 @@ class AssignDriverSerializer(serializers.ModelSerializer):
         model = Booking
         fields = ['driver']
 
-    def validate_driver(self, value):
-        if value and not value.is_active:
-            raise serializers.ValidationError("Cannot assign an inactive driver.")
-        if value and value.status != "Available":
-            raise serializers.ValidationError(
-                f"Driver is currently '{value.status}'. Only available drivers can be assigned."
-            )
-        return value
-
 
 class AssignVehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ['vehicle']
-
-    def validate_vehicle(self, value):
-        if value and value.status != "Available":
-            raise serializers.ValidationError(
-                f"Vehicle is currently '{value.status}'. Only available vehicles can be assigned."
-            )
-        return value

@@ -41,7 +41,6 @@ class CreateDriverView(APIView):
         serializer = DriverRegistrationSerializer(data=request.data)
         try:
             if not serializer.is_valid(raise_exception=True):
-                print(serializer.errors)
                 return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
@@ -113,14 +112,12 @@ class CreateDriverView(APIView):
             )
                 
         except ValidationError as e:
-            print(serializer.errors)
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         except Exception as e:
-            print(serializer.errors)
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -150,22 +147,13 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
         driver = self.get_object()
         partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=driver, data=request.data, partial=partial)
-        
-        
-        print("============================dt==================================")
-        print(request.data)
-        print("============================DT==================================")
-        
+
         if not serializer.is_valid():
-            print(serializer.errors)
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        print("============================validated dT==================================")
-        print(serializer.validated_data)
-        print("============================validated data==================================")
+
         try:
             with transaction.atomic():
                 driver = serializer.save()
@@ -184,7 +172,6 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            print(str(e))
             return Response(
                 {'error': 'Failed to update route', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
