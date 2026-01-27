@@ -63,7 +63,7 @@ def get_conflicting_booking_for_driver(driver, booking, exclude_booking_id=None)
         driver=driver
     ).exclude(
         status="Cancelled"
-    )
+    ).exclude(status="Completed")
 
     if exclude_booking_id:
         existing_bookings = existing_bookings.exclude(booking_id=exclude_booking_id)

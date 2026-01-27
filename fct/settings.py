@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'booking',
     'driver',
     'vehicle',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -199,6 +200,8 @@ EMAIL_HOST_PASSWORD = os.environ.get('AUTHEMAIL_EMAIL_HOST_PASSWORD') or 'gelm u
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+# Frontend URL for email links
+FRONTEND_URL = os.environ.get('FRONTEND_URL') or 'http://localhost:3000'
 
 # Logging Configuration
 LOGS_DIR = BASE_DIR / 'logs'

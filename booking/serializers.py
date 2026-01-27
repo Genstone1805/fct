@@ -238,3 +238,157 @@ class AssignVehicleSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+
+class BookingUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating booking details.
+    Tracks changes for email notifications.
+    """
+    class Meta:
+        model = Booking
+        fields = [
+            'status',
+            'pickup_date',
+            'pickup_time',
+            'return_date',
+            'return_time',
+            'trip_type',
+            'time_period',
+            'payment_status',
+            'payment_type',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Store original values for change tracking
+        if self.instance:
+            self._original_values = {
+                'status': self.instance.status,
+                'pickup_date': self.instance.pickup_date,
+                'pickup_time': self.instance.pickup_time,
+                'return_date': self.instance.return_date,
+                'return_time': self.instance.return_time,
+                'trip_type': self.instance.trip_type,
+                'time_period': self.instance.time_period,
+                'payment_status': self.instance.payment_status,
+                'payment_type': self.instance.payment_type,
+            }
+        else:
+            self._original_values = {}
+
+    def get_changes(self, validated_data):
+        """
+        Compare original values with new values and return list of changes.
+        """
+        changes = []
+        field_labels = {
+            'status': 'Status',
+            'pickup_date': 'Pickup Date',
+            'pickup_time': 'Pickup Time',
+            'return_date': 'Return Date',
+            'return_time': 'Return Time',
+            'trip_type': 'Trip Type',
+            'time_period': 'Time Period',
+            'payment_status': 'Payment Status',
+            'payment_type': 'Payment Type',
+        }
+
+        for field, label in field_labels.items():
+            if field in validated_data:
+                old_value = self._original_values.get(field)
+                new_value = validated_data[field]
+
+                if old_value != new_value:
+                    # Format dates and times nicely
+                    if field in ['pickup_date', 'return_date'] and new_value:
+                        old_str = old_value.strftime('%B %d, %Y') if old_value else 'Not set'
+                        new_str = new_value.strftime('%B %d, %Y') if new_value else 'Not set'
+                    elif field in ['pickup_time', 'return_time'] and new_value:
+                        old_str = old_value.strftime('%I:%M %p') if old_value else 'Not set'
+                        new_str = new_value.strftime('%I:%M %p') if new_value else 'Not set'
+                    else:
+                        old_str = str(old_value) if old_value else 'Not set'
+                        new_str = str(new_value) if new_value else 'Not set'
+
+                    changes.append(f"{label}: {old_str} → {new_str}")
+
+        return changes
+
+    def validate(self, data):
+        from .utils import (
+            get_conflicting_booking_for_driver,
+            get_conflicting_booking_for_vehicle,
+            get_booking_time_windows,
+            format_time_window,
+        )
+
+        # If pickup time or date is changing, validate driver/vehicle availability
+        time_changed = (
+            'pickup_date' in data and data['pickup_date'] != self._original_values.get('pickup_date') or
+            'pickup_time' in data and data['pickup_time'] != self._original_values.get('pickup_time') or
+            'return_date' in data and data['return_date'] != self._original_values.get('return_date') or
+            'return_time' in data and data['return_time'] != self._original_values.get('return_time')
+        )
+
+        if time_changed and self.instance:
+            # Create a temporary booking-like object with new values to check availability
+            temp_booking = Booking(
+                id=self.instance.id,
+                booking_id=self.instance.booking_id,
+                route=self.instance.route,
+                pickup_date=data.get('pickup_date', self.instance.pickup_date),
+                pickup_time=data.get('pickup_time', self.instance.pickup_time),
+                return_date=data.get('return_date', self.instance.return_date),
+                return_time=data.get('return_time', self.instance.return_time),
+                trip_type=data.get('trip_type', self.instance.trip_type),
+            )
+
+            # Check driver availability with new times
+            if self.instance.driver:
+                conflicting = get_conflicting_booking_for_driver(
+                    driver=self.instance.driver,
+                    booking=temp_booking,
+                    exclude_booking_id=self.instance.booking_id
+                )
+                if conflicting:
+                    windows = get_booking_time_windows(conflicting)
+                    window_str = ", ".join([format_time_window(s, e) for s, e in windows])
+                    raise serializers.ValidationError(
+                        f"Cannot reschedule: Driver '{self.instance.driver.full_name}' "
+                        f"has a conflicting booking #{conflicting.booking_id} ({window_str}). "
+                        f"Please reassign the driver first or choose a different time."
+                    )
+
+            # Check vehicle availability with new times
+            if self.instance.vehicle:
+                conflicting = get_conflicting_booking_for_vehicle(
+                    vehicle=self.instance.vehicle,
+                    booking=temp_booking,
+                    exclude_booking_id=self.instance.booking_id
+                )
+                if conflicting:
+                    windows = get_booking_time_windows(conflicting)
+                    window_str = ", ".join([format_time_window(s, e) for s, e in windows])
+                    raise serializers.ValidationError(
+                        f"Cannot reschedule: Vehicle '{self.instance.vehicle}' "
+                        f"has a conflicting booking #{conflicting.booking_id} ({window_str}). "
+                        f"Please reassign the vehicle first or choose a different time."
+                    )
+
+        # Validate return trip requirements
+        trip_type = data.get('trip_type', self.instance.trip_type if self.instance else None)
+        if trip_type == 'Return':
+            return_date = data.get('return_date', self.instance.return_date if self.instance else None)
+            return_time = data.get('return_time', self.instance.return_time if self.instance else None)
+            if not return_date or not return_time:
+                raise serializers.ValidationError(
+                    "Return date and time are required for return trips."
+                )
+
+        return data
+
+    def update(self, instance, validated_data):
+        # Store changes before update
+        self.changes = self.get_changes(validated_data)
+        return super().update(instance, validated_data)

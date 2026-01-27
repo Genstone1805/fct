@@ -17,7 +17,8 @@
       "Bash(\"env/Scripts/python.exe\" manage.py migrate booking)",
       "Bash(\"env/Scripts/python.exe\" manage.py check)",
       "Bash(.envScriptsactivate)",
-      "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations routes)"
+      "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations routes)",
+      "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations notifications)"
     ]
   }
 }

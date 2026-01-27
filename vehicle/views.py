@@ -64,46 +64,41 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         user = request.user
         vehicle = self.get_object()
-        partial = kwargs.get('partial', False)
+        partial = kwargs.pop('partial', False)
         serializer = self.get_serializer(instance=vehicle, data=request.data, partial=partial)
-        
 
-        if not serializer.is_valid():
-            return Response(
-                {'error': 'Validation failed', 'details': serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
         try:
             if not serializer.is_valid(raise_exception=True):
                 return Response(
-                {'error': 'Validation failed', 'details': serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-                
+                    {'error': 'Validation failed', 'details': serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             with transaction.atomic():
-                new_vehicle = Vehicle.objects.create(**serializer.validated_data, added_by=user)
-            
-            
-            log_user_activity(user, f"Vehicle Updated: {new_vehicle.make} → {new_vehicle.model} ({new_vehicle.year}) by {user.full_name}", request)
-            
+                updated_vehicle = serializer.save()
+
+            log_user_activity(
+                user,
+                f"Vehicle Updated: {updated_vehicle.make} → {updated_vehicle.model} ({updated_vehicle.year}) by {user.full_name}",
+                request
+            )
 
             return Response(
                 {
-                    "message": "Vehicle created successfully",
+                    "message": "Vehicle updated successfully",
                 },
-                status=status.HTTP_201_CREATED
+                status=status.HTTP_200_OK
             )
-                
+
         except ValidationError as e:
             return Response(
                 {'error': 'Validation error', 'details': e.detail},
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
+
         except Exception as e:
             return Response(
-                {'error': 'Failed to update route', 'details': str(e)},
+                {'error': 'Failed to update vehicle', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 

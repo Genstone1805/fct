@@ -14,7 +14,7 @@ urlpatterns = [
     path('booking/', include("booking.urls")),
     path('drivers/', include("driver.urls")),
     path('vehicles/', include("vehicle.urls")),
-    path('account/', include("account.urls")),
+    path('notifications/', include("notifications.urls")),
 
     # Templates
     path('template/manage/', TemplateView.as_view(template_name='admin/dashboard.html'), name='admin-dashboard'),
