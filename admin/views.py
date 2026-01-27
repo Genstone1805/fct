@@ -13,6 +13,7 @@ from rest_framework.generics import (
     CreateAPIView, ListAPIView,
     RetrieveUpdateDestroyAPIView
 )
+from django.http import FileResponse, Http404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from account.permissions import HasRoutePermission
@@ -23,7 +24,7 @@ from booking.models import Booking
 from account.models import UserProfile
 from notifications.models import DriverNotification
 from .serializers import ( CreateRouteSerializer )
-from account.utils import log_user_activity
+from account.utils import log_user_activity, get_activity_log_path
 from fct.parsers import recursive_underscoreize
 
 
@@ -514,3 +515,24 @@ class UserActivityLogView(APIView):
         return Response({
             "logs": logs
         })
+        
+        
+        
+
+
+class DownloadActivityLogView(APIView):
+    """Download the user activity log file. Admin only."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        log_path = get_activity_log_path()
+
+        if not os.path.exists(log_path):
+            raise Http404("Activity log file not found.")
+        user = request.user
+        log_user_activity(user, f"Activity log downloaded: {user.email} → {user.full_name} ({user.id})", request)
+        return FileResponse(
+            open(log_path, 'rb'),
+            as_attachment=True,
+            filename='user_activity.log'
+        )
