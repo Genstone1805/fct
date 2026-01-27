@@ -109,7 +109,7 @@ class BookingListView(ListAPIView):
         'vehicle',
         'driver'
     ).order_by('-pickup_date', '-pickup_time')
-    serializer_class = BookingListSerializer
+    serializer_class = BookingDetailSerializer
     permission_classes = [IsAuthenticated]
     filterset_class = BookingFilter
 

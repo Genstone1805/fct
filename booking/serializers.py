@@ -63,7 +63,18 @@ class BookingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ["__all__"]
+        fields = [
+            'booking_id',
+            'passenger_information',
+            'route',
+            'pickup_date',
+            'pickup_time',
+            'payment_type',
+            'payment_id',
+            'vehicle',
+            'driver',
+            'payment_status',
+        ]
 
 
 # Nested serializers for detail view
@@ -133,6 +144,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             'transfer_information',
             'passenger_information',
         ]
+
 
     def create(self, validated_data):
         transfer_data = validated_data.pop('transfer_information')
