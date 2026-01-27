@@ -1,20 +1,18 @@
 import json
 
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
-from admin.views import JSONFieldParserMixin
+from account.permissions import HasBookingPermission
 
 from .models import Booking
 from routes.models import Route
 from .serializers import (
     BookingCreateSerializer,
     BookingDetailSerializer,
-    AssignDriverSerializer,
-    AssignVehicleSerializer,
     AssignDriverVehicleSerializer,
     AvailableDriverSerializer,
     AvailableVehicleSerializer,
@@ -108,7 +106,7 @@ class BookingListView(ListAPIView):
         'driver'
     ).order_by('-pickup_date', '-pickup_time')
     serializer_class = BookingDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasBookingPermission]
     filterset_class = BookingFilter
 
 class BookingUpdateView(UpdateAPIView):
@@ -117,7 +115,7 @@ class BookingUpdateView(UpdateAPIView):
     Sends email notifications to passenger and driver about the changes.
     """
     serializer_class = BookingUpdateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(
@@ -157,7 +155,7 @@ class AvailableDriversView(APIView):
     """
     Get all drivers that are available for a specific booking's time slot.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasBookingPermission]
 
     def get(self, request, booking_id):
         try:
@@ -178,26 +176,22 @@ class AvailableDriversView(APIView):
 
 
 class AvailableVehiclesView(APIView):
-    """
-    Get all vehicles that are available for a specific booking's time slot.
-    """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasBookingPermission]
 
-    def get(self, request, booking_id):
-        try:
-            booking = Booking.objects.select_related('route').get(booking_id=booking_id)
-        except Booking.DoesNotExist:
+    def get(self, request):
+        from vehicle.models import Vehicle
+
+        vehicle_type = request.query_params.get('vehicle_type')
+
+        if not vehicle_type:
             return Response(
-                {"error": "Booking not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "vehicle_type query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        available_vehicles = get_available_vehicles(
-            booking=booking,
-            exclude_booking_id=booking_id
-        )
+        vehicles = Vehicle.objects.filter(type=vehicle_type)
 
-        serializer = AvailableVehicleSerializer(available_vehicles, many=True)
+        serializer = AvailableVehicleSerializer(vehicles, many=True)
         return Response(serializer.data)
 
 
@@ -207,7 +201,7 @@ class AssignDriverVehicleView(UpdateAPIView):
     Accepts driver ID and vehicle ID, validates availability, and assigns them.
     """
     serializer_class = AssignDriverVehicleSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(

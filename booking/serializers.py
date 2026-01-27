@@ -46,13 +46,23 @@ class DriverListSerializer(serializers.ModelSerializer):
 class AvailableDriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id', 'full_name', 'email', 'phone_number']
+        fields = ['id', 'full_name']
 
 
 class AvailableVehicleSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = Vehicle
-        fields = ['id', 'license_plate', 'make', 'model', 'type', 'max_passengers']
+        fields = ['id', 'name']
+
+    def get_name(self, obj):
+        parts = [obj.make, obj.model]
+        if obj.year:
+            parts.append(obj.year)
+        if obj.color:
+            parts.append(obj.color)
+        return ' '.join(parts)
 
 
 class BookingListSerializer(serializers.ModelSerializer):
