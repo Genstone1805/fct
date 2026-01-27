@@ -132,7 +132,6 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         model = Booking
         fields = [
             'route',
-            'vehicle',
             'payment_type',
             'trip_type',
             'pickup_date',

@@ -1,8 +1,12 @@
+import json
+
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
+from admin.views import JSONFieldParserMixin
 
 from .models import Booking
 from .serializers import (
@@ -30,12 +34,38 @@ from notifications.utils import (
     create_booking_status_notification,
     create_vehicle_assigned_notification,
 )
+from fct.parsers import recursive_underscoreize
 
 
 class BookingCreateView(CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingCreateSerializer
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    json_fields = ['transfer_information', 'passenger_information']
+
+    def get_serializer(self, *args, **kwargs):
+        """Parse JSON fields from multipart form data."""
+        if 'data' in kwargs:
+            data = kwargs['data']
+            if hasattr(data, 'dict'):
+                data = data.dict()
+            else:
+                data = dict(data)
+
+            for field in self.json_fields:
+                if field in data and isinstance(data[field], str):
+                    try:
+                        parsed = json.loads(data[field])
+                        data[field] = recursive_underscoreize(parsed)
+                    except (json.JSONDecodeError, TypeError):
+                        pass
+
+            kwargs['data'] = data
+
+        return super().get_serializer(*args, **kwargs)
+    
 
 
 class BookingListView(ListAPIView):

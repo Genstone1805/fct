@@ -59,19 +59,11 @@ class SignUpView(APIView):
         serializer = SignUpSerializer(data=request.data)
         user = None
         try:
-            if not serializer.is_valid(raise_exception=True):
-                return Response(
-                {'error': 'Validation failed', 'details': serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-                
-                
+            serializer.is_valid(raise_exception=True)
+
             generated_password = generate_password()
             
             permissions = serializer.validated_data.get('permissions', [])
-
-            # Check if all permissions are selected (make user an admin)
-            has_all_permissions = set(self.ALL_PERMISSIONS) == set(permissions)
 
             # Create user with the generated password
             user = UserProfile.objects.create_user(
@@ -83,12 +75,13 @@ class SignUpView(APIView):
             )
 
             # Set permissions
-            if has_all_permissions or 'adminUsers' in permissions:
+            if 'adminUsers' in permissions:
                 user.is_staff = True
                 user.is_superuser = True
                 user.user_permissions = self.ALL_PERMISSIONS
             else:
                 user.user_permissions = permissions
+                user.is_superuser = False
                 user.is_staff = True
 
             # Handle profile picture upload
@@ -148,7 +141,7 @@ class SignUpView(APIView):
             )
         except Exception as e:
             return Response(
-                {'error': 'Failed to update route', 'details': str(e)},
+                {'error': 'Failed to create user', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -376,36 +369,27 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     lookup_field = "pk"
 
-    ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
-
     def update(self, request, *args, **kwargs):
         admin = request.user
         user = self.get_object()
 
         serializer = self.get_serializer(user, data=request.data, partial=True)
-        
+
         try:
-            if not serializer.is_valid(raise_exception=True):
-                print(serializer.errors)
-                return Response(
-                {'error': 'Validation failed', 'details': serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST
-            )
             serializer.is_valid(raise_exception=True)
 
             permissions = serializer.validated_data.get('user_permissions', [])
-            
 
             serializer.save()
 
-            if set(permissions) == set(self.ALL_PERMISSIONS) or 'adminUsers' in permissions:
+            if 'adminUsers' in permissions:
                 user.is_staff = True
                 user.is_superuser = True
             else:
                 user.is_staff = True
                 user.is_superuser = False
 
-            user.custom_permissions = permissions
+            user.user_permissions = permissions
 
             if 'dp' in serializer.validated_data:
                 user.dp = serializer.validated_data['dp']
@@ -429,6 +413,6 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
             )
         except Exception as e:
             return Response(
-                {'error': 'Failed to update route', 'details': str(e)},
+                {'error': 'Failed to update user', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
