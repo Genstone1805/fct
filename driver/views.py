@@ -14,7 +14,7 @@ from contextlib import suppress
 from rest_framework import generics
 from django_filters import rest_framework as filters
 from account.models import UserProfile
-from .serializers import DriverSerializer, AvailableDriverSerializer, DriverListSerializer, DriverRegistrationSerializer
+from .serializers import DriverSerializer, DriverDetailSerializer, AvailableDriverSerializer, DriverListSerializer, DriverRegistrationSerializer
 from account.permissions import HasDriverPermission
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
@@ -132,6 +132,15 @@ class DriverListView(generics.ListAPIView):
     filterset_class = DriverFilter
 
     
+
+class RetrieveDriverView(generics.RetrieveAPIView):
+    """Retrieve the authenticated driver's details based on access token"""
+    serializer_class = DriverDetailSerializer
+    permission_classes = [HasDriverPermission]
+
+    def get_object(self):
+        user = self.request.user
+        return user
 
 class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, Update, or Destroy a driver"""

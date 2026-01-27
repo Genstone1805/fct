@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from account.models import UserProfile
+from booking.models import Booking
+from booking.serializers import BookingListSerializer
 
 
 
@@ -31,6 +33,21 @@ class DriverSerializer(serializers.ModelSerializer):
             'license_number', 'date_joined', 'is_active', 'disabled'
         ]
         read_only_fields = ['id', 'date_joined', "email", 'is_active', 'disabled']
+
+class DriverDetailSerializer(serializers.ModelSerializer):
+    all_trip = serializers.SerializerMethodField()
+    class Meta:
+        model = UserProfile
+        fields = [
+            'id', 'email', 'phone_number', 'dp', 'full_name',
+            'license_number', 'date_joined', 'is_active', 'disabled',
+            "all_trip"
+        ]
+        read_only_fields = ['id', 'date_joined', "email", 'is_active', 'disabled']
+
+    def get_all_trip(self, obj):
+        bookings = Booking.objects.filter(driver=obj)
+        return BookingListSerializer(bookings, many=True).data
 
 class AvailableDriverSerializer(serializers.ModelSerializer):
     class Meta:

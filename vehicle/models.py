@@ -16,7 +16,7 @@ class Vehicle(models.Model):
     license_plate = models.CharField(max_length=20, unique=True)
     make = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
-    year = models.PositiveIntegerField(null=True, blank=True)
+    year = models.CharField(max_length=4, null=True, blank=True)
     color = models.CharField(max_length=30, null=True, blank=True)
     type = models.CharField(choices=VEHICLE_TYPE_CHOICES, max_length=20, default="Sedan")
 

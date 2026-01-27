@@ -3,7 +3,8 @@ from .views import (
     DriverListView, 
     RetrieveUpdateDestroyDriverView, 
     AvailableDriverListView,
-    CreateDriverView
+    CreateDriverView,
+    RetrieveDriverView
     )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('<int:pk>/', RetrieveUpdateDestroyDriverView.as_view(), name='driver-detail'),
     path('available/', AvailableDriverListView.as_view(), name='available-drivers'),
     path('create/', CreateDriverView.as_view(), name='create-drivers'),
+    path('dashboard/', RetrieveDriverView.as_view(), name='drivers-dashboard'),
 ]
