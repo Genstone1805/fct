@@ -416,33 +416,54 @@ class UserUpdateUpView(RetrieveUpdateAPIView):
         user = self.get_object()
 
         serializer = self.get_serializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
+        
+        try:
+            if not serializer.is_valid(raise_exception=True):
+                print(serializer.errors)
+                return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            serializer.is_valid(raise_exception=True)
 
-        permissions = serializer.validated_data.get('user_permissions', [])
+            permissions = serializer.validated_data.get('user_permissions', [])
+            
 
-        serializer.save()
+            serializer.save()
 
-        if set(permissions) == set(self.ALL_PERMISSIONS) or 'adminUsers' in permissions:
-            user.is_staff = True
-            user.is_superuser = True
-        else:
-            user.is_staff = True
-            user.is_superuser = False
+            if set(permissions) == set(self.ALL_PERMISSIONS) or 'adminUsers' in permissions:
+                user.is_staff = True
+                user.is_superuser = True
+            else:
+                user.is_staff = True
+                user.is_superuser = False
 
-        user.custom_permissions = permissions
+            user.custom_permissions = permissions
 
-        if 'dp' in serializer.validated_data:
-            user.dp = serializer.validated_data['dp']
+            if 'dp' in serializer.validated_data:
+                user.dp = serializer.validated_data['dp']
 
-        user.save()
+            user.save()
 
-        log_user_activity(
-            admin,
-            f"Updated User: {user.full_name} ({user.email})",
-            request
-        )
+            log_user_activity(
+                admin,
+                f"Updated User: {user.full_name} ({user.email})",
+                request
+            )
 
-        return Response(
-            {"message": "User updated successfully"},
-            status=status.HTTP_200_OK
-        )
+            return Response(
+                {"message": "User updated successfully"},
+                status=status.HTTP_200_OK
+            )
+        except ValidationError as e:
+            print(str(e))
+            return Response(
+                {'error': 'Validation error', 'details': e.detail},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            print(str(e))
+            return Response(
+                {'error': 'Failed to update route', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
