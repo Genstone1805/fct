@@ -13,10 +13,10 @@ from django.utils.text import slugify
 
 class TransferInformation(models.Model):
   LUGGAGE_CHOICES = [
-    ("Hand luggage only","Hand luggage only"),
-    ("Medium (1–2 suitcases)","Medium (1–2 suitcases)"),
-    ("Large (3–4 suitcases)","Large (3–4 suitcases)"),
-    ("Extra large (5+ suitcases)","Extra large (5+ suitcases)")
+    ("Hand","Hand"),
+    ("Medium","Medium"),
+    ("large","large"),
+    ("Extra Large","Extra Large"),
   ]
 
   flight_number = models.CharField(max_length=50)
@@ -31,7 +31,7 @@ class PassengerDetail(models.Model):
   additional_information = models.TextField(null=True, blank=True)
 
 
-class Booking(models.Model):
+class  Booking(models.Model):
   TRIP_TYPE_CHOICES = [
     ("One Way","One Way"),
     ("Return","Return")
