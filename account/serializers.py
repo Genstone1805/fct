@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import UserProfile
+import json
 
 
 VALID_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
@@ -70,4 +71,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance = self.instance
         if instance and UserProfile.objects.filter(email=value).exclude(pk=instance.pk).exists():
             raise serializers.ValidationError("A user with this email already exists.")
+        return value
+    
+    def validate_permissions(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                raise serializers.ValidationError("Invalid permissions format")
+
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Permissions must be a list")
+
         return value
