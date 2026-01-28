@@ -21,5 +21,5 @@ urlpatterns = [
     path('<str:booking_id>/reschedule/', RescheduleBookingView.as_view(), name='booking-reschedule'),
     path('<str:booking_id>/available-drivers/', AvailableDriversView.as_view(), name='booking-available-drivers'),
     path('<str:booking_id>/available-vehicles/', AvailableVehiclesView.as_view(), name='booking-available-vehicles'),
-    path('assigned-bookings/', UserBookingsView.as_view(), name='assigned-bookings'),
+    path('assigned-bookings/<int:pk>', UserBookingsView.as_view(), name='assigned-bookings'),
 ]

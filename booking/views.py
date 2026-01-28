@@ -9,6 +9,7 @@ from rest_framework import status
 from account.permissions import HasBookingPermission
 from rest_framework.generics import ListAPIView
 from fct.utils import CustomPagination
+from account.models import UserProfile
 
 from .models import Booking
 from routes.models import Route
@@ -350,5 +351,15 @@ class UserBookingsView(ListAPIView):
     pagination_class = CustomPagination
     
     def get_queryset(self):
-        user = self.request.user
-        return Booking.objects.filter(driver=user)
+        user_id = self.request.query_params.get('pk')
+        if not user_id:
+            return Booking.objects.none()
+        
+        return Booking.objects.filter(
+            driver__pk=user_id
+        ).select_related(
+            'passenger_information',
+            'route',
+            'vehicle',
+            'driver'
+        ).order_by('-pickup_date', '-pickup_time')
