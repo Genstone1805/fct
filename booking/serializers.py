@@ -329,6 +329,12 @@ class AssignDriverVehicleSerializer(serializers.ModelSerializer):
 
         return value
 
+    def update(self, instance, validated_data):
+        instance.driver = validated_data.get('driver', instance.driver)
+        instance.vehicle = validated_data.get('vehicle', instance.vehicle)
+        instance.save(update_fields=['driver', 'vehicle'])
+        return instance
+
 
 class BookingUpdateSerializer(serializers.ModelSerializer):
     """

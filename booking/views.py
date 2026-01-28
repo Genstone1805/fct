@@ -176,19 +176,30 @@ class AvailableDriversView(APIView):
 
 
 class AvailableVehiclesView(APIView):
+    """
+    Get all vehicles that are available for a specific booking's time slot.
+    """
     permission_classes = [HasBookingPermission]
 
     def get(self, request, booking_id):
-        from vehicle.models import Vehicle
+        try:
+            booking = Booking.objects.select_related('route').get(booking_id=booking_id)
+        except Booking.DoesNotExist:
+            return Response(
+                {"error": "Booking not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        available_vehicles = get_available_vehicles(
+            booking=booking,
+            exclude_booking_id=booking_id
+        )
 
         vehicle_type = request.query_params.get('vehicle_type')
+        if vehicle_type:
+            available_vehicles = available_vehicles.filter(type=vehicle_type)
 
-        if not vehicle_type:
-            vehicles = Vehicle.objects.filter(type=vehicle_type)
-        else:
-            vehicles = Vehicle.objects.all()
-            
-        serializer = AvailableVehicleSerializer(vehicles, many=True)
+        serializer = AvailableVehicleSerializer(available_vehicles, many=True)
         return Response(serializer.data)
 
 
