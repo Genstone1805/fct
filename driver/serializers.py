@@ -38,6 +38,7 @@ class DriverDetailSerializer(serializers.ModelSerializer):
     all_trip = serializers.SerializerMethodField()
     pending_trips = serializers.SerializerMethodField()
     completed_trips = serializers.SerializerMethodField()
+    Cancelled_trips = serializers.SerializerMethodField()
     class Meta:
         model = UserProfile
         fields = [

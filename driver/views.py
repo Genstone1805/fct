@@ -125,7 +125,7 @@ class CreateDriverView(APIView):
 
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
-    serializer_class = DriverListSerializer
+    serializer_class = DriverDetailSerializer
     permission_classes = [HasDriverPermission]
     queryset = UserProfile.objects.filter(is_driver=True)
     pagination_class = CustomPagination
@@ -133,7 +133,7 @@ class DriverListView(generics.ListAPIView):
 
     
 
-class RetrieveDriverView(generics.RetrieveAPIView):
+class  RetrieveDriverView(generics.RetrieveAPIView):
     """Retrieve the authenticated driver's details based on access token"""
     serializer_class = DriverDetailSerializer
     permission_classes = [HasDriverPermission]

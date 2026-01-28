@@ -1,12 +1,14 @@
 import json
 
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from account.permissions import HasBookingPermission
+from rest_framework.generics import ListAPIView
+from fct.utils import CustomPagination
 
 from .models import Booking
 from routes.models import Route
@@ -36,6 +38,7 @@ from notifications.utils import (
     create_booking_status_notification,
 )
 from fct.parsers import recursive_underscoreize
+from rest_framework.pagination import PageNumberPagination
 
 
 class BookingCreateView(CreateAPIView):
@@ -339,3 +342,13 @@ class RescheduleBookingView(UpdateAPIView):
             {'message': 'Booking rescheduled successfully', 'changes': changes},
             status=status.HTTP_200_OK
         )
+
+class UserBookingsView(ListAPIView):
+    serializer_class = BookingDetailSerializer
+    permission_classes = [HasBookingPermission]
+    filterset_class = BookingFilter
+    pagination_class = CustomPagination
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Booking.objects.filter(driver=user)
