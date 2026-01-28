@@ -342,10 +342,17 @@ class RescheduleBookingSerializer(serializers.ModelSerializer):
     """
     Serializer for rescheduling a booking's pickup and return dates/times.
     Validates driver and vehicle availability for new times.
+    All fields are optional - only provided fields will be updated.
     """
     class Meta:
         model = Booking
         fields = ['pickup_date', 'pickup_time', 'return_date', 'return_time']
+        extra_kwargs = {
+            'pickup_date': {'required': False},
+            'pickup_time': {'required': False},
+            'return_date': {'required': False},
+            'return_time': {'required': False},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
