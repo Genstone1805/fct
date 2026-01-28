@@ -17,6 +17,7 @@ from .serializers import (
     AvailableDriverSerializer,
     AvailableVehicleSerializer,
     BookingUpdateSerializer,
+    RescheduleBookingSerializer,
 )
 from .filters import BookingFilter
 from .utils import get_available_drivers, get_available_vehicles
@@ -305,5 +306,52 @@ class BookingStatusUpdateView(APIView):
 
         return Response(
             {'message': f'Booking status updated to {new_status}'},
+            status=status.HTTP_200_OK
+        )
+
+
+class RescheduleBookingView(APIView):
+    """
+    Reschedule a booking's pickup and return dates/times.
+    Validates driver and vehicle availability for new times.
+    """
+    permission_classes = [HasBookingPermission]
+
+    def patch(self, request, booking_id):
+        try:
+            booking = Booking.objects.select_related(
+                'driver', 'vehicle', 'passenger_information', 'route'
+            ).get(booking_id=booking_id)
+        except Booking.DoesNotExist:
+            return Response(
+                {'error': 'Booking not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = RescheduleBookingSerializer(
+            instance=booking,
+            data=request.data,
+            partial=True
+        )
+
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer.save()
+        changes = getattr(serializer, 'changes', [])
+
+        # Send emails and notifications if there were changes
+        if changes:
+            send_booking_updated_to_passenger(booking, changes)
+
+            if booking.driver:
+                send_booking_updated_to_driver(booking, changes)
+                create_booking_updated_notification(booking, changes)
+
+        return Response(
+            {'message': 'Booking rescheduled successfully', 'changes': changes},
             status=status.HTTP_200_OK
         )
