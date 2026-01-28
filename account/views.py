@@ -316,7 +316,7 @@ First Class Transfer Team
 
 class UserListView(generics.ListAPIView):
     """List all users. Admin only."""
-    queryset = UserProfile.objects.all().order_by('-date_joined')
+    queryset = UserProfile.objects.filter(is_driver=False).order_by('-date_joined')
     serializer_class = UserProfileSerializer
     permission_classes = [IsAdminUser]
 

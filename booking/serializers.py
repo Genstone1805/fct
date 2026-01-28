@@ -347,6 +347,8 @@ class BookingStatusSerializer(serializers.ModelSerializer):
         fields = ['status']
 
     def validate_status(self, value):
+        if not value:
+            raise serializers.ValidationError("Status is required.")
         if value not in self.ALLOWED_STATUSES:
             raise serializers.ValidationError(
                 f"Invalid status. Allowed values: {', '.join(self.ALLOWED_STATUSES)}"
@@ -355,8 +357,9 @@ class BookingStatusSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         self.old_status = instance.status
-        instance.status = validated_data.get('status', instance.status)
-        instance.save(update_fields=['status'])
+        new_status = validated_data['status']
+        instance.status = new_status
+        instance.save()
         return instance
 
 

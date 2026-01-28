@@ -284,7 +284,8 @@ class BookingStatusUpdateView(UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        serializer.save()
+        booking = serializer.save()
+        booking.refresh_from_db()
         new_status = booking.status
 
         # Send email to passenger about status change
