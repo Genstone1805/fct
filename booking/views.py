@@ -249,9 +249,6 @@ class AssignDriverVehicleView(UpdateAPIView):
         # Update status to Assigned (both driver and vehicle are required)
         booking.status = 'Assigned'
         booking.save(update_fields=['status'])
-        
-        print(booking.driver)
-        print(booking.vehicle)
 
         # Send email to passenger with driver and vehicle info
         send_assignment_to_passenger(booking)
@@ -348,12 +345,12 @@ class UserBookingsView(ListAPIView):
     permission_classes = [IsAuthenticated]
     filterset_class = BookingFilter
     pagination_class = CustomPagination
-    
+
     def get_queryset(self):
         user_id = self.request.query_params.get('pk')
         if not user_id:
             return Booking.objects.none()
-        
+
         return Booking.objects.filter(
             driver__pk=user_id
         ).select_related(

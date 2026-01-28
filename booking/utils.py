@@ -102,6 +102,8 @@ def get_conflicting_booking_for_vehicle(vehicle, booking, exclude_booking_id=Non
         vehicle=vehicle
     ).exclude(
         status="Cancelled"
+    ).exclude(
+        status="Completed"
     )
 
     if exclude_booking_id:
@@ -188,6 +190,8 @@ def get_available_vehicles(booking, exclude_booking_id=None):
         vehicle__isnull=False
     ).exclude(
         status="Cancelled"
+    ).exclude(
+        status="Completed"
     ).select_related('route', 'vehicle')
 
     if exclude_booking_id:
