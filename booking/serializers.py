@@ -338,6 +338,28 @@ class AssignDriverVehicleSerializer(serializers.ModelSerializer):
         return instance
 
 
+class BookingStatusSerializer(serializers.ModelSerializer):
+    """Serializer for updating booking status to Completed or Cancelled."""
+    ALLOWED_STATUSES = ['Completed', 'Cancelled']
+
+    class Meta:
+        model = Booking
+        fields = ['status']
+
+    def validate_status(self, value):
+        if value not in self.ALLOWED_STATUSES:
+            raise serializers.ValidationError(
+                f"Invalid status. Allowed values: {', '.join(self.ALLOWED_STATUSES)}"
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        self.old_status = instance.status
+        instance.status = validated_data.get('status', instance.status)
+        instance.save(update_fields=['status'])
+        return instance
+
+
 class RescheduleBookingSerializer(serializers.ModelSerializer):
     """
     Serializer for rescheduling a booking's pickup and return dates/times.

@@ -17,6 +17,7 @@ from .serializers import (
     AvailableDriverSerializer,
     AvailableVehicleSerializer,
     BookingUpdateSerializer,
+    BookingStatusSerializer,
     RescheduleBookingSerializer,
 )
 from .filters import BookingFilter
@@ -259,42 +260,32 @@ class AssignDriverVehicleView(UpdateAPIView):
         create_booking_assigned_notification(booking)
 
 
-class BookingStatusUpdateView(APIView):
+class BookingStatusUpdateView(UpdateAPIView):
     """
     Update booking status to Completed or Cancelled.
     """
+    serializer_class = BookingStatusSerializer
     permission_classes = [HasBookingPermission]
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
+    queryset = Booking.objects.select_related(
+        'driver', 'passenger_information', 'route'
+    )
 
-    ALLOWED_STATUSES = ['Completed', 'Cancelled']
-
-    def patch(self, request, booking_id):
-        try:
-            booking = Booking.objects.select_related(
-                'driver', 'passenger_information', 'route'
-            ).get(booking_id=booking_id)
-        except Booking.DoesNotExist:
-            return Response(
-                {'error': 'Booking not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        new_status = request.data.get('status')
-
-        if not new_status:
-            return Response(
-                {'error': 'Status is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if new_status not in self.ALLOWED_STATUSES:
-            return Response(
-                {'error': f'Invalid status. Allowed values: {", ".join(self.ALLOWED_STATUSES)}'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+    def update(self, request, *args, **kwargs):
+        booking = self.get_object()
         old_status = booking.status
-        booking.status = new_status
-        booking.save(update_fields=['status'])
+
+        serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer.save()
+        new_status = booking.status
 
         # Send email to passenger about status change
         send_status_change_to_passenger(booking, old_status, new_status)
@@ -310,29 +301,22 @@ class BookingStatusUpdateView(APIView):
         )
 
 
-class RescheduleBookingView(APIView):
+class RescheduleBookingView(UpdateAPIView):
     """
     Reschedule a booking's pickup and return dates/times.
     Validates driver and vehicle availability for new times.
     """
+    serializer_class = RescheduleBookingSerializer
     permission_classes = [HasBookingPermission]
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
+    queryset = Booking.objects.select_related(
+        'driver', 'vehicle', 'passenger_information', 'route'
+    )
 
-    def patch(self, request, booking_id):
-        try:
-            booking = Booking.objects.select_related(
-                'driver', 'vehicle', 'passenger_information', 'route'
-            ).get(booking_id=booking_id)
-        except Booking.DoesNotExist:
-            return Response(
-                {'error': 'Booking not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = RescheduleBookingSerializer(
-            instance=booking,
-            data=request.data,
-            partial=True
-        )
+    def update(self, request, *args, **kwargs):
+        booking = self.get_object()
+        serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
 
         if not serializer.is_valid():
             return Response(
