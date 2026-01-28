@@ -348,8 +348,10 @@ class UserBookingsView(ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.query_params.get('pk')
+        
+        print(user_id)
         if not user_id:
-            return Booking.objects.none()
+            return Response("Driver not found", status=404)
 
         return Booking.objects.filter(
             driver__pk=user_id
