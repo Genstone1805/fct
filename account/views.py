@@ -89,7 +89,7 @@ class SignUpView(APIView):
                 user.dp = serializer.validated_data['dp']
 
             user.save()
-            log_user_activity(admin, f"Created User: {admin.full_name} → {admin.email} ({admin.id})", request)
+            log_user_activity(admin, f"Created User: {user.full_name} → {user.email} ({user.id})", request)
 
             # Send email with credentials
             subject = "Welcome to First Class Transfer - Your Login Credentials"  
@@ -344,21 +344,21 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, *args, **kwargs):
         admin = request.user
         user = self.get_object()
-        log_user_activity(user, f"User Updated: {user.email} → {user.full_name} ({user.id}) by {admin.full_name}", request)
+        log_user_activity(admin, f"User Updated: {user.email} → {user.full_name} ({user.id})", request)
         return super().put(request, *args, **kwargs)
 
     @extend_schema(request=UserUpdateSerializer, responses={200: UserProfileSerializer})
     def patch(self, request, *args, **kwargs):
         admin = request.user
         user = self.get_object()
-        log_user_activity(user, f"User Updated: {user.email} → {user.full_name} ({user.id}) by {admin.full_name}", request)
+        log_user_activity(admin, f"User Updated: {user.email} → {user.full_name} ({user.id})", request)
         return super().patch(request, *args, **kwargs)
 
     @extend_schema(responses={204: None})
     def delete(self, request, *args, **kwargs):
         admin = request.user
         user = self.get_object()
-        log_user_activity(user, f"User Deleted: {user.email} → {user.full_name} ({user.id}) by {admin.full_name}", request)
+        log_user_activity(admin, f"User Deleted: {user.email} → {user.full_name} ({user.id})", request)
         return super().delete(request, *args, **kwargs)
 
 

@@ -65,7 +65,7 @@ class CreateDriverView(APIView):
             
             user.save()
             
-            log_user_activity(admin, f"Created Driver: {admin.full_name} → {admin.email} ({admin.id})", request)
+            log_user_activity(admin, f"Created Driver: {user.full_name} ({user.email})", request)
 
             # Send email with credentials
             subject = "Welcome to First Class Transfer - Your Login Credentials"
@@ -167,7 +167,7 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
             with transaction.atomic():
                 driver = serializer.save()
 
-            log_user_activity(user, f"Updated Driver: {driver.email} → {driver.full_name} ({driver.id})", request)
+            log_user_activity(user, f"Updated Driver: {driver.full_name} ({driver.email})", request)
 
             return Response({"message":"Driver Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:
@@ -182,9 +182,25 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
             )
         except Exception as e:
             return Response(
-                {'error': 'Failed to update route', 'details': str(e)},
+                {'error': 'Failed to update driver', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def destroy(self, request, *args, **kwargs):
+        driver = self.get_object()
+        driver_name = driver.full_name
+        driver_email = driver.email
+
+        response = super().destroy(request, *args, **kwargs)
+
+        # Log user activity after successful deletion
+        log_user_activity(
+            request.user,
+            f"Deleted Driver: {driver_name} ({driver_email})",
+            request
+        )
+
+        return response
 
 
 class AvailableDriverListView(generics.ListAPIView):

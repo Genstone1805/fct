@@ -500,7 +500,7 @@ class UserActivityLogView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        log_path = os.path.join(settings.BASE_DIR, "logs/requests.log")
+        log_path = os.path.join(settings.BASE_DIR, "logs/user_activity.log")
 
         if not os.path.exists(log_path):
             return Response({"logs": []})
@@ -529,7 +529,7 @@ class DownloadActivityLogView(APIView):
         if not os.path.exists(log_path):
             raise Http404("Activity log file not found.")
         user = request.user
-        log_user_activity(user, f"Activity log downloaded: {user.email} → {user.full_name} ({user.id})", request)
+        log_user_activity(user, "Activity log: Download user activity log: ", request)
         return FileResponse(
             open(log_path, 'rb'),
             as_attachment=True,

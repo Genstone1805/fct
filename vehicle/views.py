@@ -27,7 +27,7 @@ class VehicleCreateCreateView(ListCreateAPIView):
                 new_vehicle = Vehicle.objects.create(**serializer.validated_data, added_by=user)
             
             
-            log_user_activity(user, f"Vehicle Created: {new_vehicle.make} → {new_vehicle.model} ({new_vehicle.year}) by {user.full_name}", request)
+            log_user_activity(user, f"Created Vehicle: {new_vehicle.make} {new_vehicle.model} ({new_vehicle.plate_number})", request)
             
 
             return Response(
@@ -79,7 +79,7 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
 
             log_user_activity(
                 user,
-                f"Vehicle Updated: {updated_vehicle.make} → {updated_vehicle.model} ({updated_vehicle.year}) by {user.full_name}",
+                f"Updated Vehicle: {updated_vehicle.make} {updated_vehicle.model} ({updated_vehicle.plate_number})",
                 request
             )
 
@@ -101,6 +101,21 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
                 {'error': 'Failed to update vehicle', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def destroy(self, request, *args, **kwargs):
+        vehicle = self.get_object()
+        vehicle_info = f"{vehicle.make} {vehicle.model} ({vehicle.plate_number})"
+
+        response = super().destroy(request, *args, **kwargs)
+
+        log_user_activity(
+            request.user,
+            f"Deleted Vehicle: {vehicle_info}",
+            request
+        )
+
+        return response
+
 
 class AvailableVehicleListView(ListAPIView):
     queryset = Vehicle.objects.filter()

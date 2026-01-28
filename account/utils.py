@@ -28,7 +28,7 @@ def log_user_activity(user, message, request=None):
     user.save(update_fields=['activity_log'])
 
     # Write to log file with IP address
-    file_log_entry = f"[{timestamp}] [{user.email}] [IP: {ip_address}] {message}\n"
+    file_log_entry = f"[{timestamp}] [{user.full_name}] [{user.email}] [IP: {ip_address}] {message}\n"
     log_path = get_activity_log_path()
 
     os.makedirs(os.path.dirname(log_path), exist_ok=True)

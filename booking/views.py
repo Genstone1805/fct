@@ -9,6 +9,7 @@ from rest_framework import status
 from account.permissions import HasBookingPermission
 from rest_framework.generics import ListAPIView
 from fct.utils import CustomPagination
+from account.utils import log_user_activity
 
 from .models import Booking
 from routes.models import Route
@@ -38,7 +39,7 @@ from notifications.utils import (
     create_booking_status_notification,
 )
 from fct.parsers import recursive_underscoreize
-from rest_framework.pagination import PageNumberPagination
+from contextlib import suppress
 
 
 class BookingCreateView(CreateAPIView):
@@ -64,19 +65,17 @@ class BookingCreateView(CreateAPIView):
             # Parse JSON string fields (now using snake_case keys)
             for field in self.json_fields:
                 if field in data and isinstance(data[field], str):
-                    try:
+                    with suppress(Exception):
                         parsed = json.loads(data[field])
                         data[field] = recursive_underscoreize(parsed)
-                    except (json.JSONDecodeError, TypeError):
-                        pass
+
 
             # Convert route_id (string) to route pk (integer)
             if 'route' in data and isinstance(data['route'], str):
-                try:
+                with suppress(Exception):
                     route_obj = Route.objects.get(route_id=data['route'])
                     data['route'] = route_obj.pk
-                except Route.DoesNotExist:
-                    pass  # Let serializer handle the validation error
+# Let serializer handle the validation error
 
             kwargs['data'] = data
 
@@ -91,11 +90,9 @@ class BookingCreateView(CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Mutate data here as needed
-        # Example: validated_data = serializer.validated_data
-        # validated_data['some_field'] = modified_value
-
         booking = serializer.save()
+        
+        
 
         return Response(
             {"message": "Booking created successfully", "booking_id": booking.booking_id},
@@ -138,9 +135,19 @@ class BookingUpdateView(UpdateAPIView):
         old_status = serializer.instance.status if serializer.instance else None
 
         booking = serializer.save()
+
+        # Log user activity
+        user = self.request.user
+        log_user_activity(
+            user,
+            f"Updated Booking: {booking.route.from_location} → {booking.route.to_location} ({booking.booking_id})",
+            self.request
+        )
+
         changes = getattr(serializer, 'changes', [])
 
         # Only send emails and notifications if there were actual changes
+        
         if changes:
             # Send email to passenger
             send_booking_updated_to_passenger(booking, changes)
@@ -250,6 +257,13 @@ class AssignDriverVehicleView(UpdateAPIView):
         booking.status = 'Assigned'
         booking.save(update_fields=['status'])
 
+        # Log user activity
+        log_user_activity(
+            self.request.user,
+            f"Assigned Driver/Vehicle: {booking.driver.full_name} & {booking.vehicle.plate_number} to {booking.booking_id}",
+            self.request
+        )
+
         # Send email to passenger with driver and vehicle info
         send_assignment_to_passenger(booking)
 
@@ -286,6 +300,13 @@ class BookingStatusUpdateView(UpdateAPIView):
 
         booking = serializer.save()
         new_status = booking.status
+
+        # Log user activity
+        log_user_activity(
+            request.user,
+            f"Changed Booking Status: {booking.booking_id} from {old_status} to {new_status}",
+            request
+        )
 
         # Send email to passenger about status change
         send_status_change_to_passenger(booking, old_status, new_status)
@@ -326,6 +347,13 @@ class RescheduleBookingView(UpdateAPIView):
 
         serializer.save()
         changes = getattr(serializer, 'changes', [])
+
+        # Log user activity
+        log_user_activity(
+            request.user,
+            f"Rescheduled Booking: {booking.booking_id} ({booking.route.from_location} → {booking.route.to_location})",
+            request
+        )
 
         # Send emails and notifications if there were changes
         if changes:
