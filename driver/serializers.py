@@ -36,6 +36,8 @@ class DriverSerializer(serializers.ModelSerializer):
 
 class DriverDetailSerializer(serializers.ModelSerializer):
     all_trip = serializers.SerializerMethodField()
+    pending_trips = serializers.SerializerMethodField()
+    completed_trips = serializers.SerializerMethodField()
     class Meta:
         model = UserProfile
         fields = [
@@ -47,6 +49,13 @@ class DriverDetailSerializer(serializers.ModelSerializer):
 
     def get_all_trip(self, obj):
         bookings = Booking.objects.filter(driver=obj)
+        return BookingListSerializer(bookings, many=True).data
+
+    def get_pending_trips(self, obj):
+        bookings = Booking.objects.filter(driver=obj, status="Pending")
+        return BookingListSerializer(bookings, many=True).data
+    def get_canceled_trips(self, obj):
+        bookings = Booking.objects.filter(driver=obj, status="Cancelled")
         return BookingListSerializer(bookings, many=True).data
 
 class AvailableDriverSerializer(serializers.ModelSerializer):
