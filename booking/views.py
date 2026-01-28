@@ -347,11 +347,9 @@ class UserBookingsView(ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        user_id = self.request.query_params.get('pk')
-        
-        print(user_id)
+        user_id = self.kwargs.get('pk')
         if not user_id:
-            return Response("Driver not found", status=404)
+            return Booking.objects.none()
 
         return Booking.objects.filter(
             driver__pk=user_id
