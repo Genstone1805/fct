@@ -285,7 +285,6 @@ class BookingStatusUpdateView(UpdateAPIView):
             )
 
         booking = serializer.save()
-        booking.refresh_from_db()
         new_status = booking.status
 
         # Send email to passenger about status change

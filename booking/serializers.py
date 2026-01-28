@@ -118,6 +118,7 @@ class BookingDetailSerializer(serializers.ModelSerializer):
         fields = [
             'booking_id',
             'route',
+            'status',
             'vehicle',
             "price",
             "vehicle_type",
