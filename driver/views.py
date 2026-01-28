@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from account.serializers import UserProfileSerializer
 from rest_framework.response import Response
@@ -136,7 +136,7 @@ class DriverListView(generics.ListAPIView):
 class  RetrieveDriverView(generics.RetrieveAPIView):
     """Retrieve the authenticated driver's details based on access token"""
     serializer_class = DriverDetailSerializer
-    permission_classes = [HasDriverPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         user = self.request.user
