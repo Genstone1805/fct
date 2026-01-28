@@ -256,22 +256,24 @@ class AssignVehicleSerializer(serializers.ModelSerializer):
 
 class AssignDriverVehicleSerializer(serializers.ModelSerializer):
     """Serializer for assigning both driver and vehicle to a booking."""
-    driver = serializers.PrimaryKeyRelatedField(
+    driver_id = serializers.PrimaryKeyRelatedField(
         queryset=UserProfile.objects.filter(is_driver=True),
+        source='driver',
         required=True,
         allow_null=False
     )
-    vehicle = serializers.PrimaryKeyRelatedField(
+    vehicle_id = serializers.PrimaryKeyRelatedField(
         queryset=Vehicle.objects.all(),
+        source='vehicle',
         required=True,
         allow_null=False
     )
 
     class Meta:
         model = Booking
-        fields = ['driver', 'vehicle']
+        fields = ['driver_id', 'vehicle_id']
 
-    def validate_driver(self, value):
+    def validate_driver_id(self, value):
         from .utils import (
             get_conflicting_booking_for_driver,
             get_booking_time_windows,
@@ -300,7 +302,7 @@ class AssignDriverVehicleSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate_vehicle(self, value):
+    def validate_vehicle_id(self, value):
         from .utils import (
             get_conflicting_booking_for_vehicle,
             get_booking_time_windows,

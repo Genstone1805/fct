@@ -219,6 +219,22 @@ class AssignDriverVehicleView(UpdateAPIView):
         'vehicle',
         'driver'
     )
+    
+    def update(self, request, *args, **kwargs):
+        booking = self.get_object()
+        serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        self.perform_update(serializer)
+        return Response(
+            {'message': 'Driver and vehicle assigned successfully'},
+            status=status.HTTP_200_OK
+        )
 
     def perform_update(self, serializer):
         booking = serializer.save()
