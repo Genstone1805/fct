@@ -453,3 +453,106 @@ First Class Transfer Team
         return True
 
     return False
+
+
+def send_status_change_to_passenger(booking, old_status, new_status):
+    """
+    Send email to passenger notifying them that their booking status has changed.
+    """
+    passenger = booking.passenger_information
+    route = booking.route
+
+    if not passenger or not passenger.email_address:
+        return False
+
+    status_messages = {
+        'Completed': 'Your trip has been completed. Thank you for choosing First Class Transfer!',
+        'Cancelled': 'Your booking has been cancelled. If you did not request this cancellation, please contact us immediately.',
+    }
+
+    subject = f"Booking {new_status} - #{booking.booking_id}"
+
+    message = f"""
+Dear {passenger.full_name},
+
+{status_messages.get(new_status, f'Your booking status has been updated to {new_status}.')}
+
+Booking Details:
+- Booking ID: {booking.booking_id}
+- Route: {route.from_location} → {route.to_location}
+- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+- Previous Status: {old_status}
+- New Status: {new_status}
+
+If you have any questions, please don't hesitate to contact us.
+
+Best regards,
+First Class Transfer Team
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [passenger.email_address],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
+def send_status_change_to_driver(booking, old_status, new_status):
+    """
+    Send email to driver notifying them that a booking status has changed.
+    """
+    driver = booking.driver
+    passenger = booking.passenger_information
+    route = booking.route
+
+    if not driver or not driver.email:
+        return False
+
+    status_messages = {
+        'Completed': 'This booking has been marked as completed. Great job!',
+        'Cancelled': 'This booking has been cancelled.',
+    }
+
+    subject = f"Booking {new_status} - #{booking.booking_id}"
+
+    dashboard_url = f"{settings.FRONTEND_URL}/driver/bookings"
+
+    message = f"""
+Dear {driver.full_name},
+
+{status_messages.get(new_status, f'A booking you were assigned to has been updated to {new_status}.')}
+
+Booking Details:
+- Booking ID: {booking.booking_id}
+- Route: {route.from_location} → {route.to_location}
+- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+- Passenger: {passenger.full_name}
+- Previous Status: {old_status}
+- New Status: {new_status}
+
+Please log in to your dashboard to view your bookings:
+{dashboard_url}
+
+Best regards,
+First Class Transfer Team
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [driver.email],
+            fail_silently=False,
+        )
+        return True
+
+    return False

@@ -25,6 +25,8 @@ from .emails import (
     send_booking_updated_to_driver,
     send_assignment_to_passenger,
     send_assignment_to_driver,
+    send_status_change_to_passenger,
+    send_status_change_to_driver,
 )
 from notifications.utils import (
     create_booking_assigned_notification,
@@ -254,3 +256,54 @@ class AssignDriverVehicleView(UpdateAPIView):
 
         # Create notification for the driver
         create_booking_assigned_notification(booking)
+
+
+class BookingStatusUpdateView(APIView):
+    """
+    Update booking status to Completed or Cancelled.
+    """
+    permission_classes = [HasBookingPermission]
+
+    ALLOWED_STATUSES = ['Completed', 'Cancelled']
+
+    def patch(self, request, booking_id):
+        try:
+            booking = Booking.objects.select_related(
+                'driver', 'passenger_information', 'route'
+            ).get(booking_id=booking_id)
+        except Booking.DoesNotExist:
+            return Response(
+                {'error': 'Booking not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        new_status = request.data.get('status')
+
+        if not new_status:
+            return Response(
+                {'error': 'Status is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if new_status not in self.ALLOWED_STATUSES:
+            return Response(
+                {'error': f'Invalid status. Allowed values: {", ".join(self.ALLOWED_STATUSES)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        old_status = booking.status
+        booking.status = new_status
+        booking.save(update_fields=['status'])
+
+        # Send email to passenger about status change
+        send_status_change_to_passenger(booking, old_status, new_status)
+
+        # Send email and notification to driver if assigned
+        if booking.driver:
+            send_status_change_to_driver(booking, old_status, new_status)
+            create_booking_status_notification(booking, old_status, new_status)
+
+        return Response(
+            {'message': f'Booking status updated to {new_status}'},
+            status=status.HTTP_200_OK
+        )
