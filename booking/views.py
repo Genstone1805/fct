@@ -215,6 +215,9 @@ class AssignDriverVehicleView(UpdateAPIView):
         # Update status to Assigned (both driver and vehicle are required)
         booking.status = 'Assigned'
         booking.save(update_fields=['status'])
+        
+        print(booking.driver)
+        print(booking.vehicle)
 
         # Send email to passenger with driver and vehicle info
         send_assignment_to_passenger(booking)
