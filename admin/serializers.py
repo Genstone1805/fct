@@ -47,6 +47,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'meta_description',
             'hero_title',
             'sub_headline',
+            "duration_minutes",
             'body',
             'distance',
             'time',
