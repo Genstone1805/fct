@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+# Use PyMySQL as MySQL driver (compatible with Python 3.13)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -90,15 +92,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fct.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
@@ -286,31 +279,28 @@ LOGGING = {
 }
 
 
-# Redirect print statements to logging
-import sys
-import logging
+# Database
+# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-class LoggingWriter:
-    """Redirect stdout/stderr to logging."""
-    def __init__(self, logger, level, original_stream):
-        self.logger = logger
-        self.level = level
-        self.original_stream = original_stream
-        self.buffer = ''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
-    def write(self, message):
-        # Write to original stream (console)
-        if self.original_stream:
-            self.original_stream.write(message)
-        # Log non-empty messages
-        if message and message.strip():
-            self.logger.log(self.level, message.strip())
 
-    def flush(self):
-        if self.original_stream:
-            self.original_stream.flush()
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.environ.get('DB_NAME', ''),
+#         'USER': os.environ.get('DB_USER', ''),
+#         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+#         'HOST': os.environ.get('DB_HOST', 'localhost'),
+#         'PORT': os.environ.get('DB_PORT', '3306'),
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#         },
+#     }
+# }
 
-# Set up print statement logging
-_print_logger = logging.getLogger('print')
-sys.stdout = LoggingWriter(_print_logger, logging.INFO, sys.__stdout__)
-sys.stderr = LoggingWriter(_print_logger, logging.ERROR, sys.__stderr__)

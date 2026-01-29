@@ -18,7 +18,10 @@
       "Bash(\"env/Scripts/python.exe\" manage.py check)",
       "Bash(.envScriptsactivate)",
       "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations routes)",
-      "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations notifications)"
+      "Bash(\".\\\\env\\\\Scripts\\\\python.exe\" manage.py makemigrations notifications)",
+      "Bash(npm install)",
+      "Bash(node src/scripts/syncDb.js:*)",
+      "Bash(node src/scripts/seed.js:*)"
     ]
   }
 }
