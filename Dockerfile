@@ -28,14 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . .
 
-# Collect static files
-RUN python manage.py makemigrations
-RUN python manage.py migrate
-RUN python manage.py collectstatic --noinput
-RUN python manage.py spectacular --color --file schema.yml
-
 # Expose port
 EXPOSE 1805
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:1805", "fct.wsgi:application"]
+# Run migrations and start server (env vars available at runtime)
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:1805 fct.wsgi:application"]
