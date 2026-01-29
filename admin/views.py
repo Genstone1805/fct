@@ -141,6 +141,8 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
         partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
         
+        print(request.data)
+        
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
