@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from decouple import config
+
 import os
 from pathlib import Path
 
@@ -23,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-lc#(j5^l!aalyxmzb-1s1povzv2xz#r3p=txkdo^1^4@32djm3')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', '1') == '1'
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -183,18 +185,18 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 
-EMAIL_FROM = os.environ.get('AUTHEMAIL_DEFAULT_EMAIL_FROM') or 'gusanujoshua39@gmail.com'
-EMAIL_BCC = os.environ.get('AUTHEMAIL_DEFAULT_EMAIL_BCC') or 'gusanujoshua39@gmail.com'
+EMAIL_FROM = config('AUTHEMAIL_DEFAULT_EMAIL_FROM')
+EMAIL_BCC = config('AUTHEMAIL_DEFAULT_EMAIL_BCC')
 
-EMAIL_HOST = os.environ.get('AUTHEMAIL_EMAIL_HOST') or 'smtp.gmail.com'
-EMAIL_PORT = os.environ.get('AUTHEMAIL_EMAIL_PORT') or 587
-EMAIL_HOST_USER = os.environ.get('AUTHEMAIL_EMAIL_HOST_USER') or 'gusanujoshua39@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('AUTHEMAIL_EMAIL_HOST_PASSWORD') or 'gelm uqlv fqoh kgjn'
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_HOST = config('AUTHEMAIL_EMAIL_HOST')
+EMAIL_PORT = config('AUTHEMAIL_EMAIL_PORT', cast=int)
+EMAIL_HOST_USER = config('AUTHEMAIL_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('AUTHEMAIL_EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_USE_SSL = config("EMAIL_USE_TLS", default=True, cast=bool)
 
 # Frontend URL for email links
-FRONTEND_URL = os.environ.get('FRONTEND_URL') or 'http://localhost:3000'
+FRONTEND_URL = config('FRONTEND_URL')
 
 # Logging Configuration
 LOGS_DIR = BASE_DIR / 'logs'
@@ -226,26 +228,29 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'request_file': {
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': LOGS_DIR / 'requests.log',
-            'maxBytes': 10 * 1024 * 1024,  # 10 MB
-            'backupCount': 5,
+            'when': 'D',  # Rotate daily
+            'interval': 1,
+            'backupCount': 90,  # Keep 90 days (3 months)
             'formatter': 'verbose',
             'encoding': 'utf-8',
         },
         'error_file': {
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': LOGS_DIR / 'errors.log',
-            'maxBytes': 10 * 1024 * 1024,  # 10 MB
-            'backupCount': 5,
+            'when': 'D',  # Rotate daily
+            'interval': 1,
+            'backupCount': 90,  # Keep 90 days (3 months)
             'formatter': 'verbose',
             'encoding': 'utf-8',
         },
         'all_file': {
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': LOGS_DIR / 'all.log',
-            'maxBytes': 10 * 1024 * 1024,  # 10 MB
-            'backupCount': 5,
+            'when': 'D',  # Rotate daily
+            'interval': 1,
+            'backupCount': 90,  # Keep 90 days (3 months)
             'formatter': 'verbose',
             'encoding': 'utf-8',
         },
@@ -292,12 +297,12 @@ LOGGING = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'fctdb'),
-        'USER': os.environ.get('DB_USER', 'user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'iAhmYfLtC2'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
+        'ENGINE': config("DB_ENGINE"),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_USER_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
