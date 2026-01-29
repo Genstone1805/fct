@@ -78,10 +78,6 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     def create(self, request, *args, **kwargs):
         user=request.user
         serializer = self.get_serializer(data=request.data)
-        
-        print("======================error==========================")
-        print(request.data)
-        print("======================error==========================")
 
         if not serializer.is_valid():
             return Response(
@@ -144,8 +140,6 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
         route = self.get_object()
         partial = kwargs.get('partial', False)
         serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
-        
-        print(request.data)
         
         if not serializer.is_valid():
             return Response(
