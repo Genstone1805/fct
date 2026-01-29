@@ -83,7 +83,7 @@ class Route(models.Model):
     # faqs: accessed via reverse FK (RouteFAQ.route)
 
     image = models.ImageField(upload_to="Route Images")
-    book_cta_label = models.CharField(max_length=100)
+    book_cta_label = models.CharField(max_length=300)
     book_cta_support = models.CharField(max_length=200)
 
     class Meta:
