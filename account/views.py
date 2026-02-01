@@ -207,18 +207,18 @@ class RequestPasswordResetView(APIView):
             # Send email with verification code
             subject = "Password Reset Verification Code"
             message = f"""
-Hello {user.full_name or 'there'},
+                Hello {user.full_name or 'there'},
 
-You have requested to reset your password for your First Class Transfer account.
+                You have requested to reset your password for your First Class Transfer account.
 
-Your verification code is: {code}
+                Your verification code is: {code}
 
-This code will expire in 15 minutes.
+                This code will expire in 15 minutes.
 
-If you did not request this, please ignore this email.
+                If you did not request this, please ignore this email.
 
-Best regards,
-First Class Transfer Team
+                Best regards,
+                First Class Transfer Team
             """
             with suppress(Exception):
                 send_mail(

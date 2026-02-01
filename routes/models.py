@@ -75,7 +75,9 @@ class Route(models.Model):
     van_price = models.IntegerField()
 
     what_makes_better = models.JSONField(default=list, blank=True)
-    whats_included = models.JSONField(default=list)
+    whats_included = models.JSONField(default=list, blank=True)
+    reminder = models.JSONField(default=list, blank=True)
+    cross_border_information = models.JSONField(default=list, blank=True)
     destination_highlights = models.JSONField(default=list, blank=True)
     ideal_for = models.JSONField(default=list, blank=True)
 
