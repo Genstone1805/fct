@@ -287,16 +287,16 @@ class VerifyResetCodeView(APIView):
             # Send email with new password
             subject = "Your New Password - First Class Transfer"
             message = f"""
-Hello {user.full_name or 'there'},
+                Hello {user.full_name or 'there'},
 
-Your password has been reset successfully.
+                Your password has been reset successfully.
 
-Your new password is: {new_password}
+                Your new password is: {new_password}
 
-Please log in with this new password and consider changing it for security.
+                Please log in with this new password and consider changing it for security.
 
-Best regards,
-First Class Transfer Team
+                Best regards,
+                First Class Transfer Team
             """
             with suppress(Exception):
                 send_mail(

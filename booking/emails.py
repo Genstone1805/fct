@@ -17,30 +17,30 @@ def send_driver_assigned_to_passenger(booking):
     subject = f"Driver Assigned to Your Booking #{booking.booking_id}"
 
     message = f"""
-Dear {passenger.full_name},
+        Dear {passenger.full_name},
 
-Great news! A driver has been assigned to your booking.
+        Great news! A driver has been assigned to your booking.
 
-Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
 
-Driver Information:
-- Name: {driver.full_name}
-- Phone: {driver.phone_number or 'Will be provided'}
+        Driver Information:
+        - Name: {driver.full_name}
+        - Phone: {driver.phone_number or 'Will be provided'}
 
-{"Return Trip Details:" if booking.trip_type == "Return" else ""}
-{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
-{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+        {"Return Trip Details:" if booking.trip_type == "Return" else ""}
+        {f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+        {f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
 
-Your driver will be at the pickup location on time. Please ensure you are ready at the scheduled time.
+        Your driver will be at the pickup location on time. Please ensure you are ready at the scheduled time.
 
-If you have any questions, please don't hesitate to contact us.
+        If you have any questions, please don't hesitate to contact us.
 
-Best regards,
-First Class Transfer Team
+        Best regards,
+        First Class Transfer Team
     """.strip()
 
     with suppress(Exception):
@@ -82,36 +82,36 @@ Vehicle Assigned:
 """
 
     message = f"""
-Dear {driver.full_name},
+        Dear {driver.full_name},
 
-You have been assigned to a new booking.
+        You have been assigned to a new booking.
 
-Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
-- Estimated Duration: {route.duration_minutes} minutes
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Estimated Duration: {route.duration_minutes} minutes
 
-Passenger Information:
-- Name: {passenger.full_name}
-- Phone: {passenger.phone_number}
-- Adults: {booking.transfer_information.adults}
-- Children: {booking.transfer_information.children or 0}
-- Luggage: {booking.transfer_information.luggage}
-{f"- Additional Info: {passenger.additional_information}" if passenger.additional_information else ""}
-{vehicle_info}
-{"Return Trip Details:" if booking.trip_type == "Return" else ""}
-{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
-{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+        Passenger Information:
+        - Name: {passenger.full_name}
+        - Phone: {passenger.phone_number}
+        - Adults: {booking.transfer_information.adults}
+        - Children: {booking.transfer_information.children or 0}
+        - Luggage: {booking.transfer_information.luggage}
+        {f"- Additional Info: {passenger.additional_information}" if passenger.additional_information else ""}
+        {vehicle_info}
+        {"Return Trip Details:" if booking.trip_type == "Return" else ""}
+        {f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+        {f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
 
-Please log in to your dashboard to view all your bookings:
-{dashboard_url}
+        Please log in to your dashboard to view all your bookings:
+        {dashboard_url}
 
-Please ensure you arrive at the pickup location on time.
+        Please ensure you arrive at the pickup location on time.
 
-Best regards,
-First Class Transfer Team
+        Best regards,
+        First Class Transfer Team
     """.strip()
 
     with suppress(Exception):
@@ -141,25 +141,25 @@ def send_vehicle_assigned_to_passenger(booking):
     subject = f"Vehicle Assigned to Your Booking #{booking.booking_id}"
 
     message = f"""
-Dear {passenger.full_name},
+        Dear {passenger.full_name},
 
-A vehicle has been assigned to your booking.
+        A vehicle has been assigned to your booking.
 
-Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
 
-Vehicle Information:
-- Type: {vehicle.type}
-- Make/Model: {vehicle.make} {vehicle.model}
-- Max Passengers: {vehicle.max_passengers}
+        Vehicle Information:
+        - Type: {vehicle.type}
+        - Make/Model: {vehicle.make} {vehicle.model}
+        - Max Passengers: {vehicle.max_passengers}
 
-If you have any questions, please don't hesitate to contact us.
+        If you have any questions, please don't hesitate to contact us.
 
-Best regards,
-First Class Transfer Team
+        Best regards,
+        First Class Transfer Team
     """.strip()
 
     with suppress(Exception):
@@ -191,41 +191,41 @@ def send_assignment_to_passenger(booking):
     subject = f"Your Booking #{booking.booking_id} is Confirmed - Driver & Vehicle Assigned"
 
     message = f"""
-Dear {passenger.full_name},
+        Dear {passenger.full_name},
 
-Great news! Your booking has been confirmed. A driver and vehicle have been assigned.
+        Great news! Your booking has been confirmed. A driver and vehicle have been assigned.
 
-Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
-- Trip Type: {booking.trip_type}
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Trip Type: {booking.trip_type}
 
-Driver Information:
-- Name: {driver.full_name}
-- Phone: {driver.phone_number or 'Will be provided'}
+        Driver Information:
+        - Name: {driver.full_name}
+        - Phone: {driver.phone_number or 'Will be provided'}
 
-Vehicle Information:
-- Type: {vehicle.type}
-- Make/Model: {vehicle.make} {vehicle.model}
-- License Plate: {vehicle.license_plate}
-- Max Passengers: {vehicle.max_passengers}
+        Vehicle Information:
+        - Type: {vehicle.type}
+        - Make/Model: {vehicle.make} {vehicle.model}
+        - License Plate: {vehicle.license_plate}
+        - Max Passengers: {vehicle.max_passengers}
 
-{"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
-{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
-{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+        {"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
+        {f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+        {f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
 
-Your driver will arrive at the pickup location on time. Please ensure you are ready at the scheduled time.
+        Your driver will arrive at the pickup location on time. Please ensure you are ready at the scheduled time.
 
-Payment Information:
-- Payment Method: {booking.payment_type}
-- Payment Status: {booking.payment_status}
+        Payment Information:
+        - Payment Method: {booking.payment_type}
+        - Payment Status: {booking.payment_status}
 
-If you have any questions, please don't hesitate to contact us.
+        If you have any questions, please don't hesitate to contact us.
 
-Best regards,
-First Class Transfer Team
+        Best regards,
+        First Class Transfer Team
     """.strip()
 
     with suppress(Exception):
@@ -258,43 +258,43 @@ def send_assignment_to_driver(booking):
     dashboard_url = f"{settings.FRONTEND_URL}/driver/bookings"
 
     message = f"""
-Dear {driver.full_name},
+        Dear {driver.full_name},
 
-You have been assigned to a new booking.
+        You have been assigned to a new booking.
 
-Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
-- Estimated Duration: {route.duration_minutes} minutes
-- Trip Type: {booking.trip_type}
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Estimated Duration: {route.duration_minutes} minutes
+        - Trip Type: {booking.trip_type}
 
-Passenger Information:
-- Name: {passenger.full_name}
-- Phone: {passenger.phone_number}
-- Email: {passenger.email_address}
-- Adults: {booking.transfer_information.adults}
-- Children: {booking.transfer_information.children or 0}
-- Luggage: {booking.transfer_information.luggage}
-{f"- Additional Info: {passenger.additional_information}" if passenger.additional_information else ""}
+        Passenger Information:
+        - Name: {passenger.full_name}
+        - Phone: {passenger.phone_number}
+        - Email: {passenger.email_address}
+        - Adults: {booking.transfer_information.adults}
+        - Children: {booking.transfer_information.children or 0}
+        - Luggage: {booking.transfer_information.luggage}
+        {f"- Additional Info: {passenger.additional_information}" if passenger.additional_information else ""}
 
-Vehicle Assigned to You:
-- Type: {vehicle.type}
-- Make/Model: {vehicle.make} {vehicle.model}
-- License Plate: {vehicle.license_plate}
+        Vehicle Assigned to You:
+        - Type: {vehicle.type}
+        - Make/Model: {vehicle.make} {vehicle.model}
+        - License Plate: {vehicle.license_plate}
 
-{"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
-{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
-{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+        {"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
+        {f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+        {f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
 
-Please log in to your dashboard to view all your bookings:
-{dashboard_url}
+        Please log in to your dashboard to view all your bookings:
+        {dashboard_url}
 
-Please ensure you arrive at the pickup location on time with the assigned vehicle.
+        Please ensure you arrive at the pickup location on time with the assigned vehicle.
 
-Best regards,
-First Class Transfer Team
+        Best regards,
+        First Class Transfer Team
     """.strip()
 
     with suppress(Exception):
@@ -345,27 +345,27 @@ Vehicle Information:
 """
 
     message = f"""
-Dear {passenger.full_name},
+        Dear {passenger.full_name},
 
-Your booking has been updated. Please review the new details below.
+        Your booking has been updated. Please review the new details below.
 
-{changes_text}
-Updated Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
-- Status: {booking.status}
-{driver_info}{vehicle_info}
-{"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
-{f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
-{f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
+        {changes_text}
+        Updated Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Status: {booking.status}
+        {driver_info}{vehicle_info}
+        {"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
+        {f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
+        {f"- Return Time: {booking.return_time.strftime('%I:%M %p')}" if booking.return_time else ""}
 
-If you have any questions about these changes, please don't hesitate to contact us.
+        If you have any questions about these changes, please don't hesitate to contact us.
 
-Best regards,
-First Class Transfer Team
-    """.strip()
+        Best regards,
+        First Class Transfer Team
+            """.strip()
 
     with suppress(Exception):
         send_mail(
@@ -473,23 +473,23 @@ def send_status_change_to_passenger(booking, old_status, new_status):
     subject = f"Booking {new_status} - #{booking.booking_id}"
 
     message = f"""
-Dear {passenger.full_name},
+        Dear {passenger.full_name},
 
-{status_messages.get(new_status, f'Your booking status has been updated to {new_status}.')}
+        {status_messages.get(new_status, f'Your booking status has been updated to {new_status}.')}
 
-Booking Details:
-- Booking ID: {booking.booking_id}
-- Route: {route.from_location} → {route.to_location}
-- Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
-- Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
-- Previous Status: {old_status}
-- New Status: {new_status}
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Previous Status: {old_status}
+        - New Status: {new_status}
 
-If you have any questions, please don't hesitate to contact us.
+        If you have any questions, please don't hesitate to contact us.
 
-Best regards,
-First Class Transfer Team
-    """.strip()
+        Best regards,
+        First Class Transfer Team
+            """.strip()
 
     with suppress(Exception):
         send_mail(
