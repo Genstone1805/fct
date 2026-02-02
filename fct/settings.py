@@ -30,7 +30,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["firstclasstransfers.eu"]
+ALLOWED_HOSTS = ["firstclasstransfers.eu", "fct-backend.techtenets.com"]
 
 
 # Application definition
@@ -182,6 +182,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.eu",
+    "https://fct-backend.techtenets.com"
 ]
 
 
