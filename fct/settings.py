@@ -204,12 +204,14 @@ CORS_ALLOW_HEADERS = [
     "api-key",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "https://firstclasstransfers.eu",
-    "https://fct-backend.techtenets.com",
-    "https://firstclasstransfers.vercel.app",
-    "http://localhost:3000"
-]
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = [
+#     "https://firstclasstransfers.eu",
+#     "https://fct-backend.techtenets.com",
+#     "https://firstclasstransfers.vercel.app",
+#     "http://localhost:3000",
+    
+# ]
 
 
 
