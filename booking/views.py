@@ -370,7 +370,7 @@ class RescheduleBookingView(UpdateAPIView):
 
 class UserBookingsView(ListAPIView):
     serializer_class = BookingDetailSerializer
-    permission_classes = [HasRoutesAPIKey, IsDriverPermission, IsAdminUser ]
+    permission_classes = [HasRoutesAPIKey, IsDriverPermission ]
     filterset_class = BookingFilter
     pagination_class = CustomPagination
 
