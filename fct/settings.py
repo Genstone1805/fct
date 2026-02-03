@@ -33,7 +33,7 @@ API_KEY = config('API_KEY', default='')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["firstclasstransfers.eu", "fct-backend.techtenets.com"]
+ALLOWED_HOSTS = ["firstclasstransfers.eu", "fct-backend.techtenets.com", "firstclasstransfers.vercel.app"]
 
 
 # Application definition
@@ -185,7 +185,8 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.eu",
-    "https://fct-backend.techtenets.com"
+    "https://fct-backend.techtenets.com",
+    "https://firstclasstransfers.vercel.app"
 ]
 
 
