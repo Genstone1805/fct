@@ -86,7 +86,22 @@ class HasDriverPermission(BasePermission):
         # Admin users have all permissions
         if request.user.is_superuser:
             return True
+        if request.user.is_driver:
+            return True
         return 'drivers' in request.user.user_permissions
+
+class IsDriverPermission(BasePermission):
+    """
+    Permission class that checks if the user has 'drivers' permission.
+    """
+    message = "You do not have permission to access driver resources."
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_driver:
+            return True
+        return False
 
 
 class HasRoutePermission(BasePermission):

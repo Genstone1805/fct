@@ -15,7 +15,7 @@ from rest_framework import generics
 from django_filters import rest_framework as filters
 from account.models import UserProfile
 from .serializers import DriverSerializer, DriverDetailSerializer, AvailableDriverSerializer, DriverListSerializer, DriverRegistrationSerializer
-from account.permissions import HasDriverPermission, HasRoutesAPIKey
+from account.permissions import HasDriverPermission, HasRoutesAPIKey, IsDriverPermission
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
 from django.db import transaction, IntegrityError
@@ -136,7 +136,7 @@ class DriverListView(generics.ListAPIView):
 class  RetrieveDriverView(generics.RetrieveAPIView):
     """Retrieve the authenticated driver's details based on access token"""
     serializer_class = DriverDetailSerializer
-    permission_classes = [HasRoutesAPIKey, HasDriverPermission]
+    permission_classes = [HasRoutesAPIKey, IsDriverPermission]
 
     def get_object(self):
         user = self.request.user

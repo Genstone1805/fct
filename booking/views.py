@@ -1,12 +1,12 @@
 import json
 
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
-from account.permissions import HasBookingPermission, HasRoutesAPIKey
+from account.permissions import HasBookingPermission, HasRoutesAPIKey, IsDriverPermission
 from rest_framework.generics import ListAPIView
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
@@ -370,7 +370,7 @@ class RescheduleBookingView(UpdateAPIView):
 
 class UserBookingsView(ListAPIView):
     serializer_class = BookingDetailSerializer
-    permission_classes = [HasRoutesAPIKey, IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, IsDriverPermission, IsAdminUser ]
     filterset_class = BookingFilter
     pagination_class = CustomPagination
 
