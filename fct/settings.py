@@ -32,7 +32,7 @@ SECRET_KEY = config('SECRET_KEY')
 API_KEY = config('API_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
