@@ -24,9 +24,9 @@ class HasRoutesAPIKey(BasePermission):
 
     def has_permission(self, request, view):
         # 🔍 Print all headers sent by the client
-        print("=== Incoming Headers ===")
-        for key, value in request.headers.items():
-            print(f"{key}: {value}")
+        # print("=== Incoming Headers ===")
+        # for key, value in request.headers.items():
+        #     print(f"{key}: {value}")
 
         api_key = request.headers.get("Api-Key")
         expected_key = getattr(settings, "API_KEY", None)

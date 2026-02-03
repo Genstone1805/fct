@@ -33,7 +33,12 @@ API_KEY = config('API_KEY', default='')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["firstclasstransfers.eu", "fct-backend.techtenets.com", "firstclasstransfers.vercel.app"]
+ALLOWED_HOSTS = [
+    "firstclasstransfers.eu", 
+    "fct-backend.techtenets.com", 
+    "firstclasstransfers.vercel.app",
+    "localhost"
+    ]
 
 
 # Application definition
@@ -199,7 +204,8 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.eu",
     "https://fct-backend.techtenets.com",
-    "https://firstclasstransfers.vercel.app"
+    "https://firstclasstransfers.vercel.app",
+    "http://localhost:3000"
 ]
 
 
