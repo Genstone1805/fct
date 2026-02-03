@@ -37,7 +37,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
     "fct-backend.techtenets.com", 
-    "firstclasstransfers.vercel.app", 
+    "firstclasstransfers.vercel.app"
     ]
 
 
@@ -208,6 +208,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.eu",
     "https://fct-backend.techtenets.com",
     "https://firstclasstransfers.vercel.app",
+    "http://localhost:3000"
 ]
 
 
