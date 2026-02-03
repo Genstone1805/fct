@@ -16,7 +16,7 @@ from rest_framework.generics import (
 from django.http import FileResponse, Http404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
-from account.permissions import HasRoutePermission
+from account.permissions import HasRoutePermission, HasRoutesAPIKey
 from rest_framework.parsers import MultiPartParser, FormParser
 from routes.models import Vehicle as RouteVehicle, RouteFAQ, Route
 from vehicle.models import Vehicle
@@ -64,7 +64,7 @@ class RouteListView(ListAPIView):
     """List all routes."""
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
-    permission_classes = [HasRoutePermission]
+    permission_classes = [HasRoutesAPIKey, HasRoutePermission]
 
 
 
@@ -73,7 +73,7 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
     queryset = Route.objects.all()
     serializer_class = CreateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [HasRoutePermission]
+    permission_classes = [HasRoutesAPIKey, HasRoutePermission]
 
     def create(self, request, *args, **kwargs):
         user=request.user
@@ -133,7 +133,7 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
     serializer_class = CreateRouteSerializer
     parser_classes = [MultiPartParser, FormParser]
     lookup_field = "route_id"
-    permission_classes = [HasRoutePermission]
+    permission_classes = [HasRoutesAPIKey, HasRoutePermission]
 
     def update(self, request, *args, **kwargs):
         user = request.user
@@ -199,7 +199,7 @@ class AdminAnalyticsView(APIView):
     Comprehensive analytics endpoint for super admin dashboard.
     Provides statistics across all aspects of the platform.
     """
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
 
     def get(self, request):
         today = timezone.now().date()
@@ -497,7 +497,7 @@ class AdminAnalyticsView(APIView):
 
 
 class UserActivityLogView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
 
     def get(self, request):
         log_path = os.path.join(settings.BASE_DIR, "logs/user_activity.log")
@@ -521,7 +521,7 @@ class UserActivityLogView(APIView):
 
 class DownloadActivityLogView(APIView):
     """Download the user activity log file. Admin only."""
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
 
     def get(self, request):
         log_path = get_activity_log_path()

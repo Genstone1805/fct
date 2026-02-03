@@ -15,7 +15,7 @@ from rest_framework import generics
 from django_filters import rest_framework as filters
 from account.models import UserProfile
 from .serializers import DriverSerializer, DriverDetailSerializer, AvailableDriverSerializer, DriverListSerializer, DriverRegistrationSerializer
-from account.permissions import HasDriverPermission
+from account.permissions import HasDriverPermission, HasRoutesAPIKey
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
 from django.db import transaction, IntegrityError
@@ -33,7 +33,7 @@ class DriverFilter(filters.FilterSet):
 
 class CreateDriverView(APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
 
     @extend_schema(request=DriverRegistrationSerializer, responses={201: UserProfileSerializer})
     def post(self, request):
@@ -126,7 +126,7 @@ class CreateDriverView(APIView):
 class DriverListView(generics.ListAPIView):
     """List all users where is_driver=True"""
     serializer_class = DriverDetailSerializer
-    permission_classes = [HasDriverPermission]
+    permission_classes = [HasRoutesAPIKey, HasDriverPermission]
     queryset = UserProfile.objects.filter(is_driver=True)
     pagination_class = CustomPagination
     filterset_class = DriverFilter
@@ -136,7 +136,7 @@ class DriverListView(generics.ListAPIView):
 class  RetrieveDriverView(generics.RetrieveAPIView):
     """Retrieve the authenticated driver's details based on access token"""
     serializer_class = DriverDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, HasDriverPermission]
 
     def get_object(self):
         user = self.request.user
@@ -147,7 +147,7 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DriverSerializer
     queryset = UserProfile.objects.filter(is_driver=True)
     lookup_field = 'pk'
-    permission_classes = [HasDriverPermission]
+    permission_classes = [HasRoutesAPIKey, HasDriverPermission]
     
     
     @extend_schema(request=DriverSerializer)
@@ -206,5 +206,5 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
 class AvailableDriverListView(generics.ListAPIView):
     """List all available drivers (is_driver=True and status='Available')"""
     serializer_class = AvailableDriverSerializer
-    permission_classes = [HasDriverPermission]
+    permission_classes = [HasRoutesAPIKey, HasDriverPermission]
     queryset = UserProfile.objects.filter(is_driver=True)

@@ -1,5 +1,5 @@
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
-from account.permissions import HasVehiclePermission
+from account.permissions import HasVehiclePermission, HasRoutesAPIKey
 from .models import Vehicle
 from .serializers import VehicleSerializer, AvailableVehicleSerializer
 from django.db import transaction
@@ -11,7 +11,7 @@ from rest_framework.validators import ValidationError
 class VehicleCreateCreateView(ListCreateAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    permission_classes = [HasVehiclePermission]
+    permission_classes = [HasRoutesAPIKey, HasVehiclePermission]
     
     def create(self, request):
         user = request.user
@@ -52,13 +52,13 @@ class VehicleCreateCreateView(ListCreateAPIView):
 class VehicleListCreateView(ListCreateAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    permission_classes = [HasVehiclePermission]
+    permission_classes = [HasRoutesAPIKey, HasVehiclePermission]
 
 
 class VehicleDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    permission_classes = [HasVehiclePermission]
+    permission_classes = [HasRoutesAPIKey, HasVehiclePermission]
     
     
     def update(self, request, *args, **kwargs):
@@ -120,4 +120,4 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
 class AvailableVehicleListView(ListAPIView):
     queryset = Vehicle.objects.filter()
     serializer_class = AvailableVehicleSerializer
-    permission_classes = [HasVehiclePermission]
+    permission_classes = [HasRoutesAPIKey, HasVehiclePermission]

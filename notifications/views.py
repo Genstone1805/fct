@@ -2,7 +2,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
+from account.permissions import HasRoutesAPIKey
 
 from .models import DriverNotification
 from .serializers import (
@@ -18,7 +18,7 @@ class DriverNotificationListView(ListAPIView):
     Supports filtering by read status via query param: ?read=true or ?read=false
     """
     serializer_class = DriverNotificationListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -41,7 +41,7 @@ class DriverNotificationDetailView(RetrieveAPIView):
     Automatically marks the notification as read when viewed.
     """
     serializer_class = DriverNotificationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, IsAuthenticated]
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -61,7 +61,7 @@ class MarkNotificationsReadView(APIView):
     - POST with empty body or {"notification_ids": []} marks ALL unread notifications as read
     - POST with {"notification_ids": [1, 2, 3]} marks specific notifications as read
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, IsAuthenticated]
 
     def post(self, request):
         serializer = MarkNotificationReadSerializer(data=request.data)
@@ -89,7 +89,7 @@ class UnreadNotificationCountView(APIView):
     """
     Get the count of unread notifications for the authenticated driver.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, IsAuthenticated]
 
     def get(self, request):
         count = DriverNotification.objects.filter(

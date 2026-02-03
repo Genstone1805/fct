@@ -15,6 +15,7 @@ from account.utils import log_user_activity
 from rest_framework.validators import ValidationError
 from rest_framework.generics import RetrieveUpdateAPIView
 from contextlib import suppress
+from account.permissions import HasRoutesAPIKey
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -49,7 +50,7 @@ def generate_code():
 
 class SignUpView(APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
 
     ALL_PERMISSIONS = ['booking', 'drivers', 'routes', 'vehicles', 'adminUsers']
 
@@ -148,6 +149,7 @@ class SignUpView(APIView):
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    permission_classes = [HasRoutesAPIKey]
     
     @extend_schema(request=LoginSerializer, responses={200: UserProfileSerializer})
     def post(self, request):
@@ -186,7 +188,7 @@ class LoginView(APIView):
 
 
 class RequestPasswordResetView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [HasRoutesAPIKey]
     
     @extend_schema(request=RequestPasswordResetSerializer)
     def post(self, request):
@@ -237,7 +239,7 @@ class RequestPasswordResetView(APIView):
 
 
 class VerifyResetCodeView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [HasRoutesAPIKey]
     
     @extend_schema(request=VerifyResetCodeSerializer)
     def post(self, request):
@@ -318,7 +320,7 @@ class UserListView(generics.ListAPIView):
     """List all users. Admin only."""
     queryset = UserProfile.objects.filter(is_driver=False).order_by('-date_joined')
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
 
     @extend_schema(responses={200: UserProfileSerializer(many=True)})
     def get(self, request, *args, **kwargs):
@@ -364,7 +366,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class UserUpdateUpView(RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
     serializer_class = UserUpdateSerializer
     queryset = UserProfile.objects.all()
     lookup_field = "pk"

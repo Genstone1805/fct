@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
-from account.permissions import HasBookingPermission
+from account.permissions import HasBookingPermission, HasRoutesAPIKey
 from rest_framework.generics import ListAPIView
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
@@ -45,7 +45,7 @@ from contextlib import suppress
 class BookingCreateView(CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingCreateSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [HasRoutesAPIKey]
     parser_classes = [MultiPartParser, FormParser]
 
     json_fields = ['transfer_information', 'passenger_information']
@@ -110,7 +110,7 @@ class BookingListView(ListAPIView):
         'driver'
     ).order_by('-pickup_date', '-pickup_time')
     serializer_class = BookingDetailSerializer
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     filterset_class = BookingFilter
 
 class BookingUpdateView(UpdateAPIView):
@@ -119,7 +119,7 @@ class BookingUpdateView(UpdateAPIView):
     Sends email notifications to passenger and driver about the changes.
     """
     serializer_class = BookingUpdateSerializer
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(
@@ -169,7 +169,7 @@ class AvailableDriversView(APIView):
     """
     Get all drivers that are available for a specific booking's time slot.
     """
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
 
     def get(self, request, booking_id):
         try:
@@ -193,7 +193,7 @@ class AvailableVehiclesView(APIView):
     """
     Get all vehicles that are available for a specific booking's time slot.
     """
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
 
     def get(self, request, booking_id):
         try:
@@ -223,7 +223,7 @@ class AssignDriverVehicleView(UpdateAPIView):
     Accepts driver ID and vehicle ID, validates availability, and assigns them.
     """
     serializer_class = AssignDriverVehicleSerializer
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(
@@ -279,7 +279,7 @@ class BookingStatusUpdateView(UpdateAPIView):
     Update booking status to Completed or Cancelled.
     """
     serializer_class = BookingStatusSerializer
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(
@@ -328,7 +328,7 @@ class RescheduleBookingView(UpdateAPIView):
     Validates driver and vehicle availability for new times.
     """
     serializer_class = RescheduleBookingSerializer
-    permission_classes = [HasBookingPermission]
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(
@@ -370,7 +370,7 @@ class RescheduleBookingView(UpdateAPIView):
 
 class UserBookingsView(ListAPIView):
     serializer_class = BookingDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRoutesAPIKey, IsAuthenticated]
     filterset_class = BookingFilter
     pagination_class = CustomPagination
 
