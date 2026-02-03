@@ -2,21 +2,40 @@ from django.conf import settings
 from rest_framework.permissions import BasePermission
 
 
+# class HasRoutesAPIKey(BasePermission):
+#     """
+#     Permission class that requires a valid API key in the request header.
+#     Expects header: API-KEY: <key>
+#     """
+#     message = "Invalid or missing API key."
+
+#     def has_permission(self, request, view):
+#         api_key = request.META.get('HTTP_API_KEY', '')
+#         expected_key = getattr(settings, 'API_KEY', '')
+
+#         if not expected_key:
+#             return False
+
+#         return api_key == expected_key
+
+
 class HasRoutesAPIKey(BasePermission):
-    """
-    Permission class that requires a valid API key in the request header.
-    Expects header: BACKEND-API-KEY: <key>
-    """
     message = "Invalid or missing API key."
 
     def has_permission(self, request, view):
-        api_key = request.META.get('HTTP_API_KEY', '')
-        expected_key = getattr(settings, 'API_KEY', '')
+        # 🔍 Print all headers sent by the client
+        print("=== Incoming Headers ===")
+        for key, value in request.headers.items():
+            print(f"{key}: {value}")
+
+        api_key = request.headers.get("Api-Key")
+        expected_key = getattr(settings, "API_KEY", None)
 
         if not expected_key:
             return False
 
         return api_key == expected_key
+
 
 
 # class CustomPermission(BasePermission):
