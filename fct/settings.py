@@ -38,8 +38,6 @@ ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
     "fct-backend.techtenets.com", 
     "firstclasstransfers.vercel.app", 
-    "217.79.180.218",
-    "92.113.29.160"
     ]
 
 
@@ -210,8 +208,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.eu",
     "https://fct-backend.techtenets.com",
     "https://firstclasstransfers.vercel.app",
-    "http://217.79.180.218:1805",
-    "http://92.113.29.160:1805",
 ]
 
 
