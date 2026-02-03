@@ -189,6 +189,7 @@ SIMPLE_JWT = {
 
 
 # CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -204,15 +205,21 @@ CORS_ALLOW_HEADERS = [
     "api-key",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "https://firstclasstransfers.eu",
-#     "https://fct-backend.techtenets.com",
-#     "https://firstclasstransfers.vercel.app",
-#     "http://localhost:3000",
-    
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "https://firstclasstransfers.eu",
+    "https://fct-backend.techtenets.com",
+    "https://firstclasstransfers.vercel.app",
+    "https://firstclasstransfers.techtenets.com",
+    "http://localhost:3000",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://firstclasstransfers.eu",
+    "https://fct-backend.techtenets.com",
+    "https://firstclasstransfers.techtenets.com",
+    "https://firstclasstransfers.vercel.app",
+    "http://localhost:3000",
+]
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
