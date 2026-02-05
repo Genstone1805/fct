@@ -79,7 +79,9 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
         user=request.user
         serializer = self.get_serializer(data=request.data)
         
+        print("===================== data===========================")
         print(request.data)
+        print("===================== data===========================")
 
         if not serializer.is_valid():
             return Response(
@@ -87,6 +89,9 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        print("===================== data===========================")
+        print(serializer.validated_data)
+        print("===================== data===========================")
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
 
@@ -141,7 +146,9 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
         user = request.user
         route = self.get_object()
         partial = kwargs.get('partial', False)
+        print("===================== data===========================")
         print(request.data)
+        print("===================== data===========================")
         serializer = self.get_serializer(instance=route, data=request.data, partial=partial)
         
         if not serializer.is_valid():
@@ -149,6 +156,10 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        print("===================== data===========================")
+        print(serializer.validated_data)
+        print("===================== data===========================")
 
         vehicle_options_data = serializer.validated_data.pop('vehicle_options', [])
         faq_data = serializer.validated_data.pop('faqs', [])
