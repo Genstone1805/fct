@@ -38,7 +38,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
     "fct-backend.techtenets.com", 
-    "firstclasstransfers.vercel.app"
+    "firstclasstransfers.vercel.app",
+    "217.79.180.218"
     ]
 
 

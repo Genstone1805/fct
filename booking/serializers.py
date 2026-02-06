@@ -148,6 +148,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             "price",
             "vehicle_type",
             'payment_type',
+            "transaction_id",
             'trip_type',
             'pickup_date',
             'pickup_time',
