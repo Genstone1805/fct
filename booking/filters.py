@@ -28,7 +28,7 @@ class BookingFilter(django_filters.FilterSet):
     class Meta:
         model = Booking
         fields = [
-            'status',
+            'booking_status',
             'pickup_date',
             'return_date',
             'passenger_name',

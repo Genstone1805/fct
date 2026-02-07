@@ -373,7 +373,7 @@ class AdminAnalyticsView(APIView):
                 'route', 'passenger_information', 'driver', 'vehicle'
             ).order_by('-id')[:10].values(
                 'booking_id',
-                'status',
+                'booking_status',
                 'pickup_date',
                 'pickup_time',
                 'route__from_location',

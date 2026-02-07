@@ -363,14 +363,14 @@ class BookingStatusSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        self.old_status = instance.status
+        self.old_status = instance.booking_status
         new_status = validated_data['booking_status']
 
         # Use direct database update to ensure it's saved
         Booking.objects.filter(pk=instance.pk).update(status=new_status)
 
         # Update the instance in memory
-        instance.status = new_status
+        instance.booking_status = new_status
         return instance
 
 
@@ -533,7 +533,7 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         # Store original values for change tracking
         if self.instance:
             self._original_values = {
-                'booking_status': self.instance.status,
+                'booking_status': self.instance.booking_status,
                 'pickup_date': self.instance.pickup_date,
                 'pickup_time': self.instance.pickup_time,
                 'return_date': self.instance.return_date,
