@@ -62,8 +62,8 @@ def get_conflicting_booking_for_driver(driver, booking, exclude_booking_id=None)
     existing_bookings = Booking.objects.filter(
         driver=driver
     ).exclude(
-        status="Cancelled"
-    ).exclude(status="Completed")
+        booking_status="Cancelled"
+    ).exclude(booking_status="Completed")
 
     if exclude_booking_id:
         existing_bookings = existing_bookings.exclude(booking_id=exclude_booking_id)
@@ -101,9 +101,9 @@ def get_conflicting_booking_for_vehicle(vehicle, booking, exclude_booking_id=Non
     existing_bookings = Booking.objects.filter(
         vehicle=vehicle
     ).exclude(
-        status="Cancelled"
+        booking_status="Cancelled"
     ).exclude(
-        status="Completed"
+        booking_status="Completed"
     )
 
     if exclude_booking_id:
@@ -146,7 +146,7 @@ def get_available_drivers(booking, exclude_booking_id=None):
     existing_bookings = Booking.objects.filter(
         driver__isnull=False
     ).exclude(
-        status="Cancelled"
+        booking_status="Cancelled"
     ).select_related('route', 'driver')
 
     if exclude_booking_id:
@@ -189,9 +189,9 @@ def get_available_vehicles(booking, exclude_booking_id=None):
     existing_bookings = Booking.objects.filter(
         vehicle__isnull=False
     ).exclude(
-        status="Cancelled"
+        booking_status="Cancelled"
     ).exclude(
-        status="Completed"
+        booking_status="Completed"
     ).select_related('route', 'vehicle')
 
     if exclude_booking_id:
