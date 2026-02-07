@@ -75,6 +75,7 @@ class BookingListSerializer(serializers.ModelSerializer):
         model = Booking
         fields = [
             'booking_id',
+            'booking_status',
             'passenger_information',
             'route',
             'pickup_date',
@@ -118,7 +119,7 @@ class BookingDetailSerializer(serializers.ModelSerializer):
         fields = [
             'booking_id',
             'route',
-            'status',
+            'booking_status',
             'vehicle',
             "amount_paid",
             "outstanding_amount",
@@ -350,7 +351,7 @@ class BookingStatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ['status']
+        fields = ['booking_status']
 
     def validate_status(self, value):
         if not value:
@@ -363,7 +364,7 @@ class BookingStatusSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         self.old_status = instance.status
-        new_status = validated_data['status']
+        new_status = validated_data['booking_status']
 
         # Use direct database update to ensure it's saved
         Booking.objects.filter(pk=instance.pk).update(status=new_status)
@@ -516,7 +517,7 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'status',
+            'booking_status',
             'pickup_date',
             'pickup_time',
             'return_date',
@@ -532,7 +533,7 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         # Store original values for change tracking
         if self.instance:
             self._original_values = {
-                'status': self.instance.status,
+                'booking_status': self.instance.status,
                 'pickup_date': self.instance.pickup_date,
                 'pickup_time': self.instance.pickup_time,
                 'return_date': self.instance.return_date,
@@ -551,7 +552,7 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         """
         changes = []
         field_labels = {
-            'status': 'Status',
+            'booking_status': 'booking_Status',
             'pickup_date': 'Pickup Date',
             'pickup_time': 'Pickup Time',
             'return_date': 'Return Date',
