@@ -340,7 +340,7 @@ class AdminAnalyticsView(APIView):
         vehicles_with_bookings = Booking.objects.filter(
             vehicle__isnull=False
         ).exclude(
-            status__in=['Cancelled', 'Completed']
+            booking_status__in=['Cancelled', 'Completed']
         ).values('vehicle').distinct().count()
 
         # ===== ROUTE STATISTICS =====
