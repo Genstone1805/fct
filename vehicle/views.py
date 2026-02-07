@@ -27,7 +27,7 @@ class VehicleCreateCreateView(ListCreateAPIView):
                 new_vehicle = Vehicle.objects.create(**serializer.validated_data, added_by=user)
             
             
-            log_user_activity(user, f"Created Vehicle: {new_vehicle.make} {new_vehicle.model} ({new_vehicle.plate_number})", request)
+            log_user_activity(user, f"Created Vehicle: {new_vehicle.make} {new_vehicle.model} ({new_vehicle.license_plate})", request)
             
 
             return Response(
@@ -79,7 +79,7 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
 
             log_user_activity(
                 user,
-                f"Updated Vehicle: {updated_vehicle.make} {updated_vehicle.model} ({updated_vehicle.plate_number})",
+                f"Updated Vehicle: {updated_vehicle.make} {updated_vehicle.model} ({updated_vehicle.license_plate})",
                 request
             )
 
@@ -104,7 +104,7 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         vehicle = self.get_object()
-        vehicle_info = f"{vehicle.make} {vehicle.model} ({vehicle.plate_number})"
+        vehicle_info = f"{vehicle.make} {vehicle.model} ({vehicle.license_plate})"
 
         response = super().destroy(request, *args, **kwargs)
 

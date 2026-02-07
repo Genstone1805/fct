@@ -261,7 +261,7 @@ class AssignDriverVehicleView(UpdateAPIView):
         # Log user activity
         log_user_activity(
             self.request.user,
-            f"Assigned Driver/Vehicle: {booking.driver.full_name} & {booking.vehicle.plate_number} to {booking.booking_id}",
+            f"Assigned Driver/Vehicle: {booking.driver.full_name} & {booking.vehicle.license_plate} to {booking.booking_id}",
             self.request
         )
 
