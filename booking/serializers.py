@@ -367,7 +367,7 @@ class BookingStatusSerializer(serializers.ModelSerializer):
         new_status = validated_data['booking_status']
 
         # Use direct database update to ensure it's saved
-        Booking.objects.filter(pk=instance.pk).update(status=new_status)
+        Booking.objects.filter(pk=instance.pk).update(booking_status=new_status)
 
         # Update the instance in memory
         instance.booking_status = new_status

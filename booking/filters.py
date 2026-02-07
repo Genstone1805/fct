@@ -4,7 +4,7 @@ from .models import Booking
 
 
 class BookingFilter(django_filters.FilterSet):
-    status = django_filters.CharFilter(field_name='status', lookup_expr='exact')
+    booking_status = django_filters.CharFilter(field_name='status', lookup_expr='exact')
     pickup_date = django_filters.DateFilter(field_name='pickup_date', lookup_expr='exact')
     return_date = django_filters.DateFilter(field_name='return_date', lookup_expr='exact')
     payment_status = django_filters.CharFilter(field_name='payment_status', lookup_expr='exact')
