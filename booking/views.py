@@ -255,8 +255,8 @@ class AssignDriverVehicleView(UpdateAPIView):
         booking = serializer.save()
 
         # Update status to Assigned (both driver and vehicle are required)
-        booking.status = 'Assigned'
-        booking.save(update_fields=['status'])
+        booking.booking_status = 'Assigned'
+        booking.save(update_fields=['booking_status'])
 
         # Log user activity
         log_user_activity(

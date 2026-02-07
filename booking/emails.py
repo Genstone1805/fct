@@ -412,7 +412,7 @@ Vehicle Information:
         - Route: {route.from_location} → {route.to_location}
         - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
         - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
-        - Status: {booking.status}
+        - Status: {booking.booking_status}
         {driver_info}{vehicle_info}
         {"Return Trip Details:" if booking.trip_type == "Return" and booking.return_date else ""}
         {f"- Return Date: {booking.return_date.strftime('%B %d, %Y')}" if booking.return_date else ""}
@@ -478,7 +478,7 @@ Updated Booking Details:
 - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
 - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
 - Estimated Duration: {route.duration_minutes} minutes
-- Status: {booking.status}
+- Status: {booking.booking_status}
 
 Passenger Information:
 - Name: {passenger.full_name}

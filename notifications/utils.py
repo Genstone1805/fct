@@ -56,7 +56,7 @@ def create_booking_updated_notification(booking, changes=None):
         f"Route: {route.from_location} → {route.to_location}\n"
         f"Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}\n"
         f"Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}\n"
-        f"Status: {booking.status}"
+        f"Status: {booking.booking_status}"
     )
 
     return DriverNotification.objects.create(
