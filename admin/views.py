@@ -212,9 +212,9 @@ class AdminAnalyticsView(APIView):
 
         # Bookings by status
         bookings_by_status = dict(
-            Booking.objects.values('status')
+            Booking.objects.values('booking_status')
             .annotate(count=Count('id'))
-            .values_list('status', 'count')
+            .values_list('booking_status', 'count')
         )
 
         # Bookings by trip type

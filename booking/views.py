@@ -133,7 +133,7 @@ class BookingUpdateView(UpdateAPIView):
 
     def perform_update(self, serializer):
         # Store old status before update
-        old_status = serializer.instance.status if serializer.instance else None
+        old_status = serializer.instance.booking_status if serializer.instance else None
 
         booking = serializer.save()
 
@@ -158,7 +158,7 @@ class BookingUpdateView(UpdateAPIView):
                 send_booking_updated_to_driver(booking, changes)
 
                 # Check if status changed - create specific status notification
-                new_status = booking.status
+                new_status = booking.booking_status
                 if old_status and old_status != new_status:
                     create_booking_status_notification(booking, old_status, new_status)
                 else:
@@ -289,7 +289,7 @@ class BookingStatusUpdateView(UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         booking = self.get_object()
-        old_status = booking.status
+        old_status = booking.booking_status
 
         serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
 
@@ -300,7 +300,7 @@ class BookingStatusUpdateView(UpdateAPIView):
             )
 
         booking = serializer.save()
-        new_status = booking.status
+        new_status = booking.booking_status
 
         # Log user activity
         log_user_activity(
