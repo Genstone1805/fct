@@ -262,36 +262,36 @@ class AdminAnalyticsView(APIView):
         upcoming_bookings = Booking.objects.filter(
             pickup_date__gte=today
         ).exclude(
-            status__in=['Cancelled', 'Completed']
+            booking_status__in=['Cancelled', 'Completed']
         ).count()
 
         # Bookings needing assignment (no driver or no vehicle)
         bookings_needing_driver = Booking.objects.filter(
             driver__isnull=True
-        ).exclude(status__in=['Cancelled', 'Completed']).count()
+        ).exclude(booking_status__in=['Cancelled', 'Completed']).count()
 
         bookings_needing_vehicle = Booking.objects.filter(
             vehicle__isnull=True
-        ).exclude(status__in=['Cancelled', 'Completed']).count()
+        ).exclude(booking_status__in=['Cancelled', 'Completed']).count()
 
         # ===== REVENUE STATISTICS =====
         total_revenue = Booking.objects.filter(
-            status='Completed'
+            booking_status='Completed'
         ).aggregate(total=Sum('total_amount'))['total'] or 0
 
         revenue_this_month = Booking.objects.filter(
-            status='Completed',
+            booking_status='Completed',
             pickup_date__gte=start_of_month
         ).aggregate(total=Sum('total_amount'))['total'] or 0
 
         revenue_this_year = Booking.objects.filter(
-            status='Completed',
+            booking_status='Completed',
             pickup_date__gte=start_of_year
         ).aggregate(total=Sum('total_amount'))['total'] or 0
 
         # Revenue by payment type
         revenue_by_payment_type = dict(
-            Booking.objects.filter(status='Completed')
+            Booking.objects.filter(booking_status='Completed')
             .values('payment_type')
             .annotate(total=Sum('total_amount'))
             .values_list('payment_type', 'total')
@@ -313,13 +313,13 @@ class AdminAnalyticsView(APIView):
         drivers_with_bookings = Booking.objects.filter(
             driver__isnull=False
         ).exclude(
-            status__in=['Cancelled', 'Completed']
+            booking_status__in=['Cancelled', 'Completed']
         ).values('driver').distinct().count()
 
         # Top drivers by completed bookings
         top_drivers = list(
             Booking.objects.filter(
-                status='Completed',
+                booking_status='Completed',
                 driver__isnull=False
             )
             .values('driver__id', 'driver__full_name', 'driver__email')
