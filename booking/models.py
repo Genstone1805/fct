@@ -48,8 +48,8 @@ class  Booking(models.Model):
   ]
 
   PAYMENT_TYPES = [
-    ("Cash","Cash"),
-    ("Card","Card")
+    ("cash","cash"),
+    ("card","card")
   ]
   
   PAYMENT_STATUS = [
@@ -71,7 +71,7 @@ class  Booking(models.Model):
   vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100)
   payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15 )
   payment_status = models.CharField(choices=PAYMENT_STATUS, max_length=15)
-  transaction_id = models.CharField(max_length=25, null=True, blank=True)
+  transaction_id = models.CharField(max_length=100, null=True, blank=True)
   trip_type = models.CharField(choices=TRIP_TYPE_CHOICES, max_length=15 )
   pickup_date = models.DateField()
   pickup_time = models.TimeField()

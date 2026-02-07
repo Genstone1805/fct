@@ -83,6 +83,10 @@ class BookingCreateView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        
+        print("======================REQUEST DATA=====================================")
+        print(request.data)
+        print("======================REQUEST DATA=====================================")
 
         if not serializer.is_valid():
             return Response(
