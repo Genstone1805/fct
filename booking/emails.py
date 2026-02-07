@@ -3,6 +3,63 @@ from django.conf import settings
 from contextlib import suppress
 
 
+def send_booking_confirmation_to_passenger(booking):
+    """
+    Send email to passenger confirming their booking has been received.
+    """
+    passenger = booking.passenger_information
+    route = booking.route
+
+    if not passenger or not passenger.email_address:
+        return False
+
+    subject = f"Booking Received - #{booking.booking_id}"
+
+    return_info = ""
+    if booking.trip_type == "Return" and booking.return_date:
+        return_info = f"""
+        Return Trip Details:
+        - Return Date: {booking.return_date.strftime('%B %d, %Y')}
+        - Return Time: {booking.return_time.strftime('%I:%M %p') if booking.return_time else 'TBC'}
+        """
+
+    message = f"""
+        Dear {passenger.full_name},
+
+        Thank you for booking with First Class Transfer! We have received your booking and it is currently being processed.
+
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Trip Type: {booking.trip_type}
+        {return_info}
+        What happens next?
+        We will assign a driver and a vehicle to your booking shortly and will keep you updated every step of the way.
+
+        Need to make changes?
+        If your plans change and you need to reschedule or make any adjustments to your booking, please don't hesitate to reach out to us. We're happy to help accommodate any changes.
+
+        If you have any questions, feel free to contact us at any time.
+
+        Best regards,
+        First Class Transfer Team
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [passenger.email_address],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
 def send_driver_assigned_to_passenger(booking):
     """
     Send email to passenger notifying them that a driver has been assigned to their booking.

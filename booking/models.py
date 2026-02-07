@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 user = get_user_model()
 
+import math
 import secrets
 import string
 
@@ -67,8 +68,8 @@ class  Booking(models.Model):
   booking_id = models.CharField(max_length=100, blank=True, null=True)
   route = models.ForeignKey(Route, on_delete=models.CASCADE)
   status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Pending")
-  amount_paid = models.PositiveIntegerField(default=1)
-  outstanding_amount = models.PositiveIntegerField(default=1)
+  amount_paid = models.FloatField(default=0.00)
+  outstanding_amount = models.FloatField(default=0.00)
   total_amount = models.PositiveIntegerField(default=1)
   vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100)
   payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15 )
@@ -92,12 +93,15 @@ class  Booking(models.Model):
   def save(self, *args, **kwargs):
       generate_booking_id = not self.booking_id
       
-      if self.payment_type == "Cash":
+      self.amount_paid = math.ceil(float(self.amount_paid) * 100) / 100
+      self.outstanding_amount = math.ceil(float(self.outstanding_amount) * 100) / 100
+
+      if self.payment_type == "cash":
         self.payment_status = "Paid 20%"
-        
-      if self.payment_type == "Card":
+
+      if self.payment_type == "card":
         self.payment_status = "Paid"
-        
+
       super().save(*args, **kwargs)
 
       if generate_booking_id:

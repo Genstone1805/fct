@@ -26,6 +26,7 @@ from .serializers import (
 from .filters import BookingFilter
 from .utils import get_available_drivers, get_available_vehicles
 from .emails import (
+    send_booking_confirmation_to_passenger,
     send_booking_updated_to_passenger,
     send_booking_updated_to_driver,
     send_assignment_to_passenger,
@@ -83,10 +84,6 @@ class BookingCreateView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        
-        print("====================== REQUEST DATA =====================================")
-        print(request.data)
-        print("====================== REQUEST DATA =====================================")
 
         if not serializer.is_valid():
             return Response(
@@ -95,8 +92,8 @@ class BookingCreateView(CreateAPIView):
             )
 
         booking = serializer.save()
-        
-        
+
+        send_booking_confirmation_to_passenger(booking)
 
         return Response(
             {"message": "Booking created successfully", "booking_id": booking.booking_id},
