@@ -120,7 +120,9 @@ class BookingDetailSerializer(serializers.ModelSerializer):
             'route',
             'status',
             'vehicle',
-            "price",
+            "amount_paid",
+            "outstanding_amount",
+            "total_amount",
             "vehicle_type",
             'driver',
             'payment_type',
@@ -145,7 +147,9 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         model = Booking
         fields = [
             'route',
-            "price",
+            "amount_paid",
+            "outstanding_amount",
+            "total_amount",
             "vehicle_type",
             'payment_type',
             "transaction_id",
