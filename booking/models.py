@@ -67,7 +67,7 @@ class  Booking(models.Model):
 
   booking_id = models.CharField(max_length=100, blank=True, null=True)
   route = models.ForeignKey(Route, on_delete=models.CASCADE)
-  status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Pending")
+  booking_status = models.CharField(choices=STATUS_CHOICES, max_length=20, default="Pending")
   amount_paid = models.FloatField(default=0.00)
   outstanding_amount = models.FloatField(default=0.00)
   total_amount = models.PositiveIntegerField(default=1)
