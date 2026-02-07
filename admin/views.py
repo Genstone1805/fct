@@ -277,23 +277,23 @@ class AdminAnalyticsView(APIView):
         # ===== REVENUE STATISTICS =====
         total_revenue = Booking.objects.filter(
             status='Completed'
-        ).aggregate(total=Sum('price'))['total'] or 0
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
 
         revenue_this_month = Booking.objects.filter(
             status='Completed',
             pickup_date__gte=start_of_month
-        ).aggregate(total=Sum('price'))['total'] or 0
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
 
         revenue_this_year = Booking.objects.filter(
             status='Completed',
             pickup_date__gte=start_of_year
-        ).aggregate(total=Sum('price'))['total'] or 0
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
 
         # Revenue by payment type
         revenue_by_payment_type = dict(
             Booking.objects.filter(status='Completed')
             .values('payment_type')
-            .annotate(total=Sum('price'))
+            .annotate(total=Sum('total_amount'))
             .values_list('payment_type', 'total')
         )
 
@@ -380,7 +380,7 @@ class AdminAnalyticsView(APIView):
                 'route__to_location',
                 'passenger_information__full_name',
                 'driver__full_name',
-                'price'
+                'total_amount'
             )
         )
 
@@ -400,7 +400,7 @@ class AdminAnalyticsView(APIView):
             Booking.objects.filter(pickup_date__gte=twelve_months_ago)
             .annotate(month=TruncMonth('pickup_date'))
             .values('month')
-            .annotate(count=Count('id'), revenue=Sum('price'))
+            .annotate(count=Count('id'), revenue=Sum('total_amount'))
             .order_by('month')
         )
 
