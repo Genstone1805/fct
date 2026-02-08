@@ -150,7 +150,6 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             'route',
             "amount_paid",
             "outstanding_amount",
-            "payment_status",
             "total_amount",
             "vehicle_type",
             'payment_type',
