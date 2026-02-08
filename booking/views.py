@@ -1,7 +1,6 @@
 import json
 
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
-from rest_framework.permissions import IsAdminUser
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -22,6 +21,7 @@ from .serializers import (
     BookingUpdateSerializer,
     BookingStatusSerializer,
     RescheduleBookingSerializer,
+    BookingStateSerializer
 )
 from .filters import BookingFilter
 from .utils import get_available_drivers, get_available_vehicles
@@ -388,3 +388,9 @@ class UserBookingsView(ListAPIView):
             'vehicle',
             'driver'
         ).order_by('-pickup_date', '-pickup_time')
+
+class UpdateBookingStatusView(RetrieveUpdateAPIView):
+    serializer_class = BookingStateSerializer
+    permission_classes = [HasRoutesAPIKey]
+    lookup_field = "transaction_id"
+    queryset = Booking.objects.all()

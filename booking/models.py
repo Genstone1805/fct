@@ -54,8 +54,12 @@ class  Booking(models.Model):
   ]
   
   PAYMENT_STATUS = [
-    ("Paid","Paid"),
-    ("Paid 20%","Paid 20%"),
+    ("paid","paid"),
+    ("paid 20%","paid 20%"),
+    ("failed","failed"),
+    ("cancelled","cancelled"),
+    ("expired","expired"),
+    ("pending","pending"),
   ]
 
   STATUS_CHOICES = [
@@ -73,7 +77,7 @@ class  Booking(models.Model):
   total_amount = models.PositiveIntegerField(default=1)
   vehicle_type = models.CharField(choices=VEHICLE_TYPE, max_length=100)
   payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=15 )
-  payment_status = models.CharField(choices=PAYMENT_STATUS, max_length=15)
+  payment_status = models.CharField(choices=PAYMENT_STATUS, max_length=15, default="pending")
   transaction_id = models.CharField(max_length=100, null=True, blank=True)
   trip_type = models.CharField(choices=TRIP_TYPE_CHOICES, max_length=15 )
   pickup_date = models.DateField()

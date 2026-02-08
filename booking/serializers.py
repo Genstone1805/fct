@@ -661,3 +661,26 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
         # Store changes before update
         self.changes = self.get_changes(validated_data)
         return super().update(instance, validated_data)
+
+
+
+class BookingStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ['transaction_id', 'payment_status']
+        read_only_fields = ['transaction_id']
+
+    def validate_payment_status(self, value):
+        allowed = [choice[0] for choice in Booking.PAYMENT_STATUS]
+        if value not in allowed:
+            raise serializers.ValidationError(
+                f"Invalid payment status. Allowed values: {', '.join(allowed)}"
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        Booking.objects.filter(pk=instance.pk).update(
+            payment_status=validated_data['payment_status']
+        )
+        instance.payment_status = validated_data['payment_status']
+        return instance
