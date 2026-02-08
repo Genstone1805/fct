@@ -34,8 +34,6 @@ def send_booking_confirmation_to_passenger(booking):
         - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
         - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
         - Trip Type: {booking.trip_type}
-        - Payment Method: {booking.payment_type}
-        - Payment Status: {booking.payment_status}
         {return_info}
         What happens next?
         We will assign a driver and a vehicle to your booking shortly and will keep you updated every step of the way.

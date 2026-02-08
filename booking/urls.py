@@ -9,8 +9,7 @@ from .views import (
     AssignDriverVehicleView,
     BookingStatusUpdateView,
     RescheduleBookingView,
-    UserBookingsView,
-    UpdateBookingStatusView
+    UserBookingsView
 )
 
 urlpatterns = [

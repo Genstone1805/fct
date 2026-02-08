@@ -1,6 +1,6 @@
 import json
 
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -21,7 +21,6 @@ from .serializers import (
     BookingUpdateSerializer,
     BookingStatusSerializer,
     RescheduleBookingSerializer,
-    BookingStateSerializer
 )
 from .filters import BookingFilter
 from .utils import get_available_drivers, get_available_vehicles
@@ -33,7 +32,6 @@ from .emails import (
     send_assignment_to_driver,
     send_status_change_to_passenger,
     send_status_change_to_driver,
-    send_payment_status_update_to_passenger,
 )
 from notifications.utils import (
     create_booking_assigned_notification,
@@ -93,6 +91,7 @@ class BookingCreateView(CreateAPIView):
             )
 
         booking = serializer.save()
+        send_booking_confirmation_to_passenger(booking)
 
         return Response(
             {"message": "Booking created successfully", "booking_id": booking.booking_id},
@@ -387,16 +386,3 @@ class UserBookingsView(ListAPIView):
             'vehicle',
             'driver'
         ).order_by('-pickup_date', '-pickup_time')
-
-class UpdateBookingStatusView(RetrieveUpdateAPIView):
-    serializer_class = BookingStateSerializer
-    permission_classes = [HasRoutesAPIKey]
-    lookup_field = "transaction_id"
-    queryset = Booking.objects.all()
-
-    def perform_update(self, serializer):
-        old_status = serializer.instance.payment_status
-        booking = serializer.save()
-        new_status = booking.payment_status
-        if old_status != new_status:
-            send_payment_status_update_to_passenger(booking, old_status, new_status)
