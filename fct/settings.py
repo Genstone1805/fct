@@ -33,13 +33,14 @@ API_KEY = config('API_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
     "fct-backend.techtenets.com", 
     "firstclasstransfers.vercel.app",
     "217.79.180.218",
+    "localhost",
     "ngrok-free.app"
     ]
 
@@ -77,6 +78,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -106,6 +108,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fct.wsgi.application'
 
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # Password validation
@@ -214,7 +221,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.vercel.app",
     "https://firstclasstransfers.techtenets.com",
     "http://localhost:3000",
-    "https://929d-105-113-80-15.ngrok-free.app"
+    "https://98e7-105-113-80-15.ngrok-free.app"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -223,7 +230,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://firstclasstransfers.techtenets.com",
     "https://firstclasstransfers.vercel.app",
     "http://localhost:3000",
-    "https://929d-105-113-80-15.ngrok-free.app"
+    "https://98e7-105-113-80-15.ngrok-free.app"
 ]
 
 
