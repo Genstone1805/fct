@@ -34,6 +34,8 @@ def send_booking_confirmation_to_passenger(booking):
         - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
         - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
         - Trip Type: {booking.trip_type}
+        - Payment Method: {booking.payment_type}
+        - Payment Status: {booking.payment_status}
         {return_info}
         What happens next?
         We will assign a driver and a vehicle to your booking shortly and will keep you updated every step of the way.
@@ -608,6 +610,62 @@ First Class Transfer Team
             message,
             settings.EMAIL_FROM,
             [driver.email],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
+def send_payment_status_update_to_passenger(booking, old_status, new_status):
+    """
+    Send email to passenger notifying them that their payment status has changed.
+    """
+    passenger = booking.passenger_information
+    route = booking.route
+
+    if not passenger or not passenger.email_address:
+        return False
+
+    status_messages = {
+        'paid': 'Your payment has been confirmed. Thank you!',
+        'paid 20%': 'We have received your 20% deposit. The remaining balance is due on the day of your trip.',
+        'failed': 'Unfortunately, your payment has failed. Please contact us to resolve this.',
+        'cancelled': 'Your payment has been cancelled.',
+        'expired': 'Your payment has expired. Please contact us to make a new payment.',
+        'pending': 'Your payment is pending. We will notify you once it has been processed.',
+    }
+
+    subject = f"Payment Update - Booking #{booking.booking_id}"
+
+    message = f"""
+        Dear {passenger.full_name},
+
+        {status_messages.get(new_status, f'Your payment status has been updated to {new_status}.')}
+
+        Booking Details:
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+
+        Payment Information:
+        - Payment Method: {booking.payment_type}
+        - Previous Status: {old_status}
+        - New Status: {new_status}
+
+        If you have any questions, please don't hesitate to contact us.
+
+        Best regards,
+        First Class Transfer Team
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [passenger.email_address],
             fail_silently=False,
         )
         return True

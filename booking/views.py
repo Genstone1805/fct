@@ -33,6 +33,7 @@ from .emails import (
     send_assignment_to_driver,
     send_status_change_to_passenger,
     send_status_change_to_driver,
+    send_payment_status_update_to_passenger,
 )
 from notifications.utils import (
     create_booking_assigned_notification,
@@ -92,8 +93,6 @@ class BookingCreateView(CreateAPIView):
             )
 
         booking = serializer.save()
-
-        send_booking_confirmation_to_passenger(booking)
 
         return Response(
             {"message": "Booking created successfully", "booking_id": booking.booking_id},
@@ -394,3 +393,10 @@ class UpdateBookingStatusView(RetrieveUpdateAPIView):
     permission_classes = [HasRoutesAPIKey]
     lookup_field = "transaction_id"
     queryset = Booking.objects.all()
+
+    def perform_update(self, serializer):
+        old_status = serializer.instance.payment_status
+        booking = serializer.save()
+        new_status = booking.payment_status
+        if old_status != new_status:
+            send_payment_status_update_to_passenger(booking, old_status, new_status)

@@ -214,7 +214,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://firstclasstransfers.vercel.app",
     "https://firstclasstransfers.techtenets.com",
     "http://localhost:3000",
-    "https://ae71-105-113-80-15.ngrok-free.app"
+    "https://ff2b-105-113-80-15.ngrok-free.app"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -223,7 +223,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://firstclasstransfers.techtenets.com",
     "https://firstclasstransfers.vercel.app",
     "http://localhost:3000",
-    "https://ae71-105-113-80-15.ngrok-free.app"
+    "https://ff2b-105-113-80-15.ngrok-free.app"
 ]
 
 
