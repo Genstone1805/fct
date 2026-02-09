@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy Django project
 COPY . .
 
+ARG SECRET_KEY
+ENV SECRET_KEY=${SECRET_KEY}
+
 # Collect static ONCE (WhiteNoise requirement)
 RUN python manage.py collectstatic --noinput
 
