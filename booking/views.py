@@ -33,6 +33,12 @@ from .emails import (
     send_status_change_to_passenger,
     send_status_change_to_driver,
 )
+from. admin_emails import(
+    send_booking_confirmation_to_admin,
+    send_booking_updated_to_admin,
+    send_assignment_to_admin,
+    send_status_change_to_admin
+)
 from notifications.utils import (
     create_booking_assigned_notification,
     create_booking_updated_notification,
@@ -92,9 +98,10 @@ class BookingCreateView(CreateAPIView):
 
         booking = serializer.save()
         send_booking_confirmation_to_passenger(booking)
+        send_booking_confirmation_to_admin(booking)
 
         return Response(
-            {"message": "Booking created successfully", "booking_id": booking.booking_id},
+            {"message": "Booking created successfully"},
             status=status.HTTP_201_CREATED
         )
         
@@ -150,6 +157,7 @@ class BookingUpdateView(UpdateAPIView):
         if changes:
             # Send email to passenger
             send_booking_updated_to_passenger(booking, changes)
+            send_booking_updated_to_admin(booking, user, changes)
 
             # Send email and notification to driver if one is assigned
             if booking.driver:
@@ -250,6 +258,7 @@ class AssignDriverVehicleView(UpdateAPIView):
         )
 
     def perform_update(self, serializer):
+        user = self.request.user
         booking = serializer.save()
 
         # Update status to Assigned (both driver and vehicle are required)
@@ -265,6 +274,7 @@ class AssignDriverVehicleView(UpdateAPIView):
 
         # Send email to passenger with driver and vehicle info
         send_assignment_to_passenger(booking)
+        send_assignment_to_admin(booking, user)
 
         # Send email to driver with booking and vehicle info
         send_assignment_to_driver(booking)
@@ -286,6 +296,7 @@ class BookingStatusUpdateView(UpdateAPIView):
     )
 
     def update(self, request, *args, **kwargs):
+        user = request.user
         booking = self.get_object()
         old_status = booking.booking_status
 
@@ -309,6 +320,7 @@ class BookingStatusUpdateView(UpdateAPIView):
 
         # Send email to passenger about status change
         send_status_change_to_passenger(booking, old_status, new_status)
+        send_status_change_to_admin(user, booking, old_status, new_status)
 
         # Send email and notification to driver if assigned
         if booking.driver:
@@ -335,6 +347,7 @@ class RescheduleBookingView(UpdateAPIView):
     )
 
     def update(self, request, *args, **kwargs):
+        user = request.user
         booking = self.get_object()
         serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
 
@@ -357,6 +370,7 @@ class RescheduleBookingView(UpdateAPIView):
         # Send emails and notifications if there were changes
         if changes:
             send_booking_updated_to_passenger(booking, changes)
+            send_booking_updated_to_admin(booking, user, changes)
 
             if booking.driver:
                 send_booking_updated_to_driver(booking, changes)

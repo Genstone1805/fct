@@ -19,6 +19,7 @@ from account.permissions import HasDriverPermission, HasRoutesAPIKey, IsDriverPe
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
 from django.db import transaction, IntegrityError
+from .utils import signup_email_to_driver, signup_email_to_admin, update_driver_info_email_to_admin, delete_driver_info_email_to_admin
 
 class DriverFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
@@ -68,41 +69,8 @@ class CreateDriverView(APIView):
             log_user_activity(admin, f"Created Driver: {user.full_name} ({user.email})", request)
 
             # Send email with credentials
-            subject = "Welcome to First Class Transfer - Your Login Credentials"
-            
-            message = f"""
-                Hello {user.full_name or 'there'},
-
-                Welcome to First Class Transfer!  
-                You’ve been successfully onboarded as a **Driver** on our platform.
-
-                Below are your login details:
-
-                Email: {user.email}  
-                Temporary Password: {generated_password}
-
-                Role: Driver  
-
-                Next steps:
-                - visit the login page on our site
-                - Change your password immediately for security
-                - Log into your dashboard
-
-                You’re now part of our trusted driver network, and we’re excited to have you on board. If you need support, our team is ready to assist.
-
-                Drive safe and deliver excellence.
-
-                Best regards,  
-                First Class Transfer Team
-            """
-            with suppress(Exception):
-                send_mail(
-                    subject,
-                    message,
-                    settings.EMAIL_FROM,
-                    [user.email],
-                    fail_silently=False,
-                )
+            signup_email_to_driver(user=user, generated_password=generated_password)
+            signup_email_to_admin(user=user, admin=admin)
 
             return Response(
                 {
@@ -168,6 +136,7 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
                 driver = serializer.save()
 
             log_user_activity(user, f"Updated Driver: {driver.full_name} ({driver.email})", request)
+            update_driver_info_email_to_admin(driver, user)
 
             return Response({"message":"Driver Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:
@@ -187,11 +156,10 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
             )
 
     def destroy(self, request, *args, **kwargs):
+        user = request.user
         driver = self.get_object()
         driver_name = driver.full_name
         driver_email = driver.email
-
-        response = super().destroy(request, *args, **kwargs)
 
         # Log user activity after successful deletion
         log_user_activity(
@@ -199,8 +167,9 @@ class RetrieveUpdateDestroyDriverView(generics.RetrieveUpdateDestroyAPIView):
             f"Deleted Driver: {driver_name} ({driver_email})",
             request
         )
-
-        return response
+        delete_driver_info_email_to_admin(driver, user)
+        
+        return super().destroy(request, *args, **kwargs)
 
 
 class AvailableDriverListView(generics.ListAPIView):

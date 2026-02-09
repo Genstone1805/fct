@@ -13,6 +13,7 @@ from rest_framework.generics import (
     CreateAPIView, ListAPIView,
     RetrieveUpdateDestroyAPIView
 )
+from .utils import route_created_email_to_admin, update_created_email_to_admin
 from django.http import FileResponse, Http404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
@@ -109,6 +110,7 @@ class CreateRouteView(JSONFieldParserMixin, CreateAPIView):
                     )
 
             log_user_activity(user, f"Created route: {route.from_location} → {route.to_location} ({route.route_id})", request)
+            route_created_email_to_admin(user=user, route=route)
 
             return Response({"message":"Route Created"}, status=status.HTTP_201_CREATED)
         except IntegrityError as e:
@@ -175,6 +177,7 @@ class RetrieveUpdateDestroyRouteView(JSONFieldParserMixin, RetrieveUpdateDestroy
                         )
 
             log_user_activity(user, f"Updated route: {route.from_location} → {route.to_location} ({route.route_id})", request)
+            update_created_email_to_admin(user=user, route=route)
 
             return Response({"message":"Route Updated"}, status=status.HTTP_200_OK)
         except IntegrityError as e:

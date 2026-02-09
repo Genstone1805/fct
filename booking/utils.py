@@ -1,6 +1,4 @@
 from datetime import datetime, timedelta
-from django.db.models import Q
-
 
 BUFFER_MINUTES = 30
 

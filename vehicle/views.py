@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from account.utils import log_user_activity
 from rest_framework.validators import ValidationError
+from .utils import vehicle_create_email_to_admin, vehicle_update_email_to_admin, vehicle_delete_email_to_admin
 
 class VehicleCreateCreateView(ListCreateAPIView):
     queryset = Vehicle.objects.all()
@@ -28,6 +29,7 @@ class VehicleCreateCreateView(ListCreateAPIView):
             
             
             log_user_activity(user, f"Created Vehicle: {new_vehicle.make} {new_vehicle.model} ({new_vehicle.license_plate})", request)
+            vehicle_create_email_to_admin(new_vehicle, user)
             
 
             return Response(
@@ -82,6 +84,7 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
                 f"Updated Vehicle: {updated_vehicle.make} {updated_vehicle.model} ({updated_vehicle.license_plate})",
                 request
             )
+            vehicle_update_email_to_admin(vehicle, user)
 
             return Response(
                 {
@@ -103,18 +106,20 @@ class VehicleDetailView(RetrieveUpdateDestroyAPIView):
             )
 
     def destroy(self, request, *args, **kwargs):
+        user = request.user
         vehicle = self.get_object()
         vehicle_info = f"{vehicle.make} {vehicle.model} ({vehicle.license_plate})"
-
-        response = super().destroy(request, *args, **kwargs)
 
         log_user_activity(
             request.user,
             f"Deleted Vehicle: {vehicle_info}",
             request
         )
+        
+        vehicle_delete_email_to_admin(vehicle, user)
+        
+        return super().destroy(request, *args, **kwargs)
 
-        return response
 
 
 class AvailableVehicleListView(ListAPIView):

@@ -11,7 +11,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny, IsAdminUser
-from account.utils import log_user_activity
+from account.utils import log_user_activity, signup_email_to_user, signup_email_to_admin
 from rest_framework.validators import ValidationError
 from rest_framework.generics import RetrieveUpdateAPIView
 from contextlib import suppress
@@ -92,42 +92,8 @@ class SignUpView(APIView):
             user.save()
             log_user_activity(admin, f"Created User: {user.full_name} → {user.email} ({user.id})", request)
 
-            # Send email with credentials
-            subject = "Welcome to First Class Transfer - Your Login Credentials"  
-            permissions_text = ", ".join(permissions) if permissions else "None"
-            role_text = "Administrator" if user.is_superuser else "Staff"
-        
-            message = f"""
-                Hello {user.full_name or 'there'},
-
-                Welcome to First Class Transfer! Your account has been created successfully.
-
-                Here are your login credentials:
-
-                Email: {user.email}
-                Password: {generated_password}
-
-                Your Role: {role_text}
-                Your Permissions: {permissions_text}
-                
-                Next steps:
-                - visit the login page on our site
-                - Change your password immediately for security
-                - Log into your dashboard
-
-                Please keep these credentials safe and change your password after your first login.
-
-                Best regards,
-                First Class Transfer Team
-            """
-            with suppress(Exception):
-                send_mail(
-                    subject,
-                    message,
-                    settings.EMAIL_FROM,
-                    [user.email],
-                    fail_silently=False,
-                )
+            signup_email_to_user(user=user, permissions=permissions, generated_password=generated_password)
+            signup_email_to_admin(user=user, permissions=permissions, admin=admin)
 
             return Response(
                 {

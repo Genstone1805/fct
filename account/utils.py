@@ -1,7 +1,8 @@
 import os
 from django.conf import settings
 from django.utils import timezone
-
+from contextlib import suppress
+from django.core.mail import send_mail
 
 def get_activity_log_path():
     """Get the path to the activity log file."""
@@ -34,3 +35,77 @@ def log_user_activity(user, message, request=None):
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, 'a', encoding='utf-8') as f:
         f.write(file_log_entry)
+        
+def signup_email_to_user(user, permissions, generated_password):
+    # Send email with credentials
+    subject = "Welcome to First Class Transfer - Your Login Credentials"  
+    permissions_text = ", ".join(permissions) if permissions else "None"
+    role_text = "Administrator" if user.is_superuser else "Staff"
+
+    message = f"""
+        Hello {user.full_name or 'there'},
+
+        Welcome to First Class Transfer! Your account has been created successfully.
+
+        Here are your login credentials:
+
+        Email: {user.email}
+        Password: {generated_password}
+
+        Your Role: {role_text}
+        Your Permissions: {permissions_text}
+        
+        visit https://firstclasstransfers.eu/admin/login to login
+
+        Best regards,
+        First Class Transfer Team
+    """
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [user.email],
+            fail_silently=False,
+        )
+
+def signup_email_to_admin(user, permissions, admin):
+    # Send email with credentials
+    subject = "New User Account Created Successfully"  
+    permissions_text = ", ".join(permissions) if permissions else "None"
+    role_text = "Administrator" if user.is_superuser else "Staff"
+
+    message = f"""
+        Hello,
+
+        This is to notify you that a new user account has been successfully created on the First Class Transfer platform.
+
+        User Details
+
+        Name: {user.full_name}
+
+        Email: {user.email}
+
+        Assigned Role: {role_text}
+
+        Permissions: {permissions_text}
+        
+        Created By: {admin.full_name}
+
+        The user has been provisioned with initial login credentials and instructed to update their password upon first login to maintain security compliance.
+
+        No further action is required at this time unless changes to roles or permissions are needed.
+
+        If you have any questions or require adjustments, please proceed through the appropriate administrative channels.
+
+        Best regards,
+        First Class Transfer Team
+    """
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [settings.EMAIL_FROM],
+            fail_silently=False,
+        )
