@@ -33,7 +33,7 @@ API_KEY = config('API_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
