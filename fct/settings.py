@@ -33,7 +33,7 @@ API_KEY = config('API_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "firstclasstransfers.eu", 
@@ -109,6 +109,9 @@ WSGI_APPLICATION = 'fct.wsgi.application'
 
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
