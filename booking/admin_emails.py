@@ -31,7 +31,6 @@ def send_booking_confirmation_to_admin(booking):
         - Booking ID: {booking.booking_id}
         - Route: {route.from_location} → {route.to_location}
         - Passenger Name: {passenger.full_name}
-        - Passenger Email: {passenger.email}
         - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
         - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
         - Trip Type: {booking.trip_type}
@@ -102,7 +101,6 @@ def send_booking_updated_to_admin(booking, user, changes=None,):
         - Booking ID: {booking.booking_id}
         - Route: {route.from_location} → {route.to_location}
         - passenger Name: {passenger.full_name}
-        - passenger Email: {passenger.email}
         - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
         - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
         - Status: {booking.booking_status}
@@ -246,7 +244,7 @@ def send_status_change_to_admin(user, booking, old_status, new_status):
             subject,
             message,
             settings.EMAIL_FROM,
-            [passenger.email_address],
+            [passenger.EMAIL_FROM],
             fail_silently=False,
         )
         return True
