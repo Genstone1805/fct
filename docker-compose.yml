@@ -6,6 +6,7 @@ services:
       - "1805:1805"
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
     env_file:
       - .env
@@ -19,6 +20,7 @@ services:
     ports:
       - "1805:1805"
     volumes:
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
     env_file:
       - .env
