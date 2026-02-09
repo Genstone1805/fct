@@ -84,13 +84,13 @@ def send_booking_updated_to_admin(booking, user, changes=None,):
         - Phone: {driver.phone_number or 'Will be provided'}
         """
 
-            vehicle_info = ""
-            if vehicle:
-                vehicle_info = f"""
-        Vehicle Information:
-        - Type: {vehicle.type}
-        - Make/Model: {vehicle.make} {vehicle.model}
-        """
+        vehicle_info = ""
+        if vehicle:
+            vehicle_info = f"""
+            Vehicle Information:
+            - Type: {vehicle.type}
+            - Make/Model: {vehicle.make} {vehicle.model}
+            """
 
     message = f"""
         Hello,
