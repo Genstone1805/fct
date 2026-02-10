@@ -127,6 +127,7 @@ class BookingDetailSerializer(serializers.ModelSerializer):
             "vehicle_type",
             'driver',
             'payment_type',
+            'payment_status',
             'transaction_id',
             'trip_type',
             'pickup_date',
