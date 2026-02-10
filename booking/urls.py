@@ -23,5 +23,5 @@ urlpatterns = [
     path('<str:booking_id>/available-drivers/', AvailableDriversView.as_view(), name='booking-available-drivers'),
     path('<str:booking_id>/available-vehicles/', AvailableVehiclesView.as_view(), name='booking-available-vehicles'),
     path('assigned-bookings/<int:pk>', UserBookingsView.as_view(), name='assigned-bookings'),
-    path('<str:transaction_id>/update-payment-status/', PaymentStatusUpdateView.as_view(), name='update-payment-status'),
+    path('<str:booking_id>/update-payment-status/', PaymentStatusUpdateView.as_view(), name='update-payment-status'),
 ]

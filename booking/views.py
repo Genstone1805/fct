@@ -96,20 +96,11 @@ class BookingCreateView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        
-        
-        print("========================Message============================")
-        print(request.data)
-        print("========================Message============================")
-
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        print("========================Message============================")
-        print(serializer.validated_data)
-        print("========================Message============================")
 
         booking = serializer.save()
         # send_booking_confirmation_to_passenger(booking)
@@ -355,8 +346,8 @@ class PaymentStatusUpdateView(UpdateAPIView):
     """
     serializer_class = PaymentStatusSerializer
     permission_classes = [HasRoutesAPIKey, HasBookingPermission]
-    lookup_field = 'transaction_id'
-    lookup_url_kwarg = 'transaction_id'
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.select_related(
         'passenger_information', 'route'
     )
