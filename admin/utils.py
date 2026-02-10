@@ -1,75 +1,43 @@
 from django.conf import settings
 from contextlib import suppress
-from django.core.mail import send_mail
 
+from booking.emails import _send_html_email
+
+
+ADMIN_DASHBOARD_URL = "https://firstclasstransfers.eu/admin/login"
 
 
 def route_created_email_to_admin(user, route):
-    # Send email with credentials
-    subject = "{route.from_location} to {route.to_location} Created on the Platform" 
+    subject = f"{route.from_location} to {route.to_location} Created on the Platform"
+    greeting = "Hello Admin"
+    message = (
+        "A new route has been successfully created on the First Class Transfers platform."
+        "<br><br>The route is now live in the system."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = (
+        f"<strong>From:</strong> {route.from_location}<br>"
+        f"<strong>To:</strong> {route.to_location}<br>"
+        f"<strong>Created By:</strong> {user.full_name}"
+    )
 
-    message = f"""
-        Hello,
-
-        This is to inform you that a new route has been successfully created on the First Class Transfer platform.
-
-        Route Details
-
-        Route from: {route.from_location}
-        Route to: {route.to_location}
-
-        Created By: {user.full_name}
-
-
-        The route is now live in the system. If any adjustments, validations, or approvals are required, please log in to the admin dashboard using the link below:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All route configurations and permissions can be managed directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [settings.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
+
 
 def update_created_email_to_admin(user, route):
-    # Send email with credentials
-    subject = "{route.from_location} to {route.to_location} Updated" 
+    subject = f"{route.from_location} to {route.to_location} Updated"
+    greeting = "Hello Admin"
+    message = (
+        "A route has been updated on the First Class Transfers platform."
+        "<br><br>The updated route is now live in the system."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = (
+        f"<strong>From:</strong> {route.from_location}<br>"
+        f"<strong>To:</strong> {route.to_location}<br>"
+        f"<strong>Updated By:</strong> {user.full_name}"
+    )
 
-    message = f"""
-        Hello,
-
-        This is to inform you that a new route has been successfully created on the First Class Transfer platform.
-
-        Route Details
-
-        Route from: {route.from_location}
-        Route to: {route.to_location}
-
-        Updated By: {user.full_name}
-
-
-        The route is now live in the system. If any adjustments, validations, or approvals are required, please log in to the admin dashboard using the link below:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All route configurations and permissions can be managed directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [settings.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)

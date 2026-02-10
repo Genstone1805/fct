@@ -100,12 +100,6 @@ class  Booking(models.Model):
       self.amount_paid = math.ceil(float(self.amount_paid) * 100) / 100
       self.outstanding_amount = math.ceil(float(self.outstanding_amount) * 100) / 100
 
-      if self.payment_type == "cash":
-        self.payment_status = "paid 20%"
-
-      if self.payment_type == "card":
-        self.payment_status = "paid"
-
       super().save(*args, **kwargs)
 
       if generate_booking_id:

@@ -344,8 +344,8 @@ class PaymentStatusUpdateView(UpdateAPIView):
     """
     serializer_class = PaymentStatusSerializer
     permission_classes = [HasRoutesAPIKey, HasBookingPermission]
-    lookup_field = 'booking_id'
-    lookup_url_kwarg = 'booking_id'
+    lookup_field = 'transaction_id'
+    lookup_url_kwarg = 'transaction_id'
     queryset = Booking.objects.select_related(
         'passenger_information', 'route'
     )

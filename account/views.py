@@ -1,7 +1,6 @@
 import os
 import random
 import string
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import status, generics
@@ -16,6 +15,7 @@ from rest_framework.validators import ValidationError
 from rest_framework.generics import RetrieveUpdateAPIView
 from contextlib import suppress
 from account.permissions import HasRoutesAPIKey
+from booking.emails import _send_html_email
 
 from .models import UserProfile, PasswordResetCode
 from .serializers import (
@@ -174,28 +174,16 @@ class RequestPasswordResetView(APIView):
 
             # Send email with verification code
             subject = "Password Reset Verification Code"
-            message = f"""
-                Hello {user.full_name or 'there'},
+            greeting = f"Hello {user.full_name or 'there'}"
+            msg = (
+                "You have requested to reset your password for your First Class Transfers account."
+                "<br><br>This code will expire in 15 minutes."
+                "<br><br>If you did not request this, please ignore this email."
+            )
+            detail = f"<strong>Verification Code:</strong> {code}"
 
-                You have requested to reset your password for your First Class Transfer account.
-
-                Your verification code is: {code}
-
-                This code will expire in 15 minutes.
-
-                If you did not request this, please ignore this email.
-
-                Best regards,
-                First Class Transfer Team
-            """
             with suppress(Exception):
-                send_mail(
-                    subject,
-                    message,
-                    settings.EMAIL_FROM,
-                    [user.email],
-                    fail_silently=False,
-                )
+                _send_html_email(subject, greeting, msg, detail, user.email)
 
             return Response(
                 {"message": "Verification code has been sent to your email."},
@@ -254,26 +242,15 @@ class VerifyResetCodeView(APIView):
 
             # Send email with new password
             subject = "Your New Password - First Class Transfer"
-            message = f"""
-                Hello {user.full_name or 'there'},
+            greeting = f"Hello {user.full_name or 'there'}"
+            msg = (
+                "Your password has been reset successfully."
+                "<br><br>Please log in with this new password and consider changing it for security."
+            )
+            detail = f"<strong>New Password:</strong> {new_password}"
 
-                Your password has been reset successfully.
-
-                Your new password is: {new_password}
-
-                Please log in with this new password and consider changing it for security.
-
-                Best regards,
-                First Class Transfer Team
-            """
             with suppress(Exception):
-                send_mail(
-                    subject,
-                    message,
-                    settings.EMAIL_FROM,
-                    [user.email],
-                    fail_silently=False,
-                )
+                _send_html_email(subject, greeting, msg, detail, user.email)
 
             return Response(
                 {"message": "Your new password has been sent to your email."},

@@ -2,7 +2,8 @@ import os
 from django.conf import settings
 from django.utils import timezone
 from contextlib import suppress
-from django.core.mail import send_mail
+
+from booking.emails import _send_html_email
 
 def get_activity_log_path():
     """Get the path to the activity log file."""
@@ -37,75 +38,46 @@ def log_user_activity(user, message, request=None):
         f.write(file_log_entry)
         
 def signup_email_to_user(user, permissions, generated_password):
-    # Send email with credentials
-    subject = "Welcome to First Class Transfer - Your Login Credentials"  
+    subject = "Welcome to First Class Transfer - Your Login Credentials"
     permissions_text = ", ".join(permissions) if permissions else "None"
     role_text = "Administrator" if user.is_superuser else "Staff"
 
-    message = f"""
-        Hello {user.full_name or 'there'},
+    greeting = f"Hello {user.full_name or 'there'}"
+    message = (
+        "Welcome to First Class Transfers! Your account has been created successfully."
+        "<br><br>Please visit the link below to log in:"
+        "<br><a href='https://firstclasstransfers.eu/admin/login'>https://firstclasstransfers.eu/admin/login</a>"
+    )
+    detail = (
+        f"<strong>Email:</strong> {user.email}<br>"
+        f"<strong>Password:</strong> {generated_password}<br>"
+        f"<strong>Role:</strong> {role_text}<br>"
+        f"<strong>Permissions:</strong> {permissions_text}"
+    )
 
-        Welcome to First Class Transfer! Your account has been created successfully.
-
-        Here are your login credentials:
-
-        Email: {user.email}
-        Password: {generated_password}
-
-        Your Role: {role_text}
-        Your Permissions: {permissions_text}
-        
-        visit https://firstclasstransfers.eu/admin/login to login
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [user.email],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, user.email)
+
 
 def signup_email_to_admin(user, permissions, admin):
-    # Send email with credentials
-    subject = "New User Account Created Successfully"  
+    subject = "New User Account Created Successfully"
     permissions_text = ", ".join(permissions) if permissions else "None"
     role_text = "Administrator" if user.is_superuser else "Staff"
 
-    message = f"""
-        Hello,
+    greeting = "Hello Admin"
+    message = (
+        "A new user account has been successfully created on the First Class Transfers platform."
+        "<br><br>The user has been provisioned with initial login credentials and instructed "
+        "to update their password upon first login."
+        "<br><br>No further action is required unless changes to roles or permissions are needed."
+    )
+    detail = (
+        f"<strong>Name:</strong> {user.full_name}<br>"
+        f"<strong>Email:</strong> {user.email}<br>"
+        f"<strong>Role:</strong> {role_text}<br>"
+        f"<strong>Permissions:</strong> {permissions_text}<br>"
+        f"<strong>Created By:</strong> {admin.full_name}"
+    )
 
-        This is to notify you that a new user account has been successfully created on the First Class Transfer platform.
-
-        User Details
-
-        Name: {user.full_name}
-
-        Email: {user.email}
-
-        Assigned Role: {role_text}
-
-        Permissions: {permissions_text}
-        
-        Created By: {admin.full_name}
-
-        The user has been provisioned with initial login credentials and instructed to update their password upon first login to maintain security compliance.
-
-        No further action is required at this time unless changes to roles or permissions are needed.
-
-        If you have any questions or require adjustments, please proceed through the appropriate administrative channels.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [settings.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)

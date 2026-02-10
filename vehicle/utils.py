@@ -1,141 +1,60 @@
-import os
 from django.conf import settings
-from django.utils import timezone
 from contextlib import suppress
-from django.core.mail import send_mail
+
+from booking.emails import _send_html_email
+
+
+ADMIN_DASHBOARD_URL = "https://firstclasstransfers.eu/admin/login"
+
+
+def _vehicle_detail(vehicle, user, action_label):
+    """Build common vehicle detail HTML."""
+    return (
+        f"<strong>{action_label}:</strong> {user.full_name} ({user.email})<br>"
+        f"<strong>License Plate:</strong> {vehicle.license_plate}<br>"
+        f"<strong>Make:</strong> {vehicle.make}<br>"
+        f"<strong>Model:</strong> {vehicle.model}<br>"
+        f"<strong>Year:</strong> {vehicle.year}<br>"
+        f"<strong>Color:</strong> {vehicle.color}<br>"
+        f"<strong>Type:</strong> {vehicle.type}<br>"
+        f"<strong>Max Passengers:</strong> {vehicle.max_passengers}"
+    )
+
 
 def vehicle_create_email_to_admin(vehicle, user):
-    # Send email with credentials
-    subject = "New Vehicle Added to the Platform"  
+    subject = "New Vehicle Added to the Platform"
+    greeting = "Hello Admin"
+    message = (
+        "A new vehicle has been successfully added to the First Class Transfers platform."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = _vehicle_detail(vehicle, user, "Added By")
 
-    message = f"""
-        Hello,
-
-        This is to inform you that a new vehicle has been successfully added to the First Class Transfer platform.
-
-        Vehicle Details:
-
-        Added By: {user.full_name} ({user.email})
-
-        License Plate: {vehicle.license_plate}
-
-        Make: {vehicle.make}
-
-        Model: {vehicle.model}
-
-        Year: {vehicle. year}
-
-        Color: {vehicle.color}
-
-        Type: {vehicle.type}
-
-        Max Passengers: {vehicle.max_passengers}
-
-
-        If verification, assignment to bookings, or updates are required, please log in to the admin dashboard:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All vehicle management, assignment, and verification actions can be handled directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [user.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
+
+
 def vehicle_update_email_to_admin(vehicle, user):
-    # Send email with credentials
-    subject = "Vehicle Information Updated"  
+    subject = "Vehicle Information Updated"
+    greeting = "Hello Admin"
+    message = (
+        "A vehicle's information has been updated on the First Class Transfers platform."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = _vehicle_detail(vehicle, user, "Updated By")
 
-    message = f"""
-        Hello,
-
-        This is to notify you that a vehicle's information has been updated on the First Class Transfer platform.
-
-        Deleted Vehicle Details:
-
-        Deleted By: {user.full_name} ({user.email})
-
-        License Plate: {vehicle.license_plate}
-
-        Make: {vehicle.make}
-
-        Model: {vehicle.model}
-
-        Year: {vehicle. year}
-
-        Color: {vehicle.color}
-
-        Type: {vehicle.type}
-
-        Max Passengers: {vehicle.max_passengers}
-
-
-        If verification, assignment to bookings, or updates are required, please log in to the admin dashboard:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All vehicle management, assignment, and verification actions can be handled directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [user.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
+
+
 def vehicle_delete_email_to_admin(vehicle, user):
-    # Send email with credentials
-    subject = "Vehicle Deleted from the Platform"  
+    subject = "Vehicle Deleted from the Platform"
+    greeting = "Hello Admin"
+    message = (
+        "A vehicle has been deleted from the First Class Transfers platform."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = _vehicle_detail(vehicle, user, "Deleted By")
 
-    message = f"""
-        Hello,
-
-        This is to notify you that a vehicle has been deleted from the First Class Transfer platform.
-
-        Deleted Vehicle Details:
-
-        Deleted By: {user.full_name} ({user.email})
-
-        License Plate: {vehicle.license_plate}
-
-        Make: {vehicle.make}
-
-        Model: {vehicle.model}
-
-        Year: {vehicle. year}
-
-        Color: {vehicle.color}
-
-        Type: {vehicle.type}
-
-        Max Passengers: {vehicle.max_passengers}
-
-
-        If verification, assignment to bookings, or updates are required, please log in to the admin dashboard:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All vehicle management, assignment, and verification actions can be handled directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [user.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)

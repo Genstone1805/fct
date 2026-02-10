@@ -1,154 +1,79 @@
-import os
 from django.conf import settings
-from django.utils import timezone
 from contextlib import suppress
-from django.core.mail import send_mail
+
+from booking.emails import _send_html_email
+
+
+ADMIN_DASHBOARD_URL = "https://firstclasstransfers.eu/admin/login"
+
 
 def signup_email_to_driver(user, generated_password):
-    # Send email with credentials
-    subject = "Welcome to First Class Transfer - Your Login Credentials"  
+    subject = "Welcome to First Class Transfer - Your Login Credentials"
+    greeting = f"Hello {user.full_name or 'there'}"
+    message = (
+        "Welcome to First Class Transfers! You've been successfully onboarded as a Driver on our platform."
+        "<br><br>Please visit the link below to log in:"
+        "<br><a href='https://firstclasstransfers.eu/drivers/login'>https://firstclasstransfers.eu/drivers/login</a>"
+        "<br><br>You're now part of our trusted driver network. Drive safe and deliver excellence."
+    )
+    detail = (
+        f"<strong>Email:</strong> {user.email}<br>"
+        f"<strong>Temporary Password:</strong> {generated_password}<br>"
+        f"<strong>Role:</strong> Driver"
+    )
 
-    message = f"""
-        Hello {user.full_name or 'there'},
-
-        Welcome to First Class Transfer!  
-        You’ve been successfully onboarded as a **Driver** on our platform.
-
-        Below are your login details:
-
-        Email: {user.email}  
-        Temporary Password: {generated_password}
-
-        Role: Driver  
-
-        Next steps:
-        - visit https://firstclasstransfers.eu/drivers/login to login into our site
-
-        You’re now part of our trusted driver network, and we’re excited to have you on board. If you need support, our team is ready to assist.
-
-        Drive safe and deliver excellence.
-
-        Best regards,  
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [user.email],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, user.email)
+
 
 def update_driver_info_email_to_admin(driver, user):
-    # Send email with credentials
-    subject = f"{driver.full_name} Information Updated"  
+    subject = f"{driver.full_name} Information Updated"
+    greeting = "Hello Admin"
+    message = (
+        "The profile information of a driver on the First Class Transfers platform has been updated."
+        "<br><br>The updated details are now live in the system."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = (
+        f"<strong>Name:</strong> {driver.full_name}<br>"
+        f"<strong>Email:</strong> {driver.email}<br>"
+        f"<strong>Updated By:</strong> {user.full_name}"
+    )
 
-    message = f"""
-        Hello,
-
-        This is to notify you that the profile information of a driver on the First Class Transfer platform has been updated.
-
-        Driver Details
-
-        Name: {driver.full_name}
-
-        Email: {driver.email}
-        
-        Updated By: {user.full_name}
-
-        The updated details are now live in the system.
-
-        Next Steps
-        If verification, approval, or further adjustments are required, please log in to the admin dashboard using the link below:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All driver profile management actions can be handled directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [settings.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
+
 
 def signup_email_to_admin(user, admin):
-    # Send email with credentials
-    subject = "New Driver Account Added"  
+    subject = "New Driver Account Added"
+    greeting = "Hello Admin"
+    message = (
+        "A new driver account has been successfully created on the First Class Transfers platform."
+        "<br><br>The driver has been onboarded and provided with initial login credentials."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = (
+        f"<strong>Name:</strong> {user.full_name}<br>"
+        f"<strong>Email:</strong> {user.email}<br>"
+        f"<strong>Created By:</strong> {admin.email}"
+    )
 
-    message = f"""
-        Hello,
-
-        This is to inform you that a new driver account has been successfully created on the First Class Transfer platform.
-
-        Driver Details
-
-        Name: {user.full_name}
-
-        Email: {user.email}
-        Created By: {admin.email}
-
-        The driver has been onboarded and provided with initial login credentials. They have been instructed to update their password upon first login in line with security best practices.
-
-        Next Steps
-        If any verification, profile updates, or role adjustments are required, please log in to the admin dashboard using the link below:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All driver management and verification actions can be completed directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [settings.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
+
 
 def delete_driver_info_email_to_admin(driver, user):
-    # Send email with credentials
-    subject = f"{user.full_name} Account Deleted"  
+    subject = f"{driver.full_name} Account Deleted"
+    greeting = "Hello Admin"
+    message = (
+        "A driver account has been deleted from the First Class Transfers platform."
+        f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
+    )
+    detail = (
+        f"<strong>Name:</strong> {driver.full_name}<br>"
+        f"<strong>Email:</strong> {driver.email}<br>"
+        f"<strong>Deleted By:</strong> {user.full_name}"
+    )
 
-    message = f"""
-        Hello,
-
-        This is to notify you that a driver account has been deleted from the First Class Transfer platform.
-
-        Driver Details
-
-        Name: {driver.full_name}
-
-        Email: {driver.email}
-        
-        Deleted By: {user.full_name}
-
-        The driver has been onboarded and provided with initial login credentials. They have been instructed to update their password upon first login in line with security best practices.
-
-        Next Steps
-        If any verification, profile updates, or role adjustments are required, please log in to the admin dashboard using the link below:
-
-        👉 https://firstclasstransfers.eu/admin/login
-
-        All driver management and verification actions can be completed directly from the dashboard.
-
-        Best regards,
-        First Class Transfer Team
-    """
     with suppress(Exception):
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_FROM,
-            [settings.EMAIL_FROM],
-            fail_silently=False,
-        )
+        _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
