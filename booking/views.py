@@ -99,7 +99,7 @@ class BookingCreateView(CreateAPIView):
         # print(request.data)
         # print("========================Message============================")
         
-        return Response(request.validated_data, status=200)
+        return Response(serializer.validated_data, status=200)
 
         # if not serializer.is_valid():
         #     return Response(
