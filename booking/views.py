@@ -95,18 +95,18 @@ class BookingCreateView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         
         
-        Print("========================Message============================")
-        Print(request.data)
-        Print("========================Message============================")
+        print("========================Message============================")
+        print(request.data)
+        print("========================Message============================")
 
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        Print("========================Message============================")
-        Print(serializer.validated_data)
-        Print("========================Message============================")
+        print("========================Message============================")
+        print(serializer.validated_data)
+        print("========================Message============================")
 
         booking = serializer.save()
         # send_booking_confirmation_to_passenger(booking)
