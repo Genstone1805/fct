@@ -1,4 +1,5 @@
 import json
+import logging
 
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.views import APIView
@@ -9,6 +10,8 @@ from account.permissions import HasBookingPermission, HasRoutesAPIKey, IsDriverP
 from rest_framework.generics import ListAPIView
 from fct.utils import CustomPagination
 from account.utils import log_user_activity
+
+logger = logging.getLogger('print')
 
 from .models import Booking
 from routes.models import Route
@@ -95,18 +98,14 @@ class BookingCreateView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         
         
-        print("========================Message============================")
-        print(request.data)
-        print("========================Message============================")
+        logger.info("Booking request data: %s", request.data)
 
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        print("========================Message============================")
-        print(serializer.validated_data)
-        print("========================Message============================")
+        logger.info("Booking validated data: %s", serializer.validated_data)
 
         booking = serializer.save()
         # send_booking_confirmation_to_passenger(booking)
