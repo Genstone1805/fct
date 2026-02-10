@@ -96,12 +96,20 @@ class BookingCreateView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        
+        print("=========================Data from frontend =========================================")
+        print(request.data)
+        print("=========================Data from frontend =========================================")
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        print("=========================Data from frontend =========================================")
+        print(serializer.validated_data)
+        print("=========================Data from frontend =========================================")
+        
         booking = serializer.save()
         # send_booking_confirmation_to_passenger(booking)
         send_reservation_to_passenger(booking)
@@ -359,19 +367,13 @@ class PaymentStatusUpdateView(UpdateAPIView):
 
         serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
         
-        print("=========================Data from frontend =========================================")
-        print(request.data)
-        print("=========================Data from frontend =========================================")
+        
 
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        print("=========================Data from frontend =========================================")
-        print(serializer.validated_data)
-        print("=========================Data from frontend =========================================")
         booking = serializer.save()
         new_status = booking.payment_status
 
