@@ -100,6 +100,7 @@ class BookingCreateView(CreateAPIView):
         print("=========================Data from frontend =========================================")
         print(request.data)
         print("=========================Data from frontend =========================================")
+        
         if not serializer.is_valid():
             return Response(
                 {'error': 'Validation failed', 'details': serializer.errors},

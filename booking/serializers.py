@@ -162,7 +162,11 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             'transfer_information',
             'passenger_information',
         ]
-
+        extra_kwargs = {
+            'amount_paid': {'required': True},
+            'outstanding_amount': {'required': True},
+            'total_amount': {'required': True},
+        }
 
     def create(self, validated_data):
         transfer_data = validated_data.pop('transfer_information')
