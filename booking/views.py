@@ -99,13 +99,13 @@ class BookingCreateView(CreateAPIView):
         # print(request.data)
         # print("========================Message============================")
         
-        return Response(serializer.validated_data, status=200)
 
-        # if not serializer.is_valid():
-        #     return Response(
-        #         {'error': 'Validation failed', 'details': serializer.errors},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(serializer.validated_data, status=200)
         # print("========================Message============================")
         # print(serializer.validated_data)
         # print("========================Message============================")
