@@ -358,6 +358,10 @@ class PaymentStatusUpdateView(UpdateAPIView):
         old_status = booking.payment_status
 
         serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
+        
+        print("=========================Data from frontend =========================================")
+        print(request.data)
+        print("=========================Data from frontend =========================================")
 
         if not serializer.is_valid():
             return Response(
@@ -365,6 +369,9 @@ class PaymentStatusUpdateView(UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        print("=========================Data from frontend =========================================")
+        print(serializer.validated_data)
+        print("=========================Data from frontend =========================================")
         booking = serializer.save()
         new_status = booking.payment_status
 
