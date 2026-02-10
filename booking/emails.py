@@ -3,6 +3,67 @@ from django.conf import settings
 from contextlib import suppress
 
 
+def send_reservation_to_passenger(booking):
+    """
+    Send email to passenger confirming their booking has been received.
+    """
+    passenger = booking.passenger_information
+    route = booking.route
+
+    if not passenger or not passenger.email_address:
+        return False
+
+    subject = f"New Booking Reservation (Pending Order)"
+
+    return_info = ""
+    if booking.trip_type == "Return" and booking.return_date:
+        return_info = f"""
+        Return Trip Details:
+        - Return Date: {booking.return_date.strftime('%B %d, %Y')}
+        - Return Time: {booking.return_time.strftime('%I:%M %p') if booking.return_time else 'TBC'}
+        """
+
+    message = f"""
+        Dear {passenger.full_name},
+
+        Thank you for your booking.
+
+        We have received your reservation for {booking.pickup_date.strftime('%B %d, %Y')} at {booking.pickup_time.strftime('%I:%M %p')} from {route.from_location} to {route.to_location}.
+        
+        A new booking has been submitted. Below are the details:
+        
+        - Booking ID: {booking.booking_id}
+        - Route: {route.from_location} → {route.to_location}
+        - Pickup Date: {booking.pickup_date.strftime('%B %d, %Y')}
+        - Pickup Time: {booking.pickup_time.strftime('%I:%M %p')}
+        - Trip Type: {booking.trip_type}
+        {return_info}
+
+        To complete the confirmation, could you please provide us with the exact pickup address/location in {route.to_location}?
+
+        Once we have the location, your driver will be assigned and will be waiting for you on time.
+
+        If you have any additional requirements (child seats, luggage details, etc.), feel free to let us know.
+
+        Kind regards,
+
+        First Class Transfers
+
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [passenger.email_address],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
 def send_booking_confirmation_to_passenger(booking):
     """
     Send email to passenger confirming their booking has been received.

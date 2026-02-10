@@ -127,7 +127,6 @@ class BookingDetailSerializer(serializers.ModelSerializer):
             "vehicle_type",
             'driver',
             'payment_type',
-            'payment_status',
             'transaction_id',
             'trip_type',
             'pickup_date',
@@ -371,6 +370,33 @@ class BookingStatusSerializer(serializers.ModelSerializer):
 
         # Update the instance in memory
         instance.booking_status = new_status
+        return instance
+
+
+class PaymentStatusSerializer(serializers.ModelSerializer):
+    """Serializer for updating booking payment status."""
+    ALLOWED_STATUSES = ['paid', 'paid 20%', 'failed', 'cancelled', 'expired', 'pending']
+
+    class Meta:
+        model = Booking
+        fields = ['payment_status']
+
+    def validate_payment_status(self, value):
+        if not value:
+            raise serializers.ValidationError("Payment status is required.")
+        if value not in self.ALLOWED_STATUSES:
+            raise serializers.ValidationError(
+                f"Invalid payment status. Allowed values: {', '.join(self.ALLOWED_STATUSES)}"
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        self.old_status = instance.payment_status
+        new_status = validated_data['payment_status']
+
+        Booking.objects.filter(pk=instance.pk).update(payment_status=new_status)
+
+        instance.payment_status = new_status
         return instance
 
 

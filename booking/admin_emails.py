@@ -4,6 +4,41 @@ from django.core.mail import send_mail
 
 
 
+def send_reservation_to_admin():
+
+    subject = f"New Reservation Submitted – Action Required"
+
+
+    message = f"""
+        Dear Admin,
+
+        This is to notify you that a new reservation has just been created in the system and is currently pending confirmation.
+
+        Please log in to the admin dashboard to review the booking details, confirm payment status, and proceed with driver assignment.
+        
+        Before proceeding with driver assignment, please carefully verify and confirm the payment in the Revolut dashboard to ensure the transaction has been successfully completed and cleared.
+
+        Once payment confirmation is validated, kindly proceed to assign a driver via the admin dashboard to maintain service continuity and delivery timelines.
+
+        Thank you for your prompt attention.
+
+        Kind regards,
+        First Class Transfers
+    """.strip()
+
+    with suppress(Exception):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_FROM,
+            [settings.EMAIL_FROM],
+            fail_silently=False,
+        )
+        return True
+
+    return False
+
+
 def send_booking_confirmation_to_admin(booking):
     
     passenger = booking.passenger_information

@@ -20,6 +20,7 @@ from .serializers import (
     AvailableVehicleSerializer,
     BookingUpdateSerializer,
     BookingStatusSerializer,
+    PaymentStatusSerializer,
     RescheduleBookingSerializer,
 )
 from .filters import BookingFilter
@@ -32,12 +33,15 @@ from .emails import (
     send_assignment_to_driver,
     send_status_change_to_passenger,
     send_status_change_to_driver,
+    send_payment_status_update_to_passenger,
+    send_reservation_to_passenger
 )
 from. admin_emails import(
     send_booking_confirmation_to_admin,
     send_booking_updated_to_admin,
     send_assignment_to_admin,
-    send_status_change_to_admin
+    send_status_change_to_admin,
+    send_reservation_to_admin
 )
 from notifications.utils import (
     create_booking_assigned_notification,
@@ -97,8 +101,9 @@ class BookingCreateView(CreateAPIView):
             )
 
         booking = serializer.save()
-        send_booking_confirmation_to_passenger(booking)
-        send_booking_confirmation_to_admin(booking)
+        # send_booking_confirmation_to_passenger(booking)
+        send_reservation_to_passenger(booking)
+        send_reservation_to_admin()
 
         return Response(
             {"message": "Booking created successfully"},
@@ -333,6 +338,50 @@ class BookingStatusUpdateView(UpdateAPIView):
         )
 
 
+class PaymentStatusUpdateView(UpdateAPIView):
+    """
+    Update booking payment status.
+    """
+    serializer_class = PaymentStatusSerializer
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
+    queryset = Booking.objects.select_related(
+        'passenger_information', 'route'
+    )
+
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        booking = self.get_object()
+        old_status = booking.payment_status
+
+        serializer = self.get_serializer(instance=booking, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response(
+                {'error': 'Validation failed', 'details': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        booking = serializer.save()
+        new_status = booking.payment_status
+
+        # Log user activity
+        log_user_activity(
+            user,
+            f"Changed Payment Status: {booking.booking_id} from {old_status} to {new_status}",
+            request
+        )
+
+        # # Send email to passenger about payment status change
+        # send_payment_status_update_to_passenger(booking, old_status, new_status)
+
+        return Response(
+            {'message': f'Payment status updated to {new_status}'},
+            status=status.HTTP_200_OK
+        )
+
+
 class RescheduleBookingView(UpdateAPIView):
     """
     Reschedule a booking's pickup and return dates/times.
@@ -400,3 +449,5 @@ class UserBookingsView(ListAPIView):
             'vehicle',
             'driver'
         ).order_by('-pickup_date', '-pickup_time')
+        
+        
