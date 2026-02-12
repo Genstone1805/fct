@@ -223,7 +223,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://fct-backend.techtenets.com",
     "https://firstclasstransfers.vercel.app",
     "https://firstclasstransfers.techtenets.com",
-    "http://firstclasstransfers.techtenets.com/",
+    "http://firstclasstransfers.techtenets.com",
     "http://localhost:3000",
     "https://98e7-105-113-80-15.ngrok-free.app"
 ]
@@ -233,7 +233,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://fct-backend.techtenets.com",
     "https://firstclasstransfers.techtenets.com",
     "https://firstclasstransfers.vercel.app",
-    "http://firstclasstransfers.techtenets.com/",
+    "http://firstclasstransfers.techtenets.com",
     "http://localhost:3000",
     "https://98e7-105-113-80-15.ngrok-free.app"
 ]
