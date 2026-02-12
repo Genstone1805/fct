@@ -1,8 +1,14 @@
 import os
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import View
-
+from django.core.mail import send_mail
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from .serializers import ContactSerializer
+from rest_framework.response import Response
+from rest_framework import status
 
 LOG_FILES = {
     'all': 'all.log',
@@ -260,3 +266,74 @@ class LogViewerView(View):
             colorized_lines.append(f'<div class="log-line {css_class}">{escaped_line}</div>')
 
         return '\n'.join(colorized_lines)
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ContactUsView(APIView):
+    """
+    API View to handle contact form submissions.
+    Expects POST request with JSON data containing:
+    - name
+    - whatsapp_number
+    - about
+    - email
+    - subject
+    - message
+    """
+
+    def post(self, request):
+        """
+        Handle POST request to send contact form data via email
+        """
+        serializer = ContactSerializer(data=request.data)
+        serializer.is_valid()
+        
+        # Extract validated data
+        name = serializer.validated_data.get('name', '')
+        whatsapp_number = serializer.validated_data.get('whatsapp_number', '')
+        about = serializer.validated_data.get('about', '')
+        email = serializer.validated_data.get('email', '')
+        subject = serializer.validated_data.get('subject', '')
+        message = serializer.validated_data.get('message', '')
+        
+        # Prepare email content
+        email_subject = f"Contact Us: {subject}"
+        email_body = f"""New contact form submission:
+
+        Name: {name}
+        WhatsApp Number: {whatsapp_number}
+        About: {about}
+        Email: {email}
+
+        Message:
+        {message}"""
+        
+        try:
+            # Send email to admin (using EMAIL_FROM as specified in settings)
+            admin_email = getattr(settings, 'EMAIL_FROM', getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'))
+            send_mail(
+                subject=email_subject,
+                message=email_body,
+                from_email=admin_email,
+                recipient_list=[admin_email],
+                fail_silently=False,
+            )
+            
+            return Response(
+                {'message': 'Contact form submitted successfully'}, 
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error sending contact form email: {str(e)}")
+            
+            return Response(
+                {'error': 'Failed to send email. Please try again later.'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+

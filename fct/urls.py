@@ -5,6 +5,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from fct.views import LogViewerView
+from fct.views import ContactUsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,6 +25,9 @@ urlpatterns = [
     # Log Viewer
     path('logs/', LogViewerView.as_view(), name='log-viewer'),
     path('logs/<str:log_type>/', LogViewerView.as_view(), name='log-viewer-type'),
+
+    # Contact Us
+    path('contact/', ContactUsView.as_view(), name='contact-us'),
 
     # YOUR PATTERNS
     path('download-docs/', SpectacularAPIView.as_view(), name='schema'),
