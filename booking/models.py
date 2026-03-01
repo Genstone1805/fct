@@ -104,7 +104,7 @@ class  Booking(models.Model):
 
       if generate_booking_id:
           random_str = ''.join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(5))
-          self.booking_id = f"fct{random_str}{self.pk}"
+          self.booking_id = f"FCT{random_str}{self.pk}"
           super().save(update_fields=['booking_id'])
 
   def __str__(self):
