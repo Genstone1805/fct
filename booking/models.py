@@ -89,7 +89,7 @@ class  Booking(models.Model):
   driver = models.ForeignKey(user, on_delete=models.SET_NULL, null=True, blank=True)
   transfer_information = models.ForeignKey(TransferInformation, on_delete=models.CASCADE)
   passenger_information = models.ForeignKey(PassengerDetail, on_delete=models.CASCADE)
-  created_time = models.DateTimeField(auto_now_add=True)
+  created_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
   updated_time = models.DateTimeField(auto_now=True)
 
   class Meta:
