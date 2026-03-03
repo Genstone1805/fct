@@ -1,7 +1,7 @@
 import json
 import logging
 
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -339,6 +339,16 @@ class BookingStatusUpdateView(UpdateAPIView):
             {'message': f'Booking status updated to {new_status}'},
             status=status.HTTP_200_OK
         )
+
+class BookingDeleteView(DestroyAPIView):
+    """
+    Update booking status to Completed or Cancelled.
+    """
+    serializer_class = BookingStatusSerializer
+    permission_classes = [HasRoutesAPIKey, HasBookingPermission]
+    lookup_field = 'booking_id'
+    lookup_url_kwarg = 'booking_id'
+    queryset = Booking.objects.all()
 
 
 class PaymentStatusUpdateView(UpdateAPIView):
