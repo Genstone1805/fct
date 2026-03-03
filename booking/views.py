@@ -388,7 +388,7 @@ class PaymentStatusUpdateView(UpdateAPIView):
         )
 
         # # Send email to passenger about payment status change
-        # send_payment_status_update_to_passenger(booking, old_status, new_status)
+        send_payment_status_update_to_passenger(booking, old_status, new_status)
 
         return Response(
             {'message': f'Payment status updated to {new_status}'},
