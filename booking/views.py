@@ -122,7 +122,7 @@ class BookingListView(ListAPIView):
         'route',
         'vehicle',
         'driver'
-    ).order_by('-pickup_date', '-pickup_time')
+    ).order_by('-pk', '-pickup_date', '-pickup_time')
     serializer_class = BookingDetailSerializer
     permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     filterset_class = BookingFilter

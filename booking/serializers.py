@@ -118,6 +118,7 @@ class BookingDetailSerializer(serializers.ModelSerializer):
         model = Booking
         fields = [
             'booking_id',
+            'transaction_id',
             'route',
             'booking_status',
             'vehicle',
@@ -137,6 +138,7 @@ class BookingDetailSerializer(serializers.ModelSerializer):
             'return_time',
             'transfer_information',
             'passenger_information',
+            'created_time',
         ]
 
 
