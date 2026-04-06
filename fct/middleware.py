@@ -12,6 +12,35 @@ class RequestResponseLoggingMiddleware(MiddlewareMixin):
     Logs method, path, status code, duration, IP address, and user.
     """
 
+    SENSITIVE_FIELDS = {
+        'password',
+        'new_password',
+        'old_password',
+        'confirm_password',
+    }
+
+    def _sanitize_request_body(self, raw_body):
+        try:
+            parsed_body = json.loads(raw_body)
+        except (TypeError, ValueError):
+            return raw_body
+
+        sanitized_body = self._sanitize_data(parsed_body)
+        return json.dumps(sanitized_body, ensure_ascii=False)
+
+    def _sanitize_data(self, value):
+        if isinstance(value, dict):
+            return {
+                key: self._sanitize_data(item)
+                for key, item in value.items()
+                if key.lower() not in self.SENSITIVE_FIELDS
+            }
+
+        if isinstance(value, list):
+            return [self._sanitize_data(item) for item in value]
+
+        return value
+
     def process_request(self, request):
         request._start_time = time.time()
         request._request_body = None
@@ -20,7 +49,9 @@ class RequestResponseLoggingMiddleware(MiddlewareMixin):
         if request.method in ['POST', 'PUT', 'PATCH']:
             try:
                 if request.content_type and 'json' in request.content_type:
-                    request._request_body = request.body.decode('utf-8')
+                    request._request_body = self._sanitize_request_body(
+                        request.body.decode('utf-8')
+                    )
             except Exception:
                 pass
 

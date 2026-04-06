@@ -342,13 +342,30 @@ class BookingStatusUpdateView(UpdateAPIView):
 
 class BookingDeleteView(DestroyAPIView):
     """
-    Update booking status to Completed or Cancelled.
+    Delete a booking and log the deletion.
     """
     serializer_class = BookingStatusSerializer
     permission_classes = [HasRoutesAPIKey, HasBookingPermission]
     lookup_field = 'booking_id'
     lookup_url_kwarg = 'booking_id'
     queryset = Booking.objects.all()
+
+    def perform_destroy(self, instance):
+        booking_id = instance.booking_id
+        route = getattr(instance, 'route', None)
+        route_summary = ""
+
+        if route:
+            route_summary = f" ({route.from_location} → {route.to_location})"
+
+        super().perform_destroy(instance)
+
+        log_user_activity(
+            self.request.user,
+            f"Booking deleted: {booking_id}{route_summary}",
+            self.request
+        )
+        logger.info("booking deleted: %s", booking_id)
 
 
 class PaymentStatusUpdateView(UpdateAPIView):
