@@ -26,6 +26,7 @@ class RouteListSerializer(serializers.ModelSerializer):
             'meta_title',
             'meta_description',
             'duration_minutes',
+            'cash_deposit_percent',
             'hero_title',
             'sub_headline',
             'body',
