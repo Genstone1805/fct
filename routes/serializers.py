@@ -25,6 +25,7 @@ class RouteListSerializer(serializers.ModelSerializer):
             'to_location',
             'meta_title',
             'meta_description',
+            'duration_minutes',
             'hero_title',
             'sub_headline',
             'body',

@@ -81,7 +81,6 @@ class BookingListSerializer(serializers.ModelSerializer):
             'pickup_date',
             'pickup_time',
             'payment_type',
-            'cash_deposit_percent',
             'transaction_id',
             'vehicle',
             'driver',

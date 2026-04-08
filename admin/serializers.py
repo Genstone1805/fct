@@ -45,6 +45,7 @@ class CreateRouteSerializer(serializers.ModelSerializer):
             'to_location',
             'meta_title',
             'meta_description',
+            'cash_deposit_percent',
             'hero_title',
             'sub_headline',
             "duration_minutes",

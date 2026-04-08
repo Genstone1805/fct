@@ -62,6 +62,7 @@ class Route(models.Model):
 
     hero_title = models.CharField(max_length=300)
     sub_headline = models.CharField(max_length=500)
+    cash_deposit_percent = models.IntegerField(default=0)
 
     body = models.TextField()
 
