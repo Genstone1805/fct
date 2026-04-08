@@ -20,7 +20,7 @@ class TransferInformation(models.Model):
     ("Extra Large","Extra Large"),
   ]
 
-  flight_number = models.CharField(max_length=50)
+  flight_number = models.CharField(max_length=50, blank=True, null=True)
   adults = models.IntegerField(default=1) 
   children = models.IntegerField(null=True, blank=True) 
   luggage = models.CharField(choices=LUGGAGE_CHOICES, max_length=80)
