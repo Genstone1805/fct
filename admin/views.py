@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView,
-    RetrieveUpdateDestroyAPIView
+    CreateAPIView, DestroyAPIView, ListAPIView,
+    RetrieveAPIView, RetrieveUpdateDestroyAPIView
 )
 from .utils import route_created_email_to_admin, update_created_email_to_admin
 from django.http import FileResponse, Http404
@@ -24,7 +24,8 @@ from vehicle.models import Vehicle
 from booking.models import Booking
 from account.models import UserProfile
 from notifications.models import DriverNotification
-from .serializers import ( CreateRouteSerializer )
+from .models import Leads
+from .serializers import CreateRouteSerializer, LeadSerializer
 from account.utils import log_user_activity, get_activity_log_path
 from fct.parsers import recursive_underscoreize
 
@@ -59,7 +60,62 @@ class JSONFieldParserMixin:
             kwargs['data'] = data
 
         return super().get_serializer(*args, **kwargs)
-    
+
+
+class LeadListView(ListAPIView):
+    queryset = Leads.objects.all()
+    serializer_class = LeadSerializer
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
+
+
+class LeadRetrieveView(RetrieveAPIView):
+    queryset = Leads.objects.all()
+    serializer_class = LeadSerializer
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
+
+
+class LeadCreateView(CreateAPIView):
+    queryset = Leads.objects.all()
+    serializer_class = LeadSerializer
+    permission_classes = [HasRoutesAPIKey]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {"error": "Validation failed", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        lead = serializer.save()
+
+        return Response(
+            {
+                "message": "Lead created successfully",
+                "lead": self.get_serializer(lead).data,
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
+class LeadDeleteView(DestroyAPIView):
+    queryset = Leads.objects.all()
+    serializer_class = LeadSerializer
+    permission_classes = [HasRoutesAPIKey, IsAdminUser]
+
+    def destroy(self, request, *args, **kwargs):
+        lead = self.get_object()
+
+        if request.user and request.user.is_authenticated:
+            log_user_activity(
+                request.user,
+                f"Deleted lead: {lead.name} ({lead.email})",
+                request
+            )
+
+        return super().destroy(request, *args, **kwargs)
+
 
 class RouteListView(ListAPIView):
     """List all routes."""

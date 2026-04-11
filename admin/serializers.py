@@ -1,5 +1,13 @@
 from rest_framework import serializers
 from routes.models import Vehicle, RouteFAQ, Route
+from .models import Leads
+
+
+class LeadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Leads
+        fields = ["id", "name", "email", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 class NestedVehicleSerializer(serializers.ModelSerializer):
     """Serializer for vehicle options when nested in route response."""

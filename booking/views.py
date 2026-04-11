@@ -106,7 +106,7 @@ class BookingCreateView(CreateAPIView):
         booking = serializer.save()
         # send_booking_confirmation_to_passenger(booking)
         send_reservation_to_passenger(booking)
-        send_reservation_to_admin()
+        send_reservation_to_admin(booking)
 
         return Response(
             {"message": "Booking created successfully"},

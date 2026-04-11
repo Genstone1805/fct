@@ -7,7 +7,51 @@ from .emails import _send_html_email, _booking_detail_lines
 ADMIN_DASHBOARD_URL = "https://firstclasstransfers.eu/admin/login"
 
 
-def send_reservation_to_admin():
+def _format_currency_amount(value):
+    try:
+        return f"{float(value):.2f}"
+    except (TypeError, ValueError):
+        return "0.00"
+
+
+def _reservation_detail_lines(booking):
+    route = booking.route
+    passenger = booking.passenger_information
+    transfer = booking.transfer_information
+
+    extra = [
+        f"<strong>Status:</strong> {booking.booking_status}",
+        f"<strong>Created At:</strong> {booking.created_time.strftime('%B %d, %Y %I:%M %p') if booking.created_time else 'Not available'}",
+        f"<strong>Vehicle Type:</strong> {booking.vehicle_type}",
+        f"<strong>Time Period:</strong> {booking.time_period}",
+        f"<strong>Payment Method:</strong> {booking.payment_type}",
+        f"<strong>Payment Status:</strong> {booking.payment_status}",
+        f"<strong>Amount Paid:</strong> {_format_currency_amount(booking.amount_paid)}",
+        f"<strong>Outstanding Amount:</strong> {_format_currency_amount(booking.outstanding_amount)}",
+        f"<strong>Total Amount:</strong> {_format_currency_amount(booking.total_amount)}",
+    ]
+
+    if passenger:
+        extra.extend([
+            f"<br><strong>Passenger:</strong> {passenger.full_name}",
+            f"<strong>Email:</strong> {passenger.email_address}",
+            f"<strong>Phone:</strong> {passenger.phone_number}",
+        ])
+        if passenger.additional_information:
+            extra.append(f"<strong>Additional Info:</strong> {passenger.additional_information}")
+
+    if transfer:
+        extra.extend([
+            f"<br><strong>Flight Number:</strong> {transfer.flight_number or 'Not provided'}",
+            f"<strong>Adults:</strong> {transfer.adults}",
+            f"<strong>Children:</strong> {transfer.children or 0}",
+            f"<strong>Luggage:</strong> {transfer.luggage}",
+        ])
+
+    return _booking_detail_lines(booking, route, extra_lines=extra)
+
+
+def send_reservation_to_admin(booking):
     subject = "New Reservation Submitted – Action Required"
     greeting = "Hello Admin"
     message = (
@@ -19,7 +63,7 @@ def send_reservation_to_admin():
         "completed and cleared."
         f"<br><br><a href='{ADMIN_DASHBOARD_URL}'>{ADMIN_DASHBOARD_URL}</a>"
     )
-    detail = "A new reservation is awaiting review and driver assignment."
+    detail = _reservation_detail_lines(booking)
 
     with suppress(Exception):
         _send_html_email(subject, greeting, message, detail, settings.EMAIL_FROM)
