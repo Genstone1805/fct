@@ -77,7 +77,6 @@ class LeadRetrieveView(RetrieveAPIView):
 class LeadCreateView(CreateAPIView):
     queryset = Leads.objects.all()
     serializer_class = LeadSerializer
-    permission_classes = [HasRoutesAPIKey]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
