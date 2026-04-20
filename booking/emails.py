@@ -59,12 +59,9 @@ def send_reservation_to_passenger(booking):
         f"for {booking.pickup_date.strftime('%B %d, %Y')} at "
         f"{booking.pickup_time.strftime('%I:%M %p')} from {route.from_location} "
         f"to {route.to_location}."
-        f"<br><br>To complete the confirmation, could you please provide us with "
-        f"the exact pickup address/location in {route.to_location}?"
-        f"<br><br>Once we have the location, your driver will be assigned and "
-        f"will be waiting for you on time."
-        f"<br><br>If you have any additional requirements (child seats, luggage "
-        f"details, etc.), feel free to let us know."
+        f"<br><br>Our team is now reviewing the details of your reservation."
+        f"<br><br>We will confirm your booking shortly and assign your driver "
+        f"as soon as everything is finalized."
     )
     detail = _booking_detail_lines(booking, route)
 

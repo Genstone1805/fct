@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.views import APIView
@@ -55,6 +56,100 @@ from fct.parsers import recursive_underscoreize
 from contextlib import suppress
 
 
+BOOKING_NESTED_FIELDS = {
+    'transfer_information': {'flight_number', 'adults', 'children', 'luggage'},
+    'passenger_information': {
+        'full_name',
+        'phone_number',
+        'email_address',
+        'additional_information',
+    },
+}
+
+
+def _coerce_request_data(raw_data):
+    """Convert request data into a plain dict while preserving scalar values."""
+    if hasattr(raw_data, 'lists'):
+        return {
+            key: values if len(values) > 1 else values[-1]
+            for key, values in raw_data.lists()
+        }
+    return dict(raw_data)
+
+
+def _extract_nested_key_path(key, prefix):
+    """Support nested multipart keys like field[subfield] and field.subfield."""
+    if key.startswith(f"{prefix}."):
+        path = key[len(prefix) + 1:].split('.')
+        return [segment for segment in path if segment]
+
+    bracket_pattern = re.compile(r'\[([^\[\]]+)\]')
+    bracket_prefix = f"{prefix}["
+    if key.startswith(bracket_prefix):
+        suffix = key[len(prefix):]
+        path = bracket_pattern.findall(suffix)
+        if path and suffix == ''.join(f'[{segment}]' for segment in path):
+            return path
+
+    return None
+
+
+def _assign_nested_value(payload, path, value):
+    current = payload
+    for segment in path[:-1]:
+        next_value = current.get(segment)
+        if not isinstance(next_value, dict):
+            next_value = {}
+            current[segment] = next_value
+        current = next_value
+
+    current[path[-1]] = value
+
+
+def _normalize_booking_request_data(raw_data):
+    """Accept JSON strings, bracket notation, dot notation, and flat aliases."""
+    data = recursive_underscoreize(_coerce_request_data(raw_data))
+
+    for field_name in BOOKING_NESTED_FIELDS:
+        if field_name in data and isinstance(data[field_name], str):
+            with suppress(Exception):
+                parsed = json.loads(data[field_name])
+                data[field_name] = recursive_underscoreize(parsed)
+
+    for field_name, nested_fields in BOOKING_NESTED_FIELDS.items():
+        nested_payload = data.get(field_name)
+        if not isinstance(nested_payload, dict):
+            nested_payload = {}
+
+        consumed_keys = []
+        for key, value in list(data.items()):
+            if key == field_name:
+                continue
+
+            key_path = _extract_nested_key_path(key, field_name)
+            if key_path:
+                _assign_nested_value(nested_payload, key_path, value)
+                consumed_keys.append(key)
+                continue
+
+            if key in nested_fields and key not in nested_payload:
+                nested_payload[key] = value
+                consumed_keys.append(key)
+
+        if nested_payload:
+            data[field_name] = nested_payload
+
+        for key in consumed_keys:
+            data.pop(key, None)
+
+    if 'route' in data and isinstance(data['route'], str):
+        with suppress(Exception):
+            route_obj = Route.objects.get(route_id=data['route'])
+            data['route'] = route_obj.pk
+
+    return data
+
+
 class BookingCreateView(CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingCreateSerializer
@@ -66,31 +161,7 @@ class BookingCreateView(CreateAPIView):
     def get_serializer(self, *args, **kwargs):
         """Parse JSON fields from multipart form data and convert route_id to pk."""
         if 'data' in kwargs:
-            raw_data = kwargs['data']
-            if hasattr(raw_data, 'dict'):
-                data: dict = raw_data.dict()
-            else:
-                data: dict = dict(raw_data)
-
-            # Convert camelCase keys to snake_case for all top-level fields
-            data = dict(recursive_underscoreize(data))
-
-            # Parse JSON string fields (now using snake_case keys)
-            for field in self.json_fields:
-                if field in data and isinstance(data[field], str):
-                    with suppress(Exception):
-                        parsed = json.loads(data[field])
-                        data[field] = recursive_underscoreize(parsed)
-
-
-            # Convert route_id (string) to route pk (integer)
-            if 'route' in data and isinstance(data['route'], str):
-                with suppress(Exception):
-                    route_obj = Route.objects.get(route_id=data['route'])
-                    data['route'] = route_obj.pk
-# Let serializer handle the validation error
-
-            kwargs['data'] = data
+            kwargs['data'] = _normalize_booking_request_data(kwargs['data'])
 
         return super().get_serializer(*args, **kwargs)
 
