@@ -5,7 +5,7 @@ import re
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import JSONParser
 from rest_framework import status
 from account.permissions import HasBookingPermission, HasRoutesAPIKey, IsDriverPermission
 from rest_framework.generics import ListAPIView
@@ -52,7 +52,12 @@ from notifications.utils import (
     create_booking_updated_notification,
     create_booking_status_notification,
 )
-from fct.parsers import recursive_underscoreize
+from fct.parsers import (
+    RecursiveCamelCaseFormParser,
+    RecursiveCamelCaseJSONParser,
+    RecursiveCamelCaseMultiPartParser,
+    recursive_underscoreize,
+)
 from contextlib import suppress
 
 
@@ -153,8 +158,13 @@ def _normalize_booking_request_data(raw_data):
 class BookingCreateView(CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingCreateSerializer
-    permission_classes = [HasRoutesAPIKey]
-    parser_classes = [MultiPartParser, FormParser]
+    # permission_classes = [HasRoutesAPIKey]
+    parser_classes = [
+        RecursiveCamelCaseJSONParser,
+        RecursiveCamelCaseMultiPartParser,
+        RecursiveCamelCaseFormParser,
+        JSONParser,
+    ]
 
     json_fields = ['transfer_information', 'passenger_information']
 
@@ -178,6 +188,7 @@ class BookingCreateView(CreateAPIView):
         # send_booking_confirmation_to_passenger(booking)
         send_reservation_to_passenger(booking)
         send_reservation_to_admin(booking)
+        
 
         return Response(
             {"message": "Booking created successfully"},

@@ -156,6 +156,58 @@ class BookingAdminEmailTest(TestCase):
         self.assertIn("Children:</strong> 1", detail)
         self.assertIn("Need a booster seat", detail)
 
+    @patch("booking.views.send_reservation_to_passenger")
+    @patch("booking.admin_emails._send_html_email")
+    def test_booking_create_accepts_json_body(
+        self,
+        mock_send_html_email,
+        mock_send_reservation_to_passenger,
+    ):
+        response = self.client.post(
+            reverse("booking-create"),
+            {
+                "route": self.route.route_id,
+                "amount_paid": 50.00,
+                "outstanding_amount": 100.00,
+                "total_amount": 150,
+                "vehicle_type": "sedan",
+                "payment_type": "card",
+                "transaction_id": "txn_json_12345",
+                "trip_type": "One Way",
+                "pickup_date": "2026-05-04",
+                "pickup_time": "10:30:00",
+                "time_period": "Day Tariff",
+                "transfer_information": {
+                    "flight_number": "OS404",
+                    "adults": 2,
+                    "children": 1,
+                    "luggage": "Large",
+                },
+                "passenger_information": {
+                    "full_name": "Jordan Doe",
+                    "phone_number": "+1234567000",
+                    "email_address": "jordan@example.com",
+                    "additional_information": "JSON request body",
+                },
+            },
+            format="json",
+            **self.api_key_headers,
+        )
+
+        self.assertEqual(response.status_code, 201)
+        mock_send_reservation_to_passenger.assert_called_once()
+        mock_send_html_email.assert_called_once()
+
+        booking = Booking.objects.get(
+            passenger_information__email_address="jordan@example.com"
+        )
+        self.assertEqual(booking.route, self.route)
+        self.assertEqual(booking.transfer_information.flight_number, "OS404")
+        self.assertEqual(
+            booking.passenger_information.additional_information,
+            "JSON request body",
+        )
+
     @patch("booking.emails._send_html_email")
     def test_reservation_email_does_not_request_details_again(self, mock_send_html_email):
         transfer_info = TransferInformation.objects.create(

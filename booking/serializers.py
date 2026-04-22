@@ -177,12 +177,13 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
         transfer_info = TransferInformation.objects.create(**transfer_data)
         passenger_info = PassengerDetail.objects.create(**passenger_data)
-
+        
         booking = Booking.objects.create(
             transfer_information=transfer_info,
             passenger_information=passenger_info,
             **validated_data
         )
+        
 
         return booking
 
